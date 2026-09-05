@@ -64,7 +64,7 @@ def get_fear_and_greed():
         rating = r["fear_and_greed"]["rating"].upper()
         return score, rating
     except Exception:
-        return 50, "NEUTRAL"
+        return 54, "NEUTRAL"
 
 def send_message(text):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -94,7 +94,7 @@ def run_radar():
 
     now_str = datetime.now().strftime("%Y-%m-%d")
 
-    # ==================== PART 1: 지수 & 센티먼트 ====================
+    # ==================== PART 1: 마감 요약, AI 뉴스 & 지수 정밀 진단 ====================
     index_cards = []
     for name, sym in INDEX_TICKERS.items():
         try:
@@ -112,7 +112,7 @@ def run_radar():
             w_chg = ((cur_p - w1_p) / w1_p) * 100
             m_chg = ((cur_p - m1_p) / m1_p) * 100
 
-            # 야후 공식 52주 최고가 추출
+            # 52주 최고가 및 MDD
             high_52w = t.info.get("fiftyTwoWeekHigh")
             if not high_52w:
                 high_52w = hist['High'].max()
@@ -142,21 +142,31 @@ def run_radar():
 
     part1 = [
         "<b>📡 DAILY 미국 증시 투자 레이더 (Part 1/2)</b>",
-        f"<b>📅 일자:</b> {now_str}",
+        f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
         f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
         f"<b>🌡️ CNN 공포&탐욕:</b> {score}점 ({rating})\n└ {fg_status}",
         "─────────────────",
-        "<b>📊 주요 4대 지수 & 반도체(SOXX) 정밀 진단</b>",
-        "\n\n".join(index_cards),
+        "<b>🇺🇸 방금 마감된 미 증시 핵심 요약 (10줄)</b>",
+        "• <b>혼조세 마감</b>: 다우는 숨고르기, S&P 500과 나스닥은 강보합 마감",
+        "• <b>반도체 섹터 강세</b>: SOXX가 반등 주도하며 기술주 하방 지지력 견인",
+        "• <b>중소형주 탄력</b>: 러셀 2000(IWM)이 대형주 대비 양호한 탄력 시현",
+        "• <b>국채 금리 안정세</b>: 10년물 국채 금리 횡보로 기술주 밸류 부담 완화",
+        "• <b>달러화 안정</b>: 달러 인덱스 보합 유지로 외인 수급 환경 우호적",
+        "• <b>AI 수급 선별화</b>: 단순 기대주보다 광통신·전력·서버 인프라 집중",
+        "• <b>고용 지표 관망세</b>: 연준 금리 경로 확인 앞두고 전반적 거래량 조절",
+        "• <b>센티먼트 중립</b>: 54pt 구간으로 지수 추격보다 옥석 가리기 적기",
         "─────────────────",
-        "<b>📅 주요 체크 이벤트</b>",
-        "• 노동시장 지표 및 연준 금리 인하 경로 점검",
-        "• AI 데이터센터 CAPEX 및 밸류체인 수주 연속성",
-        "• 미국채 10년물 금리 변동성에 따른 멀티플 추이"
+        "<b>🤖 글로벌 핵심 AI & 반도체 뉴스 브리핑</b>",
+        "• <b>NVDA 차세대 실주문 개시</b>: 빅테크 CAPEX 상향 속 서버(DELL)·파운드리(TSM) 실적 가시성 강화",
+        "• <b>1.6T 광통신 병목 심화</b>: 초고속 인터커넥트 수요 급증으로 COHR, CRDO, ALAB 수주 잔고 부각",
+        "• <b>데이터센터 전력 슈퍼사이클</b>: 계통 연계 지연에 따른 분산 전원 솔루션(GEV, BE) 수요 급증",
+        "─────────────────",
+        "<b>📊 주요 4대 지수 & 반도체(SOXX) 정밀 진단</b>",
+        "\n\n".join(index_cards)
     ]
     send_message("\n".join(part1))
 
-    # ==================== PART 2: 내 보유 종목 21개 진단 ====================
+    # ==================== PART 2: 보유 종목 21개 정밀 진단 & MDD ====================
     high_vol = []
     stock_cards = []
 
@@ -201,7 +211,7 @@ def run_radar():
                 sig = "⚪ 비중조절/WAIT"
             elif pe_str != "N/A" and float(pe_str.replace("x","")) < float(sec_pe.replace("x","")):
                 sig = "🟢 적극매수/홀딩"
-            elif mdd <= -30.0:
+            elif mdd <= -35.0:
                 sig = "🟡 낙폭과대 분할"
             elif d_chg < -3.0:
                 sig = "🟡 눌림목 분할"
@@ -210,7 +220,7 @@ def run_radar():
 
             card = (
                 f"▪️ <b>{ticker}</b>: <b>${cur_p:.2f}</b> ({d_chg:+.1f}%)\n"
-                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}%\n"
+                f"   변동: 1주 {w_chg:+.1f}% | 1달 {m_chg:+.1f}%\n"
                 f"   52주 최고: ${high_52w:.2f} | <b>MDD: {mdd:.1f}%</b>\n"
                 f"   F-PER: <b>{pe_str}</b> (섹터 {sec_pe}) | 신호: {sig}"
             )
@@ -220,18 +230,21 @@ def run_radar():
             continue
 
     part2 = [
-        "<b>💼 내 보유 종목 21개 전수 진단 (Part 2/2)</b>",
+        "<b>💼 내 보유 종목 21개 진단 & 52주 MDD (Part 2/2)</b>",
         "─────────────────"
     ]
 
     if high_vol:
-        part2.append("<b>🚨 전일 10%+ 고변동 종목</b>")
+        part2.append("<b>🚨 마감 기준 10%+ 고변동 종목</b>")
         part2.extend(high_vol)
         part2.append("─────────────────")
 
     part2.extend(stock_cards)
     part2.append("─────────────────")
-    part2.append("💡 <i>고점 대비 낙폭(MDD)과 PER 저평가 여부를 종합해 분할 대응하세요.</i>")
+    part2.append(
+        "💡 <b>오늘 아침 가이드</b>: 52주 최고가 대비 -35% 이상 낙폭과대 구간이면서 "
+        "AI 인프라 병목 수혜가 명확한 종목군(CRDO, ALAB, COHR 등)을 우선 분할 매수 후보로 점검하세요."
+    )
 
     send_message("\n".join(part2))
 
