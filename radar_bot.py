@@ -2,12 +2,11 @@ import os
 import requests
 import pandas as pd
 import yfinance as yf
-from datetime import datetime
+from datetime import datetime, timedelta
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 
-# 1. 지수 티커
 INDEX_TICKERS = {
     "S&P 500 (SPY)": "SPY",
     "나스닥 100 (QQQ)": "QQQ",
@@ -19,7 +18,6 @@ INDEX_TICKERS = {
     "코스닥 (KOSDAQ)": "^KQ11"
 }
 
-# 2. 매크로 & 환율/금리 (엔/달러 -> 원/엔 100엔 기준 교체)
 MACRO_TICKERS = {
     "미국채 10년물 금리": "^TNX",
     "달러 인덱스 (DXY)": "DX-Y.NYB",
@@ -27,7 +25,6 @@ MACRO_TICKERS = {
     "원/엔 환율 (100엔)": "JPYKRW=X"
 }
 
-# 3. 가상자산
 CRYPTO_TICKERS = {
     "비트코인 (BTC)": "BTC-USD",
     "이더리움 (ETH)": "ETH-USD",
@@ -35,10 +32,8 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
-# 4. 빅테크 Top 10 감시
 BIGTECH_TICKERS = ["NVDA", "MSFT", "AAPL", "AMZN", "GOOGL", "META", "TSLA", "AVGO"]
 
-# 5. 내 포트폴리오 (미국 23개 + 한국 2개)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
@@ -73,6 +68,51 @@ SECTOR_PER_MAP = {
     "005930.KS": ("12.5x", "국내반도체"),
     "000660.KS": ("9.8x", "국내반도체")
 }
+
+def get_weekly_calendar():
+    """월~금 캘린더 생성"""
+    today = datetime.now()
+    # 이번 주 월요일 계산
+    start_monday = today - timedelta(days=today.weekday())
+    
+    cal_days = []
+    events_preset = [
+        {
+            "dow": "월", "day_offset": 0,
+            "macro": "⚪ 글로벌 주요 제조업/서비스업 지수 및 단기 유동성 동향 (중요도: 보통)",
+            "earnings": "장전: 리테일/소비재(KR 등) | 장후: 중소형 에너지"
+        },
+        {
+            "dow": "화", "day_offset": 1,
+            "macro": "🟡 21:30 미 8월 소매판매(Retail Sales) & 산업생산 (중요도: 상 - 경기침체 vs 소비 건전성 가늠)",
+            "earnings": "장전: COE 등 교육/서비스 | 장후: 레나(LEN) 등 주택건설주"
+        },
+        {
+            "dow": "수", "day_offset": 2,
+            "macro": "🔴 FOMC 회의 1일차 개막, 영국/유로존 소비자물가(CPI) (중요도: 최상)",
+            "earnings": "장전: 밸류체인 부품주 | 장후: 소프트웨어/플랫폼"
+        },
+        {
+            "dow": "목", "day_offset": 3,
+            "macro": "🔴 03:00 미 FOMC 기준금리 결정, 경제전망(SEP) 및 파월 의장 기자회견, 21:30 신규 실업수당청구건수 (중요도: 최상)",
+            "earnings": "장전: 페덱스(FDX, 글로벌 경기 풍향계) | 장후: 나이키 등 소비재"
+        },
+        {
+            "dow": "금", "day_offset": 4,
+            "macro": "🔴 BOJ(일본은행) 금융정책결정회의(엔화 변동성/엔캐리 청산 촉각), 미 선물옵션 동시만기일 (중요도: 최상)",
+            "earnings": "장전: 금융/방산 부품주 실적 마감"
+        }
+    ]
+
+    for item in events_preset:
+        d = start_monday + timedelta(days=item["day_offset"])
+        d_str = d.strftime("%m/%d")
+        cal_days.append({
+            "date_label": f"{d_str} ({item['dow']})",
+            "macro": item["macro"],
+            "earnings": item["earnings"]
+        })
+    return cal_days
 
 def calculate_rsi(series, period=14):
     delta = series.diff()
@@ -153,9 +193,25 @@ def send_message(text):
         pass
 
 def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, bigtech_issues, index_data_list, stock_data_list, high_vol):
+                       macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol):
     os.makedirs("docs", exist_ok=True)
 
+    # 캘린더 카드 HTML
+    cal_html = ""
+    for c in weekly_cal:
+        cal_html += f"""
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">{c['date_label']}</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> {c['macro']}</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> {c['earnings']}</div>
+            </div>
+        </div>
+        """
+
+    # 지수 카드
     idx_cards_html = ""
     for d in index_data_list:
         chg_color = "#ef4444" if d['d_chg'] < 0 else "#22c55e"
@@ -178,6 +234,7 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         </div>
         """
 
+    # 매크로 카드
     macro_cards_html = ""
     for m in macro_data:
         chg_color = "#ef4444" if m['d_chg'] < 0 else "#22c55e"
@@ -194,6 +251,7 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         </div>
         """
 
+    # 코인 카드
     crypto_cards_html = ""
     for c in crypto_data:
         chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
@@ -205,11 +263,12 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
             </div>
             <div class="flex-between mt-1">
                 <span style="color: {chg_color}; font-weight: bold;">{c['d_chg']:+.2f}%</span>
-                <span class="text-sub">24시간 변동</span>
+                <span class="text-sub">24H 변동</span>
             </div>
         </div>
         """
 
+    # 보유 종목 행
     rows_html = ""
     for s in stock_data_list:
         chg_color = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
@@ -257,7 +316,10 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         .date {{ color: var(--text-sub); font-size: 12px; margin-top: 2px; }}
         .signal-box {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; }}
         .badge-core {{ display: inline-block; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 8px; background: #23314e; margin-top: 4px; }}
-        .card, .macro-card, .crypto-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }}
+        .card, .macro-card, .crypto-card, .cal-card {{ background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }}
+        .cal-header {{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }}
+        .cal-date {{ font-size: 13px; font-weight: 800; color: var(--accent); background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px; }}
+        .cal-line {{ font-size: 12px; color: #cbd5e1; line-height: 1.4; }}
         .flex-between {{ display: flex; justify-content: space-between; align-items: center; }}
         .card-title {{ font-size: 14px; font-weight: bold; }}
         .price {{ font-size: 15px; font-weight: 800; }}
@@ -302,6 +364,9 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         <ul>{summary_html}</ul>
     </div>
 
+    <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
+    {cal_html}
+
     <div class="section-title">💵 환율 & 금리 (Macro FX/Rates)</div>
     <div class="grid-2">
         {macro_cards_html}
@@ -315,15 +380,6 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
     <div class="section-title">⚡ 나스닥 빅테크 TOP 10 핵심 이슈</div>
     <div class="card">
         <ul>{bigtech_html}</ul>
-    </div>
-
-    <div class="section-title">📅 이주의 주요 경제 일정 & 어닝 체크</div>
-    <div class="card">
-        <ul>
-            <li><b>FOMC & 통화정책</b>: 연준 위원 발언 및 점도표/금리인하 기대치 추적</li>
-            <li><b>물가/고용 지표</b>: CPI/PCE 물가지수 및 신규 실업수당 청구건수 점검</li>
-            <li><b>주요 테크 실적</b>: 빅테크 CAPEX 가이던스 및 반도체 밸류체인 실적 연속성 확인</li>
-        </ul>
     </div>
 
     <div class="section-title">📊 글로벌 8대 주요 지수 정밀 진단</div>
@@ -426,7 +482,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 2. 매크로 & 환율 수집 (원/엔 환율 100엔 기준 환산 로직 반영)
+    # 2. 매크로 & 환율 수집 (원/엔 환율 100엔 환산)
     macro_data = []
     macro_telegram = []
     for name, sym in MACRO_TICKERS.items():
@@ -447,7 +503,7 @@ def run_radar():
                 comment = "달러 약세 (우호적)" if d_chg < 0 else "달러 강세 (신흥국 부담)"
             elif sym == "USDKRW=X":
                 cur_str = f"{cur_p:,.1f}원"
-                comment = "원화 절상" if d_chg < 0 else "환율 상승 (외인 이탈 유의)"
+                comment = "원화 절상" if d_chg < 0 else "환율 상승 (외인 유의)"
             elif sym == "JPYKRW=X":
                 val_100yen = cur_p * 100
                 cur_str = f"{val_100yen:,.1f}원"
@@ -479,8 +535,13 @@ def run_radar():
         except Exception:
             continue
 
-    # 4. 빅테크 이슈
+    # 4. 빅테크 이슈 & 캘린더
     bigtech_issues = get_bigtech_issues()
+    weekly_cal = get_weekly_calendar()
+
+    cal_telegram = []
+    for c in weekly_cal:
+        cal_telegram.append(f"▪️ <b>[{c['date_label']}]</b>\n  • {c['macro']}\n  • 🏢 {c['earnings']}")
 
     # 동적 10줄 요약
     spy_c = index_changes.get("SPY", 0.0)
@@ -566,14 +627,19 @@ def run_radar():
         except Exception:
             continue
 
+    # HTML 웹 대시보드 자동 생성 (캘린더 포함)
     generate_full_html(now_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, bigtech_issues, index_data_list, stock_data_list, high_vol)
+                       macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol)
 
+    # 텔레그램 Part 1 (캘린더 포함)
     part1 = [
         "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
         f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
         f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
         f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
+        "─────────────────",
+        "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
+        "\n".join(cal_telegram),
         "─────────────────",
         "<b>💵 환율 & 금리 (Macro FX/Rates)</b>",
         "\n".join(macro_telegram),
@@ -584,11 +650,12 @@ def run_radar():
         "<b>⚡ 나스닥 빅테크 실시간 이슈</b>",
         "\n".join(bigtech_issues),
         "─────────────────",
-        "<b>📊 주요 8대 지수 (VIX, 코스피/코스닥 포함)</b>",
+        "<b>📊 주요 8대 지수 정밀 진단</b>",
         "\n\n".join(index_cards)
     ]
     send_message("\n".join(part1))
 
+    # 텔레그램 Part 2 (보유 25개 종목)
     part2 = [
         "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/2)</b>",
         "─────────────────"
