@@ -1,9 +1,14 @@
-name: Daily Stock Radar
+name: Daily Stock Radar & Web Dashboard
 
 on:
   schedule:
     - cron: '0 22 * * 1-5'
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
   run-radar:
@@ -18,10 +23,16 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install yfinance requests
+        run: pip install yfinance requests pandas
 
-      - name: Run Script
+      - name: Run Radar & Generate HTML
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python radar_bot.py
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
