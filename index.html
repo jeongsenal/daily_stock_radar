@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Daily Stock Radar</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --accent: #38bdf8;
+            --green: #22c55e;
+            --red: #ef4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); padding: 16px; font-size: 14px; line-height: 1.5; }
+        header { margin-bottom: 20px; }
+        h1 { font-size: 20px; font-weight: 800; color: var(--accent); }
+        .date { color: var(--text-sub); font-size: 12px; margin-top: 2px; }
+        .signal-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
+        .badge-core { display: inline-block; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 8px; background: #334155; margin-top: 4px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 15px; font-weight: bold; }
+        .price { font-size: 16px; font-weight: 800; }
+        .text-sub { color: var(--text-sub); font-size: 12px; }
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .pt-2 { padding-top: 8px; }
+        .border-t { border-top: 1px solid var(--border); }
+        .badge-mdd { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .section-title { font-size: 16px; font-weight: 700; margin: 24px 0 10px; display: flex; align-items: center; gap: 6px; }
+        ul { padding-left: 18px; margin-top: 6px; }
+        li { margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }
+        .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); }
+        table { width: 100%; border-collapse: collapse; min-width: 520px; font-size: 13px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #1e293b; color: var(--text-sub); font-size: 12px; }
+        .bold { font-weight: bold; }
+        .signal-tag { font-size: 11px; padding: 2px 6px; background: #334155; border-radius: 4px; white-space: nowrap; }
+        .high-vol-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+        .high-vol-box h4 { color: #f87171; font-size: 13px; margin-bottom: 6px; }
+        .vol-item { font-size: 12px; margin-bottom: 2px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>📡 DAILY 미국 증시 투자 레이더</h1>
+        <div class="date">2026-09-12 (한국 아침 07:00 마감 브리핑)</div>
+    </header>
+
+    <div class="signal-box">
+        <div>오늘의 핵심 시장 신호</div>
+        <div class="badge-core">🟡 선별 분할매수</div>
+        <div class="mt-2 text-sub">CNN Fear & Greed: <b>33점 (FEAR)</b> | 👀 [관심 알림 - 저점 매수 모니터링]</div>
+    </div>
+
+    <div class='high-vol-box'><h4>🚨 마감 기준 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>DELL</b>: +12.0% 급등 🚀 (현재가 $567.29)</div></div>
+
+    <div class="section-title">🇺🇸 미 증시 마감 핵심 브리핑</div>
+    <div class="card">
+        <ul><li><b>S&P 500(SPY)</b>: +0.85% 상승 마감</li><li><b>나스닥 100(QQQ)</b>: +0.87% 마감으로 기술주 견조세 유지</li><li><b>반도체(SOXX)</b>: +1.86% 마감 (섹터 주도력 확대)</li><li><b>러셀 2000(IWM)</b>: +0.41% 기록으로 중소형주 수급 유입</li><li><b>다우존스(DIA)</b>: +0.97% 마감으로 가치주 흐름 반영</li><li><b>시장 센티먼트</b>: CNN 지표 33점 (FEAR) 구간 위치</li><li><b>반도체 vs 대형주</b>: 상대 강도 스프레드 +1.01%p 시현</li></ul>
+    </div>
+
+    <div class="section-title">🤖 AI & 반도체 실시간 뉴스</div>
+    <div class="card">
+        <ul><li><b>[AI HW]</b> 하이퍼스케일러 데이터센터 인프라 수주 잔고 지속 확인</li><li><b>[반도체]</b> 차세대 AI 패키징 및 고속 인터커넥트 인터페이스 채택 가속</li><li><b>[전력망]</b> 데이터센터 가동 전력 확보 및 신규 인프라 증설 모멘텀 유지</li></ul>
+    </div>
+
+    <div class="section-title">📊 주요 지수 & SOXX 정밀 진단</div>
+    
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">S&P 500 (SPY)</span>
+                <span class="price">$764.29</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.85%</span>
+                <span class="text-sub">1주 -0.77% | 1달 -1.75%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고 $779.37</span>
+                <span class="badge-mdd">MDD -1.93%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>48.6 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">나스닥 100 (QQQ)</span>
+                <span class="price">$714.88</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.87%</span>
+                <span class="text-sub">1주 -0.57% | 1달 -2.35%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고 $748.65</span>
+                <span class="badge-mdd">MDD -4.51%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>51.1 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">다우존스 (DIA)</span>
+                <span class="price">$525.79</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.97%</span>
+                <span class="text-sub">1주 -1.55% | 1달 -2.17%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고 $546.75</span>
+                <span class="badge-mdd">MDD -3.83%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>42.5 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">러셀 2000 (IWM)</span>
+                <span class="price">$288.89</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.41%</span>
+                <span class="text-sub">1주 -2.41% | 1달 -4.81%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고 $305.18</span>
+                <span class="badge-mdd">MDD -5.34%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>30.7 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">반도체 (SOXX)</span>
+                <span class="price">$527.07</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+1.86%</span>
+                <span class="text-sub">1주 +1.39% | 1달 -4.30%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고 $655.95</span>
+                <span class="badge-mdd">MDD -19.65%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>53.0 (중립)</b></div>
+        </div>
+        
+
+    <div class="section-title">💼 내 보유 종목 21개 진단표</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>티커</th>
+                    <th>현재가</th>
+                    <th>전일대비</th>
+                    <th>52주 MDD</th>
+                    <th>F-PER</th>
+                    <th>대응신호</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+        <tr>
+            <td class="bold">DELL</td>
+            <td>$567.29</td>
+            <td style="color: #22c55e; font-weight: bold;">+11.98%</td>
+            <td><span class="badge-mdd">-0.1%</span></td>
+            <td>19.8x <span class="text-sub">(22.0x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">SOXL</td>
+            <td>$121.82</td>
+            <td style="color: #22c55e; font-weight: bold;">+5.23%</td>
+            <td><span class="badge-mdd">-59.7%</span></td>
+            <td>N/A <span class="text-sub">(—)</span></td>
+            <td><span class="signal-tag">⚪ 비중조절/WAIT</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">GEV</td>
+            <td>$957.27</td>
+            <td style="color: #22c55e; font-weight: bold;">+3.61%</td>
+            <td><span class="badge-mdd">-20.0%</span></td>
+            <td>37.8x <span class="text-sub">(20.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">HWM</td>
+            <td>$229.61</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.75%</td>
+            <td><span class="badge-mdd">-25.9%</span></td>
+            <td>35.6x <span class="text-sub">(21.0x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">INTC</td>
+            <td>$102.94</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.61%</td>
+            <td><span class="badge-mdd">-27.7%</span></td>
+            <td>50.3x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">IONQ</td>
+            <td>$36.75</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.24%</td>
+            <td><span class="badge-mdd">-56.6%</span></td>
+            <td>N/A <span class="text-sub">(22.0x)</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">MRVL</td>
+            <td>$236.10</td>
+            <td style="color: #22c55e; font-weight: bold;">+4.03%</td>
+            <td><span class="badge-mdd">-28.4%</span></td>
+            <td>35.1x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">MU</td>
+            <td>$975.26</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.22%</td>
+            <td><span class="badge-mdd">-22.3%</span></td>
+            <td>6.2x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">NVDA</td>
+            <td>$218.29</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.03%</td>
+            <td><span class="badge-mdd">-7.7%</span></td>
+            <td>14.0x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">PLTR</td>
+            <td>$167.23</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.83%</td>
+            <td><span class="badge-mdd">-19.4%</span></td>
+            <td>71.9x <span class="text-sub">(25.0x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">RKLB</td>
+            <td>$62.95</td>
+            <td style="color: #22c55e; font-weight: bold;">+1.60%</td>
+            <td><span class="badge-mdd">-58.3%</span></td>
+            <td>1381.7x <span class="text-sub">(21.0x)</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">SNDK</td>
+            <td>$1633.35</td>
+            <td style="color: #ef4444; font-weight: bold;">-3.50%</td>
+            <td><span class="badge-mdd">-30.6%</span></td>
+            <td>6.2x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">TSM</td>
+            <td>$433.24</td>
+            <td style="color: #22c55e; font-weight: bold;">+1.22%</td>
+            <td><span class="badge-mdd">-9.6%</span></td>
+            <td>19.8x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">ABCL</td>
+            <td>$10.89</td>
+            <td style="color: #22c55e; font-weight: bold;">+4.11%</td>
+            <td><span class="badge-mdd">-13.4%</span></td>
+            <td>N/A <span class="text-sub">(16.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">CRDO</td>
+            <td>$162.95</td>
+            <td style="color: #22c55e; font-weight: bold;">+1.65%</td>
+            <td><span class="badge-mdd">-47.2%</span></td>
+            <td>16.9x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">NBIS</td>
+            <td>$224.55</td>
+            <td style="color: #ef4444; font-weight: bold;">-1.56%</td>
+            <td><span class="badge-mdd">-25.1%</span></td>
+            <td>N/A <span class="text-sub">(22.0x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">AMD</td>
+            <td>$516.13</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.49%</td>
+            <td><span class="badge-mdd">-11.7%</span></td>
+            <td>33.3x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">AMAT</td>
+            <td>$456.49</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.55%</td>
+            <td><span class="badge-mdd">-38.3%</span></td>
+            <td>24.7x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">ALAB</td>
+            <td>$291.22</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.35%</td>
+            <td><span class="badge-mdd">-41.7%</span></td>
+            <td>45.5x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">BE</td>
+            <td>$275.75</td>
+            <td style="color: #22c55e; font-weight: bold;">+6.68%</td>
+            <td><span class="badge-mdd">-21.5%</span></td>
+            <td>56.0x <span class="text-sub">(20.5x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">COHR</td>
+            <td>$305.37</td>
+            <td style="color: #22c55e; font-weight: bold;">+4.16%</td>
+            <td><span class="badge-mdd">-30.6%</span></td>
+            <td>21.9x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+        </tr>
+        
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-2 text-sub" style="text-align: right;">※ 좌우로 스크롤하여 전체 항목을 볼 수 있습니다.</div>
+</body>
+</html>
