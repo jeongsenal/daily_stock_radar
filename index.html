@@ -3,52 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Daily Stock Radar</title>
+    <title>Global Market Radar</title>
     <style>
         :root {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --border: #334155;
-            --text-main: #f8fafc;
+            --bg: #0b0f19;
+            --card-bg: #151d30;
+            --border: #23314e;
+            --text-main: #f1f5f9;
             --text-sub: #94a3b8;
             --accent: #38bdf8;
             --green: #22c55e;
             --red: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg); color: var(--text-main); padding: 16px; font-size: 14px; line-height: 1.5; }
-        header { margin-bottom: 20px; }
-        h1 { font-size: 20px; font-weight: 800; color: var(--accent); }
+        body { background-color: var(--bg); color: var(--text-main); padding: 14px; font-size: 14px; line-height: 1.5; }
+        header { margin-bottom: 16px; }
+        h1 { font-size: 19px; font-weight: 800; color: var(--accent); }
         .date { color: var(--text-sub); font-size: 12px; margin-top: 2px; }
-        .signal-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
-        .badge-core { display: inline-block; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 8px; background: #334155; margin-top: 4px; }
-        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+        .signal-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
+        .badge-core { display: inline-block; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 8px; background: #23314e; margin-top: 4px; }
+        .card, .macro-card, .crypto-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-size: 15px; font-weight: bold; }
-        .price { font-size: 16px; font-weight: 800; }
+        .card-title { font-size: 14px; font-weight: bold; }
+        .price { font-size: 15px; font-weight: 800; }
         .text-sub { color: var(--text-sub); font-size: 12px; }
         .mt-1 { margin-top: 4px; }
         .mt-2 { margin-top: 8px; }
         .pt-2 { padding-top: 8px; }
         .border-t { border-top: 1px solid var(--border); }
         .badge-mdd { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .section-title { font-size: 16px; font-weight: 700; margin: 24px 0 10px; display: flex; align-items: center; gap: 6px; }
-        ul { padding-left: 18px; margin-top: 6px; }
+        .section-title { font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }
+        ul { padding-left: 18px; }
         li { margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); }
-        table { width: 100%; border-collapse: collapse; min-width: 520px; font-size: 13px; }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-        th { background: #1e293b; color: var(--text-sub); font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; min-width: 540px; font-size: 13px; }
+        th, td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }
         .bold { font-weight: bold; }
-        .signal-tag { font-size: 11px; padding: 2px 6px; background: #334155; border-radius: 4px; white-space: nowrap; }
-        .high-vol-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 16px; }
+        .signal-tag { font-size: 11px; padding: 2px 6px; background: #23314e; border-radius: 4px; white-space: nowrap; }
+        .high-vol-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
         .high-vol-box h4 { color: #f87171; font-size: 13px; margin-bottom: 6px; }
         .vol-item { font-size: 12px; margin-bottom: 2px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        @media (max-width: 480px) { .grid-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
     <header>
-        <h1>📡 DAILY 미국 증시 투자 레이더</h1>
+        <h1>📡 GLOBAL 증시 & 자산 투자 레이더</h1>
         <div class="date">2026-09-12 (한국 아침 07:00 마감 브리핑)</div>
     </header>
 
@@ -58,19 +60,126 @@
         <div class="mt-2 text-sub">CNN Fear & Greed: <b>33점 (FEAR)</b> | 👀 [관심 알림 - 저점 매수 모니터링]</div>
     </div>
 
-    <div class='high-vol-box'><h4>🚨 마감 기준 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>DELL</b>: +12.0% 급등 🚀 (현재가 $567.29)</div></div>
+    <div class='high-vol-box'><h4>🚨 마감 기준 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>DELL</b>: +12.0% 급등 🚀</div></div>
 
-    <div class="section-title">🇺🇸 미 증시 마감 핵심 브리핑</div>
+    <div class="section-title">🇺🇸 전일 미 증시 핵심 브리핑</div>
     <div class="card">
-        <ul><li><b>S&P 500(SPY)</b>: +0.85% 상승 마감</li><li><b>나스닥 100(QQQ)</b>: +0.87% 마감으로 기술주 견조세 유지</li><li><b>반도체(SOXX)</b>: +1.86% 마감 (섹터 주도력 확대)</li><li><b>러셀 2000(IWM)</b>: +0.41% 기록으로 중소형주 수급 유입</li><li><b>다우존스(DIA)</b>: +0.97% 마감으로 가치주 흐름 반영</li><li><b>시장 센티먼트</b>: CNN 지표 33점 (FEAR) 구간 위치</li><li><b>반도체 vs 대형주</b>: 상대 강도 스프레드 +1.01%p 시현</li></ul>
+        <ul><li><b>S&P 500(SPY)</b>: +0.85% 마감 (상승)</li><li><b>나스닥 100(QQQ)</b>: +0.87% 마감 (대형 기술주 견조)</li><li><b>반도체(SOXX)</b>: +1.86% 시현 (AI 하드웨어 주도)</li><li><b>VIX 변동성</b>: 전일대비 -11.21% 변동 기록</li><li><b>CNN 공탐지수</b>: 33pt (FEAR) 중립·경계선 위치</li><li><b>자산 대응</b>: 52주 MDD 및 F-PER 기준 저평가 우량주 분할 접근</li></ul>
     </div>
 
-    <div class="section-title">🤖 AI & 반도체 실시간 뉴스</div>
-    <div class="card">
-        <ul><li><b>[AI HW]</b> 하이퍼스케일러 데이터센터 인프라 수주 잔고 지속 확인</li><li><b>[반도체]</b> 차세대 AI 패키징 및 고속 인터커넥트 인터페이스 채택 가속</li><li><b>[전력망]</b> 데이터센터 가동 전력 확보 및 신규 인프라 증설 모멘텀 유지</li></ul>
+    <div class="section-title">💵 환율 & 금리 (Macro FX/Rates)</div>
+    <div class="grid-2">
+        
+        <div class="macro-card">
+            <div class="flex-between">
+                <span class="bold">미국채 10년물 금리</span>
+                <span class="price">4.975%</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.63%</span>
+                <span class="text-sub">금리 상승 압력</span>
+            </div>
+        </div>
+        
+        <div class="macro-card">
+            <div class="flex-between">
+                <span class="bold">달러 인덱스 (DXY)</span>
+                <span class="price">99.12pt</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.03%</span>
+                <span class="text-sub">달러 강세 (신흥국 부담)</span>
+            </div>
+        </div>
+        
+        <div class="macro-card">
+            <div class="flex-between">
+                <span class="bold">원/달러 환율 (KRW)</span>
+                <span class="price">1,341.1원</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-0.53%</span>
+                <span class="text-sub">원화 절상</span>
+            </div>
+        </div>
+        
+        <div class="macro-card">
+            <div class="flex-between">
+                <span class="bold">원/엔 환율 (100엔)</span>
+                <span class="price">871.0원</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-0.09%</span>
+                <span class="text-sub">엔저 지속/원화 강세</span>
+            </div>
+        </div>
+        
     </div>
 
-    <div class="section-title">📊 주요 지수 & SOXX 정밀 진단</div>
+    <div class="section-title">🪙 가상자산 24H 시황</div>
+    <div class="grid-2">
+        
+        <div class="crypto-card">
+            <div class="flex-between">
+                <span class="bold">비트코인 (BTC)</span>
+                <span class="price">$77,282.68</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.14%</span>
+                <span class="text-sub">24시간 변동</span>
+            </div>
+        </div>
+        
+        <div class="crypto-card">
+            <div class="flex-between">
+                <span class="bold">이더리움 (ETH)</span>
+                <span class="price">$2,528.67</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.55%</span>
+                <span class="text-sub">24시간 변동</span>
+            </div>
+        </div>
+        
+        <div class="crypto-card">
+            <div class="flex-between">
+                <span class="bold">리플 (XRP)</span>
+                <span class="price">$1.37</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #22c55e; font-weight: bold;">+0.69%</span>
+                <span class="text-sub">24시간 변동</span>
+            </div>
+        </div>
+        
+        <div class="crypto-card">
+            <div class="flex-between">
+                <span class="bold">솔라나 (SOL)</span>
+                <span class="price">$101.66</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-0.72%</span>
+                <span class="text-sub">24시간 변동</span>
+            </div>
+        </div>
+        
+    </div>
+
+    <div class="section-title">⚡ 나스닥 빅테크 TOP 10 핵심 이슈</div>
+    <div class="card">
+        <ul><li><b>[NVDA/MSFT]</b> AI 데이터센터 차세대 가속기 주문량 확대 지속</li><li><b>[AAPL/GOOGL]</b> 온디바이스 AI 생태계 및 검색/클라우드 수익성 경쟁 심화</li><li><b>[TSLA]</b> 자율주행 및 FSD 업데이트 관련 시장 모멘텀 점검</li></ul>
+    </div>
+
+    <div class="section-title">📅 이주의 주요 경제 일정 & 어닝 체크</div>
+    <div class="card">
+        <ul>
+            <li><b>FOMC & 통화정책</b>: 연준 위원 발언 및 점도표/금리인하 기대치 추적</li>
+            <li><b>물가/고용 지표</b>: CPI/PCE 물가지수 및 신규 실업수당 청구건수 점검</li>
+            <li><b>주요 테크 실적</b>: 빅테크 CAPEX 가이던스 및 반도체 밸류체인 실적 연속성 확인</li>
+        </ul>
+    </div>
+
+    <div class="section-title">📊 글로벌 8대 주요 지수 정밀 진단</div>
     
         <div class="card">
             <div class="flex-between">
@@ -82,7 +191,7 @@
                 <span class="text-sub">1주 -0.77% | 1달 -1.75%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="text-sub">52주 최고 $779.37</span>
+                <span class="text-sub">52주 최고: $779.37</span>
                 <span class="badge-mdd">MDD -1.93%</span>
             </div>
             <div class="mt-1 text-sub">RSI(14): <b>48.6 (중립)</b></div>
@@ -98,7 +207,7 @@
                 <span class="text-sub">1주 -0.57% | 1달 -2.35%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="text-sub">52주 최고 $748.65</span>
+                <span class="text-sub">52주 최고: $748.65</span>
                 <span class="badge-mdd">MDD -4.51%</span>
             </div>
             <div class="mt-1 text-sub">RSI(14): <b>51.1 (중립)</b></div>
@@ -114,7 +223,7 @@
                 <span class="text-sub">1주 -1.55% | 1달 -2.17%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="text-sub">52주 최고 $546.75</span>
+                <span class="text-sub">52주 최고: $546.75</span>
                 <span class="badge-mdd">MDD -3.83%</span>
             </div>
             <div class="mt-1 text-sub">RSI(14): <b>42.5 (중립)</b></div>
@@ -130,7 +239,7 @@
                 <span class="text-sub">1주 -2.41% | 1달 -4.81%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="text-sub">52주 최고 $305.18</span>
+                <span class="text-sub">52주 최고: $305.18</span>
                 <span class="badge-mdd">MDD -5.34%</span>
             </div>
             <div class="mt-1 text-sub">RSI(14): <b>30.7 (중립)</b></div>
@@ -146,24 +255,72 @@
                 <span class="text-sub">1주 +1.39% | 1달 -4.30%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="text-sub">52주 최고 $655.95</span>
+                <span class="text-sub">52주 최고: $655.95</span>
                 <span class="badge-mdd">MDD -19.65%</span>
             </div>
             <div class="mt-1 text-sub">RSI(14): <b>53.0 (중립)</b></div>
         </div>
         
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">VIX 변동성</span>
+                <span class="price">pt15.84</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-11.21%</span>
+                <span class="text-sub">1주 +3.53% | 1달 +11.16%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고: pt35.30</span>
+                <span class="badge-mdd">MDD -55.13%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>50.0 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">코스피 (KOSPI)</span>
+                <span class="price">pt6909.91</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-1.76%</span>
+                <span class="text-sub">1주 -1.22% | 1달 +1.42%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고: pt9385.59</span>
+                <span class="badge-mdd">MDD -26.38%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>57.8 (중립)</b></div>
+        </div>
+        
+        <div class="card">
+            <div class="flex-between">
+                <span class="card-title">코스닥 (KOSDAQ)</span>
+                <span class="price">pt820.64</span>
+            </div>
+            <div class="flex-between mt-1">
+                <span style="color: #ef4444; font-weight: bold;">-1.95%</span>
+                <span class="text-sub">1주 -0.19% | 1달 -4.73%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="text-sub">52주 최고: pt1229.42</span>
+                <span class="badge-mdd">MDD -33.25%</span>
+            </div>
+            <div class="mt-1 text-sub">RSI(14): <b>52.3 (중립)</b></div>
+        </div>
+        
 
-    <div class="section-title">💼 내 보유 종목 21개 진단표</div>
+    <div class="section-title">💼 내 포트폴리오 (미국 23개 + 국내 2개)</div>
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>티커</th>
+                    <th>종목명</th>
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
                     <th>F-PER</th>
-                    <th>대응신호</th>
+                    <th>신호</th>
                 </tr>
             </thead>
             <tbody>
@@ -174,7 +331,7 @@
             <td style="color: #22c55e; font-weight: bold;">+11.98%</td>
             <td><span class="badge-mdd">-0.1%</span></td>
             <td>19.8x <span class="text-sub">(22.0x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -183,7 +340,7 @@
             <td style="color: #22c55e; font-weight: bold;">+5.23%</td>
             <td><span class="badge-mdd">-59.7%</span></td>
             <td>N/A <span class="text-sub">(—)</span></td>
-            <td><span class="signal-tag">⚪ 비중조절/WAIT</span></td>
+            <td><span class="signal-tag">⚪ 비중관리</span></td>
         </tr>
         
         <tr>
@@ -191,7 +348,7 @@
             <td>$957.27</td>
             <td style="color: #22c55e; font-weight: bold;">+3.61%</td>
             <td><span class="badge-mdd">-20.0%</span></td>
-            <td>37.8x <span class="text-sub">(20.5x)</span></td>
+            <td>38.0x <span class="text-sub">(20.5x)</span></td>
             <td><span class="signal-tag">🟡 홀딩/분할</span></td>
         </tr>
         
@@ -219,7 +376,7 @@
             <td style="color: #ef4444; font-weight: bold;">-0.24%</td>
             <td><span class="badge-mdd">-56.6%</span></td>
             <td>N/A <span class="text-sub">(22.0x)</span></td>
-            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대</span></td>
         </tr>
         
         <tr>
@@ -237,7 +394,7 @@
             <td style="color: #ef4444; font-weight: bold;">-0.22%</td>
             <td><span class="badge-mdd">-22.3%</span></td>
             <td>6.2x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -246,7 +403,7 @@
             <td style="color: #ef4444; font-weight: bold;">-0.03%</td>
             <td><span class="badge-mdd">-7.7%</span></td>
             <td>14.0x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -264,7 +421,7 @@
             <td style="color: #22c55e; font-weight: bold;">+1.60%</td>
             <td><span class="badge-mdd">-58.3%</span></td>
             <td>1381.7x <span class="text-sub">(21.0x)</span></td>
-            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대</span></td>
         </tr>
         
         <tr>
@@ -273,7 +430,7 @@
             <td style="color: #ef4444; font-weight: bold;">-3.50%</td>
             <td><span class="badge-mdd">-30.6%</span></td>
             <td>6.2x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -282,7 +439,7 @@
             <td style="color: #22c55e; font-weight: bold;">+1.22%</td>
             <td><span class="badge-mdd">-9.6%</span></td>
             <td>19.8x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -299,8 +456,8 @@
             <td>$162.95</td>
             <td style="color: #22c55e; font-weight: bold;">+1.65%</td>
             <td><span class="badge-mdd">-47.2%</span></td>
-            <td>16.9x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td>16.8x <span class="text-sub">(23.5x)</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
@@ -327,7 +484,7 @@
             <td style="color: #22c55e; font-weight: bold;">+0.55%</td>
             <td><span class="badge-mdd">-38.3%</span></td>
             <td>24.7x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대</span></td>
         </tr>
         
         <tr>
@@ -336,7 +493,7 @@
             <td style="color: #22c55e; font-weight: bold;">+2.35%</td>
             <td><span class="badge-mdd">-41.7%</span></td>
             <td>45.5x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟡 낙폭과대 분할</span></td>
+            <td><span class="signal-tag">🟡 낙폭과대</span></td>
         </tr>
         
         <tr>
@@ -354,12 +511,48 @@
             <td style="color: #22c55e; font-weight: bold;">+4.16%</td>
             <td><span class="badge-mdd">-30.6%</span></td>
             <td>21.9x <span class="text-sub">(23.5x)</span></td>
-            <td><span class="signal-tag">🟢 적극매수/홀딩</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">SCHD</td>
+            <td>$34.12</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.38%</td>
+            <td><span class="badge-mdd">-3.4%</span></td>
+            <td>N/A <span class="text-sub">(16.0x)</span></td>
+            <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">TQQQ</td>
+            <td>$70.98</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.56%</td>
+            <td><span class="badge-mdd">-19.4%</span></td>
+            <td>N/A <span class="text-sub">(—)</span></td>
+            <td><span class="signal-tag">⚪ 비중관리</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">삼성전자</td>
+            <td>₩259,500</td>
+            <td style="color: #ef4444; font-weight: bold;">-3.53%</td>
+            <td><span class="badge-mdd">-30.7%</span></td>
+            <td>3.7x <span class="text-sub">(12.5x)</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
+        </tr>
+        
+        <tr>
+            <td class="bold">SK하이닉스</td>
+            <td>₩1,812,000</td>
+            <td style="color: #ef4444; font-weight: bold;">-2.21%</td>
+            <td><span class="badge-mdd">-39.3%</span></td>
+            <td>3.8x <span class="text-sub">(9.8x)</span></td>
+            <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
             </tbody>
         </table>
     </div>
-    <div class="mt-2 text-sub" style="text-align: right;">※ 좌우로 스크롤하여 전체 항목을 볼 수 있습니다.</div>
+    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인</div>
 </body>
 </html>
