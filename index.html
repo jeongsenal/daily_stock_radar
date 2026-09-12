@@ -22,7 +22,10 @@
         .date { color: var(--text-sub); font-size: 12px; margin-top: 2px; }
         .signal-box { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 14px; }
         .badge-core { display: inline-block; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 8px; background: #23314e; margin-top: 4px; }
-        .card, .macro-card, .crypto-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .card, .macro-card, .crypto-card, .cal-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+        .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+        .cal-date { font-size: 13px; font-weight: 800; color: var(--accent); background: rgba(56, 189, 248, 0.1); padding: 2px 8px; border-radius: 6px; }
+        .cal-line { font-size: 12px; color: #cbd5e1; line-height: 1.4; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .card-title { font-size: 14px; font-weight: bold; }
         .price { font-size: 15px; font-weight: 800; }
@@ -66,6 +69,59 @@
     <div class="card">
         <ul><li><b>S&P 500(SPY)</b>: +0.85% 마감 (상승)</li><li><b>나스닥 100(QQQ)</b>: +0.87% 마감 (대형 기술주 견조)</li><li><b>반도체(SOXX)</b>: +1.86% 시현 (AI 하드웨어 주도)</li><li><b>VIX 변동성</b>: 전일대비 -11.21% 변동 기록</li><li><b>CNN 공탐지수</b>: 33pt (FEAR) 중립·경계선 위치</li><li><b>자산 대응</b>: 52주 MDD 및 F-PER 기준 저평가 우량주 분할 접근</li></ul>
     </div>
+
+    <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
+    
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">09/07 (월)</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> ⚪ 글로벌 주요 제조업/서비스업 지수 및 단기 유동성 동향 (중요도: 보통)</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> 장전: 리테일/소비재(KR 등) | 장후: 중소형 에너지</div>
+            </div>
+        </div>
+        
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">09/08 (화)</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> 🟡 21:30 미 8월 소매판매(Retail Sales) & 산업생산 (중요도: 상 - 경기침체 vs 소비 건전성 가늠)</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> 장전: COE 등 교육/서비스 | 장후: 레나(LEN) 등 주택건설주</div>
+            </div>
+        </div>
+        
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">09/09 (수)</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> 🔴 FOMC 회의 1일차 개막, 영국/유로존 소비자물가(CPI) (중요도: 최상)</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> 장전: 밸류체인 부품주 | 장후: 소프트웨어/플랫폼</div>
+            </div>
+        </div>
+        
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">09/10 (목)</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> 🔴 03:00 미 FOMC 기준금리 결정, 경제전망(SEP) 및 파월 의장 기자회견, 21:30 신규 실업수당청구건수 (중요도: 최상)</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> 장전: 페덱스(FDX, 글로벌 경기 풍향계) | 장후: 나이키 등 소비재</div>
+            </div>
+        </div>
+        
+        <div class="cal-card">
+            <div class="cal-header">
+                <span class="cal-date">09/11 (금)</span>
+            </div>
+            <div class="cal-body">
+                <div class="cal-line"><b>📊 거시지표:</b> 🔴 BOJ(일본은행) 금융정책결정회의(엔화 변동성/엔캐리 청산 촉각), 미 선물옵션 동시만기일 (중요도: 최상)</div>
+                <div class="cal-line mt-1"><b>🏢 실적체크:</b> 장전: 금융/방산 부품주 실적 마감</div>
+            </div>
+        </div>
+        
 
     <div class="section-title">💵 환율 & 금리 (Macro FX/Rates)</div>
     <div class="grid-2">
@@ -122,22 +178,22 @@
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">비트코인 (BTC)</span>
-                <span class="price">$77,282.68</span>
+                <span class="price">$77,333.05</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.14%</span>
-                <span class="text-sub">24시간 변동</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.21%</span>
+                <span class="text-sub">24H 변동</span>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">이더리움 (ETH)</span>
-                <span class="price">$2,528.67</span>
+                <span class="price">$2,535.34</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.55%</span>
-                <span class="text-sub">24시간 변동</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.82%</span>
+                <span class="text-sub">24H 변동</span>
             </div>
         </div>
         
@@ -147,19 +203,19 @@
                 <span class="price">$1.37</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.69%</span>
-                <span class="text-sub">24시간 변동</span>
+                <span style="color: #22c55e; font-weight: bold;">+1.18%</span>
+                <span class="text-sub">24H 변동</span>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">솔라나 (SOL)</span>
-                <span class="price">$101.66</span>
+                <span class="price">$102.07</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-0.72%</span>
-                <span class="text-sub">24시간 변동</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.32%</span>
+                <span class="text-sub">24H 변동</span>
             </div>
         </div>
         
@@ -168,15 +224,6 @@
     <div class="section-title">⚡ 나스닥 빅테크 TOP 10 핵심 이슈</div>
     <div class="card">
         <ul><li><b>[NVDA/MSFT]</b> AI 데이터센터 차세대 가속기 주문량 확대 지속</li><li><b>[AAPL/GOOGL]</b> 온디바이스 AI 생태계 및 검색/클라우드 수익성 경쟁 심화</li><li><b>[TSLA]</b> 자율주행 및 FSD 업데이트 관련 시장 모멘텀 점검</li></ul>
-    </div>
-
-    <div class="section-title">📅 이주의 주요 경제 일정 & 어닝 체크</div>
-    <div class="card">
-        <ul>
-            <li><b>FOMC & 통화정책</b>: 연준 위원 발언 및 점도표/금리인하 기대치 추적</li>
-            <li><b>물가/고용 지표</b>: CPI/PCE 물가지수 및 신규 실업수당 청구건수 점검</li>
-            <li><b>주요 테크 실적</b>: 빅테크 CAPEX 가이던스 및 반도체 밸류체인 실적 연속성 확인</li>
-        </ul>
     </div>
 
     <div class="section-title">📊 글로벌 8대 주요 지수 정밀 진단</div>
@@ -348,7 +395,7 @@
             <td>$957.27</td>
             <td style="color: #22c55e; font-weight: bold;">+3.61%</td>
             <td><span class="badge-mdd">-20.0%</span></td>
-            <td>38.0x <span class="text-sub">(20.5x)</span></td>
+            <td>37.8x <span class="text-sub">(20.5x)</span></td>
             <td><span class="signal-tag">🟡 홀딩/분할</span></td>
         </tr>
         
