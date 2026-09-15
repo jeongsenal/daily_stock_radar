@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
+import pytz
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -70,38 +71,16 @@ SECTOR_PER_MAP = {
 }
 
 def get_weekly_calendar():
-    """월~금 캘린더 생성"""
     today = datetime.now()
-    # 이번 주 월요일 계산
     start_monday = today - timedelta(days=today.weekday())
     
     cal_days = []
     events_preset = [
-        {
-            "dow": "월", "day_offset": 0,
-            "macro": "⚪ 글로벌 주요 제조업/서비스업 지수 및 단기 유동성 동향 (중요도: 보통)",
-            "earnings": "장전: 리테일/소비재(KR 등) | 장후: 중소형 에너지"
-        },
-        {
-            "dow": "화", "day_offset": 1,
-            "macro": "🟡 21:30 미 8월 소매판매(Retail Sales) & 산업생산 (중요도: 상 - 경기침체 vs 소비 건전성 가늠)",
-            "earnings": "장전: COE 등 교육/서비스 | 장후: 레나(LEN) 등 주택건설주"
-        },
-        {
-            "dow": "수", "day_offset": 2,
-            "macro": "🔴 FOMC 회의 1일차 개막, 영국/유로존 소비자물가(CPI) (중요도: 최상)",
-            "earnings": "장전: 밸류체인 부품주 | 장후: 소프트웨어/플랫폼"
-        },
-        {
-            "dow": "목", "day_offset": 3,
-            "macro": "🔴 03:00 미 FOMC 기준금리 결정, 경제전망(SEP) 및 파월 의장 기자회견, 21:30 신규 실업수당청구건수 (중요도: 최상)",
-            "earnings": "장전: 페덱스(FDX, 글로벌 경기 풍향계) | 장후: 나이키 등 소비재"
-        },
-        {
-            "dow": "금", "day_offset": 4,
-            "macro": "🔴 BOJ(일본은행) 금융정책결정회의(엔화 변동성/엔캐리 청산 촉각), 미 선물옵션 동시만기일 (중요도: 최상)",
-            "earnings": "장전: 금융/방산 부품주 실적 마감"
-        }
+        {"dow": "월", "day_offset": 0, "macro": "⚪ 제조업/서비스업 지수 및 단기 유동성 점검 (중요도: 보통)", "earnings": "장전: 리테일/소비재(KR 등) | 장후: 에너지"},
+        {"dow": "화", "day_offset": 1, "macro": "🟡 21:30 미 소매판매(Retail Sales) & 산업생산 (중요도: 상 - 소비 건전성)", "earnings": "장전: COE 등 서비스 | 장후: 주택건설(LEN)"},
+        {"dow": "수", "day_offset": 2, "macro": "🔴 FOMC 1일차 개막, 글로벌 주요국 CPI 물가 (중요도: 최상)", "earnings": "장후: 소프트웨어/플랫폼 밸류체인"},
+        {"dow": "목", "day_offset": 3, "macro": "🔴 03:00 FOMC 금리 발표 & 기자회견, 21:30 신규 실업수당청구 (중요도: 최상)", "earnings": "장전: 페덱스(FDX, 경기 풍향계) | 장후: 대형 소비재"},
+        {"dow": "금", "day_offset": 4, "macro": "🔴 BOJ 금리 결정(엔캐리 촉각), 미 쿼드러플 위칭데이 (중요도: 최상)", "earnings": "장전: 금융/방산 실적 점검"}
     ]
 
     for item in events_preset:
@@ -128,7 +107,7 @@ def get_fear_and_greed():
     try:
         url = "https://production.dataviz.cnn.io/index/fearandgreed/graphdata"
         headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "Accept": "application/json, text/plain, */*",
             "Referer": "https://www.cnn.com/markets/fear-and-greed"
         }
@@ -192,11 +171,10 @@ def send_message(text):
     except Exception:
         pass
 
-def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_lines, 
+def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol):
     os.makedirs("docs", exist_ok=True)
 
-    # 캘린더 카드 HTML
     cal_html = ""
     for c in weekly_cal:
         cal_html += f"""
@@ -211,7 +189,6 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         </div>
         """
 
-    # 지수 카드
     idx_cards_html = ""
     for d in index_data_list:
         chg_color = "#ef4444" if d['d_chg'] < 0 else "#22c55e"
@@ -234,7 +211,6 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         </div>
         """
 
-    # 매크로 카드
     macro_cards_html = ""
     for m in macro_data:
         chg_color = "#ef4444" if m['d_chg'] < 0 else "#22c55e"
@@ -251,10 +227,10 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         </div>
         """
 
-    # 코인 카드
     crypto_cards_html = ""
     for c in crypto_data:
-        chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
+        d_chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
+        h_chg_color = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
         crypto_cards_html += f"""
         <div class="crypto-card">
             <div class="flex-between">
@@ -262,13 +238,12 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
                 <span class="price">${c['cur_p']:,.2f}</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: {chg_color}; font-weight: bold;">{c['d_chg']:+.2f}%</span>
-                <span class="text-sub">24H 변동</span>
+                <span style="color: {h_chg_color}; font-weight: bold;">1H: {c['h1_chg']:+.2f}%</span>
+                <span style="color: {d_chg_color}; font-weight: bold;">24H: {c['d_chg']:+.2f}%</span>
             </div>
         </div>
         """
 
-    # 보유 종목 행
     rows_html = ""
     for s in stock_data_list:
         chg_color = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
@@ -290,7 +265,7 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
     high_vol_html = ""
     if high_vol:
         vol_items = "".join([f"<div class='vol-item'>{v}</div>" for v in high_vol])
-        high_vol_html = f"<div class='high-vol-box'><h4>🚨 마감 기준 10%+ 고변동 종목</h4>{vol_items}</div>"
+        high_vol_html = f"<div class='high-vol-box'><h4>🚨 10%+ 고변동 종목</h4>{vol_items}</div>"
 
     html = f"""<!DOCTYPE html>
 <html lang="ko">
@@ -342,13 +317,15 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         .high-vol-box h4 {{ color: #f87171; font-size: 13px; margin-bottom: 6px; }}
         .vol-item {{ font-size: 12px; margin-bottom: 2px; }}
         .grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }}
+        .badge-live {{ display: inline-block; background: #22c55e; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 6px; animation: pulse 2s infinite; }}
+        @keyframes pulse {{ 0% {{ opacity: 1; }} 50% {{ opacity: 0.4; }} 100% {{ opacity: 1; }} }}
         @media (max-width: 480px) {{ .grid-2 {{ grid-template-columns: 1fr; }} }}
     </style>
 </head>
 <body>
     <header>
-        <h1>📡 GLOBAL 증시 & 자산 투자 레이더</h1>
-        <div class="date">{now_str} (한국 아침 07:00 마감 브리핑)</div>
+        <h1>📡 GLOBAL 증시 & 자산 투자 레이더 <span class="badge-live">LIVE 1H</span></h1>
+        <div class="date">최근 동기화: {update_time_str} KST (1시간 주기 자동 갱신)</div>
     </header>
 
     <div class="signal-box">
@@ -359,23 +336,23 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
 
     {high_vol_html}
 
-    <div class="section-title">🇺🇸 전일 미 증시 핵심 브리핑</div>
-    <div class="card">
-        <ul>{summary_html}</ul>
+    <div class="section-title">🪙 가상자산 실시간 시황 (1H & 24H 변동폭)</div>
+    <div class="grid-2">
+        {crypto_cards_html}
     </div>
-
-    <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
-    {cal_html}
 
     <div class="section-title">💵 환율 & 금리 (Macro FX/Rates)</div>
     <div class="grid-2">
         {macro_cards_html}
     </div>
 
-    <div class="section-title">🪙 가상자산 24H 시황</div>
-    <div class="grid-2">
-        {crypto_cards_html}
+    <div class="section-title">🇺🇸 미 증시 마감/현재 브리핑</div>
+    <div class="card">
+        <ul>{summary_html}</ul>
     </div>
+
+    <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
+    {cal_html}
 
     <div class="section-title">⚡ 나스닥 빅테크 TOP 10 핵심 이슈</div>
     <div class="card">
@@ -411,6 +388,14 @@ def generate_full_html(now_str, core_signal, score, rating, fg_status, summary_l
         f.write(html)
 
 def run_radar():
+    kst = pytz.timezone('Asia/Seoul')
+    now_kst = datetime.now(kst)
+    now_str = now_kst.strftime("%Y-%m-%d")
+    update_time_str = now_kst.strftime("%Y-%m-%d %H:%M")
+
+    # 텔레그램 발송 조건: KST 기준 07시 (06:30 ~ 07:30 사이)에만 발송
+    is_morning_report_time = (now_kst.hour == 7)
+
     score, rating = get_fear_and_greed()
     
     if score <= 25:
@@ -425,8 +410,6 @@ def run_radar():
     else:
         fg_status = "⚖️ [중립 구간 - 숨고르기]"
         core_signal = "🟡 WAIT (관망 및 선별 분할매수)"
-
-    now_str = datetime.now().strftime("%Y-%m-%d")
 
     # 1. 지수 수집
     index_cards = []
@@ -456,15 +439,7 @@ def run_radar():
             mdd = ((cur_p - high_52w) / high_52w) * 100
 
             rsi_val = calculate_rsi(hist['Close'], period=14)
-            if pd.isna(rsi_val):
-                rsi_str = "N/A"
-            else:
-                if rsi_val >= 70:
-                    rsi_str = f"🔥 {rsi_val:.1f} (과매수)"
-                elif rsi_val <= 30:
-                    rsi_str = f"❄️ {rsi_val:.1f} (과매도)"
-                else:
-                    rsi_str = f"{rsi_val:.1f} (중립)"
+            rsi_str = "N/A" if pd.isna(rsi_val) else (f"🔥 {rsi_val:.1f}" if rsi_val >= 70 else (f"❄️ {rsi_val:.1f}" if rsi_val <= 30 else f"{rsi_val:.1f}"))
 
             index_data_list.append({
                 "sym": sym, "name": name, "cur_p": cur_p, "d_chg": d_chg,
@@ -482,7 +457,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 2. 매크로 & 환율 수집 (원/엔 환율 100엔 환산)
+    # 2. 매크로 & 환율 수집
     macro_data = []
     macro_telegram = []
     for name, sym in MACRO_TICKERS.items():
@@ -497,41 +472,46 @@ def run_radar():
 
             if sym == "^TNX":
                 cur_str = f"{cur_p:.3f}%"
-                comment = "금리 하향 안정" if d_chg < 0 else "금리 상승 압력"
+                comment = "금리 안정" if d_chg < 0 else "금리 상승"
             elif sym == "DX-Y.NYB":
                 cur_str = f"{cur_p:.2f}pt"
-                comment = "달러 약세 (우호적)" if d_chg < 0 else "달러 강세 (신흥국 부담)"
+                comment = "달러 약세" if d_chg < 0 else "달러 강세"
             elif sym == "USDKRW=X":
                 cur_str = f"{cur_p:,.1f}원"
-                comment = "원화 절상" if d_chg < 0 else "환율 상승 (외인 유의)"
+                comment = "원화 절상" if d_chg < 0 else "환율 상승"
             elif sym == "JPYKRW=X":
                 val_100yen = cur_p * 100
                 cur_str = f"{val_100yen:,.1f}원"
-                comment = "엔화 강세/원화 약세" if d_chg > 0 else "엔저 지속/원화 강세"
+                comment = "엔화 강세" if d_chg > 0 else "엔저 지속"
 
-            macro_data.append({
-                "name": name, "cur_str": cur_str, "d_chg": d_chg, "comment": comment
-            })
+            macro_data.append({"name": name, "cur_str": cur_str, "d_chg": d_chg, "comment": comment})
             macro_telegram.append(f"• <b>{name}</b>: <b>{cur_str}</b> ({d_chg:+.2f}%) | <i>{comment}</i>")
         except Exception:
             continue
 
-    # 3. 가상자산 수집
+    # 3. 가상자산 수집 (1시간봉 데이터 반영)
     crypto_data = []
     crypto_telegram = []
     for name, sym in CRYPTO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
-            hist = t.history(period="2d")
-            if len(hist) < 2:
-                continue
-            cur_p = hist['Close'].iloc[-1]
-            prev_p = hist['Close'].iloc[-2]
-            d_chg = ((cur_p - prev_p) / prev_p) * 100
+            hist_1h = t.history(period="2d", interval="1h")
+            if len(hist_1h) >= 2:
+                cur_p = hist_1h['Close'].iloc[-1]
+                prev_1h_p = hist_1h['Close'].iloc[-2]
+                h1_chg = ((cur_p - prev_1h_p) / prev_1h_p) * 100
+            else:
+                cur_p = t.history(period="2d")['Close'].iloc[-1]
+                h1_chg = 0.0
+
+            hist_d = t.history(period="5d")
+            prev_d_p = hist_d['Close'].iloc[-2] if len(hist_d) >= 2 else cur_p
+            d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
+
             crypto_data.append({
-                "name": name, "cur_p": cur_p, "d_chg": d_chg
+                "name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg
             })
-            crypto_telegram.append(f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> ({d_chg:+.2f}%)")
+            crypto_telegram.append(f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> (1H: {h1_chg:+.2f}% | 24H: {d_chg:+.2f}%)")
         except Exception:
             continue
 
@@ -543,19 +523,17 @@ def run_radar():
     for c in weekly_cal:
         cal_telegram.append(f"▪️ <b>[{c['date_label']}]</b>\n  • {c['macro']}\n  • 🏢 {c['earnings']}")
 
-    # 동적 10줄 요약
     spy_c = index_changes.get("SPY", 0.0)
     qqq_c = index_changes.get("QQQ", 0.0)
     soxx_c = index_changes.get("SOXX", 0.0)
     vix_val = index_changes.get("^VIX", 0.0)
 
     summary_lines = [
-        f"• <b>S&P 500(SPY)</b>: {spy_c:+.2f}% 마감 ({'상승' if spy_c >= 0 else '조정'})",
-        f"• <b>나스닥 100(QQQ)</b>: {qqq_c:+.2f}% 마감 ({'대형 기술주 견조' if qqq_c >= 0 else '차익실현 출회'})",
-        f"• <b>반도체(SOXX)</b>: {soxx_c:+.2f}% 시현 ({'AI 하드웨어 주도' if soxx_c > 1.0 else '숨고르기'})",
-        f"• <b>VIX 변동성</b>: 전일대비 {vix_val:+.2f}% 변동 기록",
-        f"• <b>CNN 공탐지수</b>: {score}pt ({rating}) 중립·경계선 위치",
-        f"• <b>자산 대응</b>: 52주 MDD 및 F-PER 기준 저평가 우량주 분할 접근"
+        f"• <b>S&P 500(SPY)</b>: {spy_c:+.2f}% 마감/진행",
+        f"• <b>나스닥 100(QQQ)</b>: {qqq_c:+.2f}% 마감/진행",
+        f"• <b>반도체(SOXX)</b>: {soxx_c:+.2f}% 시현",
+        f"• <b>VIX 변동성</b>: 전일대비 {vix_val:+.2f}% 기록",
+        f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
     # 5. 보유 종목 25개 수집
@@ -585,19 +563,10 @@ def run_radar():
             mdd = ((cur_p - high_52w) / high_52w) * 100
 
             fwd_pe = t.info.get("forwardPE")
-            if fwd_pe and fwd_pe > 0:
-                pe_str = f"{fwd_pe:.1f}x"
-            else:
-                pe_str = "N/A"
-
+            pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
             sec_pe, _ = SECTOR_PER_MAP.get(ticker, ("22.0x", "섹터"))
 
-            if ticker == "005930.KS":
-                display_name = "삼성전자"
-            elif ticker == "000660.KS":
-                display_name = "SK하이닉스"
-            else:
-                display_name = ticker
+            display_name = "삼성전자" if ticker == "005930.KS" else ("SK하이닉스" if ticker == "000660.KS" else ticker)
 
             if abs(d_chg) >= 10.0:
                 sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
@@ -627,45 +596,45 @@ def run_radar():
         except Exception:
             continue
 
-    # HTML 웹 대시보드 자동 생성 (캘린더 포함)
-    generate_full_html(now_str, core_signal, score, rating, fg_status, summary_lines, 
+    # [항상 실행] 1시간마다 웹 대시보드 docs/index.html 최신화
+    generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol)
 
-    # 텔레그램 Part 1 (캘린더 포함)
-    part1 = [
-        "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
-        f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
-        f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
-        f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
-        "─────────────────",
-        "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
-        "\n".join(cal_telegram),
-        "─────────────────",
-        "<b>💵 환율 & 금리 (Macro FX/Rates)</b>",
-        "\n".join(macro_telegram),
-        "─────────────────",
-        "<b>🪙 가상자산 24H 시황</b>",
-        "\n".join(crypto_telegram),
-        "─────────────────",
-        "<b>⚡ 나스닥 빅테크 실시간 이슈</b>",
-        "\n".join(bigtech_issues),
-        "─────────────────",
-        "<b>📊 주요 8대 지수 정밀 진단</b>",
-        "\n\n".join(index_cards)
-    ]
-    send_message("\n".join(part1))
+    # [선택 실행] 텔레그램은 아침 07시 KST에만 발송
+    if is_morning_report_time:
+        part1 = [
+            "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
+            f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
+            f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
+            f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
+            "─────────────────",
+            "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
+            "\n".join(cal_telegram),
+            "─────────────────",
+            "<b>💵 환율 & 금리 (Macro FX/Rates)</b>",
+            "\n".join(macro_telegram),
+            "─────────────────",
+            "<b>🪙 가상자산 시황 (1H / 24H)</b>",
+            "\n".join(crypto_telegram),
+            "─────────────────",
+            "<b>⚡ 나스닥 빅테크 실시간 이슈</b>",
+            "\n".join(bigtech_issues),
+            "─────────────────",
+            "<b>📊 주요 8대 지수 정밀 진단</b>",
+            "\n\n".join(index_cards)
+        ]
+        send_message("\n".join(part1))
 
-    # 텔레그램 Part 2 (보유 25개 종목)
-    part2 = [
-        "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/2)</b>",
-        "─────────────────"
-    ]
-    if high_vol:
-        part2.append("<b>🚨 마감 기준 10%+ 고변동 종목</b>")
-        part2.extend(high_vol)
-        part2.append("─────────────────")
-    part2.extend(stock_cards)
-    send_message("\n".join(part2))
+        part2 = [
+            "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/2)</b>",
+            "─────────────────"
+        ]
+        if high_vol:
+            part2.append("<b>🚨 마감 기준 10%+ 고변동 종목</b>")
+            part2.extend(high_vol)
+            part2.append("─────────────────")
+        part2.extend(stock_cards)
+        send_message("\n".join(part2))
 
 if __name__ == "__main__":
     run_radar()
