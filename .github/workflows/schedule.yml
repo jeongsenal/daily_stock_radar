@@ -2,7 +2,8 @@ name: Daily Stock Radar & Web Dashboard
 
 on:
   schedule:
-    - cron: '0 22 * * 1-5'
+    # 1시간마다 실행 (UTC 기준 정각)
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -23,7 +24,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install yfinance requests pandas
+        run: pip install yfinance requests pandas pytz
 
       - name: Run Radar & Generate HTML
         env:
