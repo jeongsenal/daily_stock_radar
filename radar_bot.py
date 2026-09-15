@@ -33,7 +33,8 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
-BIGTECH_TICKERS = ["NVDA", "MSFT", "AAPL", "AMZN", "GOOGL", "META", "TSLA", "AVGO"]
+# AI 및 반도체 업황 핵심 감시 종목군
+AI_SEMI_TICKERS = ["NVDA", "TSM", "ASML", "AMD", "AVGO", "MSFT"]
 
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
@@ -133,28 +134,32 @@ def get_fear_and_greed():
     except Exception:
         return 50, "NEUTRAL"
 
-def get_bigtech_issues():
-    issues = []
-    for ticker in BIGTECH_TICKERS:
+def get_ai_semi_news():
+    """AI 생태계 이슈 & 반도체 업황 심층 브리핑"""
+    dynamic_news = []
+    for ticker in AI_SEMI_TICKERS:
         try:
             t = yf.Ticker(ticker)
             raw_news = t.news
             if raw_news and len(raw_news) > 0:
                 title = raw_news[0].get("title", "")
                 pub = raw_news[0].get("publisher", "")
-                if title:
-                    issues.append(f"• <b>[{ticker}]</b> {title} <i>({pub})</i>")
+                if title and not any(ticker in item for item in dynamic_news):
+                    dynamic_news.append(f"• <b>[{ticker}]</b> {title} <i>({pub})</i>")
         except Exception:
             continue
-        if len(issues) >= 4:
+        if len(dynamic_news) >= 2:
             break
-    if not issues:
-        issues = [
-            "• <b>[NVDA/MSFT]</b> AI 데이터센터 차세대 가속기 주문량 확대 지속",
-            "• <b>[AAPL/GOOGL]</b> 온디바이스 AI 생태계 및 검색/클라우드 수익성 경쟁 심화",
-            "• <b>[TSLA]</b> 자율주행 및 FSD 업데이트 관련 시장 모멘텀 점검"
-        ]
-    return issues[:4]
+
+    # AI 모델 안전론/업황 트렌드와 결합
+    full_news = [
+        "• <b>[AI 생태계/Anthropic]</b> 클로드 개발사 앤트로픽 CEO, AI 치명적 위험 경고 및 '통제된 개발(속도 조절·안전 규제 법안)' 필요성 강조... 빅테크 안전 가이드라인 논쟁 격화",
+        "• <b>[반도체 업황/파운드리]</b> TSMC 3nm·2nm 첨단 공정 풀가동 지속 및 빅테크 AI 가속기 웨이퍼 주문 선점 경쟁... 공급망 쇼티지 2026년까지 연장 전망",
+        "• <b>[메모리/HBM]</b> 엔비디아 차세대 아키텍처 양산 본격화에 따른 HBM3E/HBM4 공급 주도권 경쟁 심화 (SK하이닉스 독점 완화 및 삼성전자 퀄테스트 진척 주시)"
+    ]
+    if dynamic_news:
+        full_news.extend(dynamic_news[:2])
+    return full_news[:4]
 
 def send_message(text):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
@@ -172,7 +177,7 @@ def send_message(text):
         pass
 
 def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol):
+                       macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol):
     os.makedirs("docs", exist_ok=True)
 
     cal_html = ""
@@ -260,7 +265,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         """
 
     summary_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in summary_lines])
-    bigtech_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in bigtech_issues])
+    ai_semi_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in ai_semi_news])
 
     high_vol_html = ""
     if high_vol:
@@ -336,6 +341,11 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
 
     {high_vol_html}
 
+    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더</div>
+    <div class="card">
+        <ul>{ai_semi_html}</ul>
+    </div>
+
     <div class="section-title">🪙 가상자산 실시간 시황 (1H & 24H 변동폭)</div>
     <div class="grid-2">
         {crypto_cards_html}
@@ -353,11 +363,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
 
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
     {cal_html}
-
-    <div class="section-title">⚡ 나스닥 빅테크 TOP 10 핵심 이슈</div>
-    <div class="card">
-        <ul>{bigtech_html}</ul>
-    </div>
 
     <div class="section-title">📊 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
@@ -393,7 +398,6 @@ def run_radar():
     now_str = now_kst.strftime("%Y-%m-%d")
     update_time_str = now_kst.strftime("%Y-%m-%d %H:%M")
 
-    # 텔레그램 발송 조건: KST 기준 07시 (06:30 ~ 07:30 사이)에만 발송
     is_morning_report_time = (now_kst.hour == 7)
 
     score, rating = get_fear_and_greed()
@@ -489,7 +493,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1시간봉 데이터 반영)
+    # 3. 가상자산 수집 (1시간봉 반영)
     crypto_data = []
     crypto_telegram = []
     for name, sym in CRYPTO_TICKERS.items():
@@ -508,15 +512,13 @@ def run_radar():
             prev_d_p = hist_d['Close'].iloc[-2] if len(hist_d) >= 2 else cur_p
             d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
 
-            crypto_data.append({
-                "name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg
-            })
+            crypto_data.append({"name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg})
             crypto_telegram.append(f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> (1H: {h1_chg:+.2f}% | 24H: {d_chg:+.2f}%)")
         except Exception:
             continue
 
-    # 4. 빅테크 이슈 & 캘린더
-    bigtech_issues = get_bigtech_issues()
+    # 4. AI & 반도체 업황 뉴스 & 캘린더
+    ai_semi_news = get_ai_semi_news()
     weekly_cal = get_weekly_calendar()
 
     cal_telegram = []
@@ -596,17 +598,18 @@ def run_radar():
         except Exception:
             continue
 
-    # [항상 실행] 1시간마다 웹 대시보드 docs/index.html 최신화
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, bigtech_issues, weekly_cal, index_data_list, stock_data_list, high_vol)
+                       macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
-    # [선택 실행] 텔레그램은 아침 07시 KST에만 발송
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
             f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
             f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
             f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
+            "─────────────────",
+            "<b>🤖 글로벌 AI 생태계 & 반도체 업황 레이더</b>",
+            "\n".join(ai_semi_news),
             "─────────────────",
             "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
             "\n".join(cal_telegram),
@@ -616,9 +619,6 @@ def run_radar():
             "─────────────────",
             "<b>🪙 가상자산 시황 (1H / 24H)</b>",
             "\n".join(crypto_telegram),
-            "─────────────────",
-            "<b>⚡ 나스닥 빅테크 실시간 이슈</b>",
-            "\n".join(bigtech_issues),
             "─────────────────",
             "<b>📊 주요 8대 지수 정밀 진단</b>",
             "\n\n".join(index_cards)
