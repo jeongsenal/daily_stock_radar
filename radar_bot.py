@@ -1,4 +1,4 @@
-import os
+ import os
 import requests
 import pandas as pd
 import yfinance as yf
@@ -33,7 +33,6 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
-# AI 및 반도체 업황 핵심 감시 종목군
 AI_SEMI_TICKERS = ["NVDA", "TSM", "ASML", "AMD", "AVGO", "MSFT"]
 
 MY_TICKERS = [
@@ -135,7 +134,6 @@ def get_fear_and_greed():
         return 50, "NEUTRAL"
 
 def get_ai_semi_news():
-    """AI 생태계 이슈 & 반도체 업황 심층 브리핑"""
     dynamic_news = []
     for ticker in AI_SEMI_TICKERS:
         try:
@@ -151,7 +149,6 @@ def get_ai_semi_news():
         if len(dynamic_news) >= 2:
             break
 
-    # AI 모델 안전론/업황 트렌드와 결합
     full_news = [
         "• <b>[AI 생태계/Anthropic]</b> 클로드 개발사 앤트로픽 CEO, AI 치명적 위험 경고 및 '통제된 개발(속도 조절·안전 규제 법안)' 필요성 강조... 빅테크 안전 가이드라인 논쟁 격화",
         "• <b>[반도체 업황/파운드리]</b> TSMC 3nm·2nm 첨단 공정 풀가동 지속 및 빅테크 AI 가속기 웨이퍼 주문 선점 경쟁... 공급망 쇼티지 2026년까지 연장 전망",
@@ -232,6 +229,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
+    # 가상자산 카드 HTML (1H, 24H, 7D고점대비, 30D고점대비)
     crypto_cards_html = ""
     for c in crypto_data:
         d_chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
@@ -245,6 +243,10 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             <div class="flex-between mt-1">
                 <span style="color: {h_chg_color}; font-weight: bold;">1H: {c['h1_chg']:+.2f}%</span>
                 <span style="color: {d_chg_color}; font-weight: bold;">24H: {c['d_chg']:+.2f}%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="badge-sub">7D 고점: {c['d7_mdd']:+.1f}%</span>
+                <span class="badge-sub">30D 고점: {c['d30_mdd']:+.1f}%</span>
             </div>
         </div>
         """
@@ -309,6 +311,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .pt-2 {{ padding-top: 8px; }}
         .border-t {{ border-top: 1px solid var(--border); }}
         .badge-mdd {{ background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }}
+        .badge-sub {{ background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 11px; }}
         .section-title {{ font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }}
         ul {{ padding-left: 18px; }}
         li {{ margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }}
@@ -346,7 +349,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <ul>{ai_semi_html}</ul>
     </div>
 
-    <div class="section-title">🪙 가상자산 실시간 시황 (1H & 24H 변동폭)</div>
+    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 고점대비)</div>
     <div class="grid-2">
         {crypto_cards_html}
     </div>
@@ -493,12 +496,13 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1시간봉 반영)
+    # 3. 가상자산 수집 (1H, 24H, D-7 고점대비, D-30 고점대비 산출)
     crypto_data = []
     crypto_telegram = []
     for name, sym in CRYPTO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
+            # 1시간봉 기준
             hist_1h = t.history(period="2d", interval="1h")
             if len(hist_1h) >= 2:
                 cur_p = hist_1h['Close'].iloc[-1]
@@ -508,12 +512,27 @@ def run_radar():
                 cur_p = t.history(period="2d")['Close'].iloc[-1]
                 h1_chg = 0.0
 
-            hist_d = t.history(period="5d")
+            # 24시간 및 일봉 기준 (최근 35일치 데이터 확보)
+            hist_d = t.history(period="35d")
             prev_d_p = hist_d['Close'].iloc[-2] if len(hist_d) >= 2 else cur_p
             d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
 
-            crypto_data.append({"name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg})
-            crypto_telegram.append(f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> (1H: {h1_chg:+.2f}% | 24H: {d_chg:+.2f}%)")
+            # D-7일간 고점대비 변동률
+            high_7d = hist_d['High'].iloc[-7:].max() if len(hist_d) >= 7 else hist_d['High'].max()
+            d7_mdd = ((cur_p - high_7d) / high_7d) * 100
+
+            # D-30일간 고점대비 변동률
+            high_30d = hist_d['High'].iloc[-30:].max() if len(hist_d) >= 30 else hist_d['High'].max()
+            d30_mdd = ((cur_p - high_30d) / high_30d) * 100
+
+            crypto_data.append({
+                "name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg,
+                "d7_mdd": d7_mdd, "d30_mdd": d30_mdd
+            })
+            crypto_telegram.append(
+                f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> (1H: {h1_chg:+.2f}% | 24H: {d_chg:+.2f}%)\n"
+                f"  └ 7D고점: <b>{d7_mdd:+.1f}%</b> | 30D고점: <b>{d30_mdd:+.1f}%</b>"
+            )
         except Exception:
             continue
 
@@ -617,7 +636,7 @@ def run_radar():
             "<b>💵 환율 & 금리 (Macro FX/Rates)</b>",
             "\n".join(macro_telegram),
             "─────────────────",
-            "<b>🪙 가상자산 시황 (1H / 24H)</b>",
+            "<b>🪙 가상자산 시황 (1H / 24H / 7D·30D 고점대비)</b>",
             "\n".join(crypto_telegram),
             "─────────────────",
             "<b>📊 주요 8대 지수 정밀 진단</b>",
