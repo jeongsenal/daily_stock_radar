@@ -35,6 +35,7 @@
         .pt-2 { padding-top: 8px; }
         .border-t { border-top: 1px solid var(--border); }
         .badge-mdd { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .badge-sub { background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
         .section-title { font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }
         ul { padding-left: 18px; }
         li { margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }
@@ -56,13 +57,13 @@
 <body>
     <header>
         <h1>📡 GLOBAL 증시 & 자산 투자 레이더 <span class="badge-live">LIVE 1H</span></h1>
-        <div class="date">최근 동기화: 2026-09-16 13:05 KST (1시간 주기 자동 갱신)</div>
+        <div class="date">최근 동기화: 2026-09-16 13:45 KST (1시간 주기 자동 갱신)</div>
     </header>
 
     <div class="signal-box">
         <div>오늘의 핵심 시장 신호</div>
         <div class="badge-core">🟡 선별 분할매수</div>
-        <div class="mt-2 text-sub">CNN Fear & Greed: <b>29점 (FEAR)</b> | 👀 [관심 알림 - 저점 매수 모니터링]</div>
+        <div class="mt-2 text-sub">CNN Fear & Greed: <b>28점 (FEAR)</b> | 👀 [관심 알림 - 저점 매수 모니터링]</div>
     </div>
 
     
@@ -72,28 +73,36 @@
         <ul><li><b>[AI 생태계/Anthropic]</b> 클로드 개발사 앤트로픽 CEO, AI 치명적 위험 경고 및 '통제된 개발(속도 조절·안전 규제 법안)' 필요성 강조... 빅테크 안전 가이드라인 논쟁 격화</li><li><b>[반도체 업황/파운드리]</b> TSMC 3nm·2nm 첨단 공정 풀가동 지속 및 빅테크 AI 가속기 웨이퍼 주문 선점 경쟁... 공급망 쇼티지 2026년까지 연장 전망</li><li><b>[메모리/HBM]</b> 엔비디아 차세대 아키텍처 양산 본격화에 따른 HBM3E/HBM4 공급 주도권 경쟁 심화 (SK하이닉스 독점 완화 및 삼성전자 퀄테스트 진척 주시)</li></ul>
     </div>
 
-    <div class="section-title">🪙 가상자산 실시간 시황 (1H & 24H 변동폭)</div>
+    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 고점대비)</div>
     <div class="grid-2">
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">비트코인 (BTC)</span>
-                <span class="price">$75,851.14</span>
+                <span class="price">$75,871.28</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">1H: +0.13%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -2.96%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.15%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -2.93%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="badge-sub">7D 고점: -4.9%</span>
+                <span class="badge-sub">30D 고점: -7.8%</span>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">이더리움 (ETH)</span>
-                <span class="price">$2,403.26</span>
+                <span class="price">$2,404.16</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">1H: +0.13%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -4.42%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.17%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -4.38%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="badge-sub">7D 고점: -9.7%</span>
+                <span class="badge-sub">30D 고점: -9.7%</span>
             </div>
         </div>
         
@@ -103,19 +112,27 @@
                 <span class="price">$1.30</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">1H: +0.26%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -8.53%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.59%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -8.23%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="badge-sub">7D 고점: -12.3%</span>
+                <span class="badge-sub">30D 고점: -22.5%</span>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">솔라나 (SOL)</span>
-                <span class="price">$97.36</span>
+                <span class="price">$97.33</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">1H: +0.17%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -5.01%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.14%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -5.04%</span>
+            </div>
+            <div class="flex-between mt-2 pt-2 border-t">
+                <span class="badge-sub">7D 고점: -7.7%</span>
+                <span class="badge-sub">30D 고점: -11.5%</span>
             </div>
         </div>
         
@@ -138,21 +155,21 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">달러 인덱스 (DXY)</span>
-                <span class="price">99.65pt</span>
+                <span class="price">99.64pt</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.19%</span>
-                <span class="text-sub">달러 강세</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.01%</span>
+                <span class="text-sub">달러 약세</span>
             </div>
         </div>
         
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">원/달러 환율 (KRW)</span>
-                <span class="price">1,366.7원</span>
+                <span class="price">1,365.0원</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+1.57%</span>
+                <span style="color: #22c55e; font-weight: bold;">+1.44%</span>
                 <span class="text-sub">환율 상승</span>
             </div>
         </div>
@@ -160,10 +177,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">원/엔 환율 (100엔)</span>
-                <span class="price">877.7원</span>
+                <span class="price">876.8원</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.74%</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.63%</span>
                 <span class="text-sub">엔화 강세</span>
             </div>
         </div>
@@ -172,7 +189,7 @@
 
     <div class="section-title">🇺🇸 미 증시 마감/현재 브리핑</div>
     <div class="card">
-        <ul><li><b>S&P 500(SPY)</b>: -0.46% 마감/진행</li><li><b>나스닥 100(QQQ)</b>: -0.65% 마감/진행</li><li><b>반도체(SOXX)</b>: +0.36% 시현</li><li><b>VIX 변동성</b>: 전일대비 +0.58% 기록</li><li><b>CNN 공탐지수</b>: 29pt (FEAR)</li></ul>
+        <ul><li><b>S&P 500(SPY)</b>: -0.46% 마감/진행</li><li><b>나스닥 100(QQQ)</b>: -0.65% 마감/진행</li><li><b>반도체(SOXX)</b>: +0.36% 시현</li><li><b>VIX 변동성</b>: 전일대비 +0.58% 기록</li><li><b>CNN 공탐지수</b>: 28pt (FEAR)</li></ul>
     </div>
 
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
@@ -329,33 +346,33 @@
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">코스피 (KOSPI)</span>
-                <span class="price">pt6685.77</span>
+                <span class="price">pt6709.07</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.88%</span>
-                <span class="text-sub">1주 -4.95% | 1달 +3.32%</span>
+                <span style="color: #22c55e; font-weight: bold;">+1.23%</span>
+                <span class="text-sub">1주 -4.62% | 1달 +3.68%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: pt9385.59</span>
-                <span class="badge-mdd">MDD -28.77%</span>
+                <span class="badge-mdd">MDD -28.52%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>42.4</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>43.3</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">코스닥 (KOSDAQ)</span>
-                <span class="price">pt809.83</span>
+                <span class="price">pt812.06</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-0.32%</span>
-                <span class="text-sub">1주 -3.24% | 1달 -1.77%</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.04%</span>
+                <span class="text-sub">1주 -2.97% | 1달 -1.50%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: pt1229.42</span>
-                <span class="badge-mdd">MDD -34.13%</span>
+                <span class="badge-mdd">MDD -33.95%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>41.0</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>41.6</b></div>
         </div>
         
 
@@ -583,18 +600,18 @@
         
         <tr>
             <td class="bold">삼성전자</td>
-            <td>₩252,750</td>
-            <td style="color: #22c55e; font-weight: bold;">+1.71%</td>
-            <td><span class="badge-mdd">-32.5%</span></td>
+            <td>₩253,500</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.01%</td>
+            <td><span class="badge-mdd">-32.3%</span></td>
             <td>3.6x <span class="text-sub">(12.5x)</span></td>
             <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
         
         <tr>
             <td class="bold">SK하이닉스</td>
-            <td>₩1,731,000</td>
-            <td style="color: #22c55e; font-weight: bold;">+2.43%</td>
-            <td><span class="badge-mdd">-42.0%</span></td>
+            <td>₩1,746,000</td>
+            <td style="color: #22c55e; font-weight: bold;">+3.31%</td>
+            <td><span class="badge-mdd">-41.5%</span></td>
             <td>3.7x <span class="text-sub">(9.8x)</span></td>
             <td><span class="signal-tag">🟢 저평가분할</span></td>
         </tr>
