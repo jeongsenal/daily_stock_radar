@@ -5,6 +5,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
 import xml.etree.ElementTree as ET
+import urllib.parse
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -71,6 +72,18 @@ SECTOR_PER_MAP = {
     "000660.KS": ("9.8x", "국내반도체")
 }
 
+def translate_to_ko(text):
+    """영문 헤드라인을 한국어로 무료 번역"""
+    try:
+        url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q={urllib.parse.quote(text)}"
+        res = requests.get(url, timeout=4)
+        if res.status_code == 200:
+            result = res.json()
+            return "".join([item[0] for item in result[0] if item[0]])
+    except Exception:
+        pass
+    return text
+
 def get_weekly_calendar():
     today = datetime.now()
     start_monday = today - timedelta(days=today.weekday())
@@ -136,10 +149,10 @@ def get_fear_and_greed():
         return 50, "NEUTRAL"
 
 def get_ai_semi_news():
-    """실시간 AI 생태계 & 반도체 업황 뉴스 동적 수집 (고정 문구 완전 배제)"""
+    """실시간 AI & 반도체 뉴스 수집 및 한국어 자동 번역"""
     news_items = []
     
-    # 1. Google News RSS 실시간 AI & 반도체 키워드 검색
+    # 1. Google News RSS 수집
     rss_queries = [
         "Artificial+Intelligence+Anthropic+OpenAI",
         "Semiconductor+NVIDIA+TSMC"
@@ -159,13 +172,15 @@ def get_ai_semi_news():
                     title = item.find('title').text
                     source = item.find('source').text if item.find('source') is not None else "Google News"
                     clean_title = title.rsplit(" - ", 1)[0]
-                    news_items.append(f"• <b>[AI/Semi]</b> {clean_title} <i>({source})</i>")
+                    # 한국어로 번역
+                    ko_title = translate_to_ko(clean_title)
+                    news_items.append(f"• <b>[AI/Semi]</b> {ko_title} <i>({source})</i>")
         except Exception:
             continue
         if len(news_items) >= 3:
             break
 
-    # 2. 보조: Yahoo Finance 티커별 당일 실시간 뉴스 보강
+    # 2. Yahoo Finance 보조 수집
     if len(news_items) < 4:
         for ticker in AI_SEMI_TICKERS:
             try:
@@ -174,7 +189,8 @@ def get_ai_semi_news():
                 if raw_news and len(raw_news) > 0:
                     title = raw_news[0].get("title", "")
                     pub = raw_news[0].get("publisher", "")
-                    card = f"• <b>[{ticker}]</b> {title} <i>({pub})</i>"
+                    ko_title = translate_to_ko(title)
+                    card = f"• <b>[{ticker}]</b> {ko_title} <i>({pub})</i>"
                     if card not in news_items:
                         news_items.append(card)
             except Exception:
@@ -369,7 +385,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
 
     {high_vol_html}
 
-    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더</div>
+    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더 (한국어 번역)</div>
     <div class="card">
         <ul>{ai_semi_html}</ul>
     </div>
@@ -443,7 +459,7 @@ def run_radar():
         fg_status = "⚖️ [중립 구간 - 숨고르기]"
         core_signal = "🟡 WAIT (관망 및 선별 분할매수)"
 
-    # 1. 지수 수집 (NaN 결측치 방어)
+    # 1. 지수 수집
     index_cards = []
     index_changes = {}
     index_data_list = []
@@ -489,7 +505,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 2. 매크로 & 환율 수집 (NaN 결측치 방어)
+    # 2. 매크로 & 환율 수집
     macro_data = []
     macro_telegram = []
     for name, sym in MACRO_TICKERS.items():
@@ -521,7 +537,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1H, 24H, 7D, 30D 고점대비 산출)
+    # 3. 가상자산 수집
     crypto_data = []
     crypto_telegram = []
     for name, sym in CRYPTO_TICKERS.items():
@@ -557,7 +573,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 4. 실시간 동적 AI/반도체 뉴스 & 캘린더
+    # 4. 실시간 AI/반도체 뉴스 (한국어 번역 적용) & 캘린더
     ai_semi_news = get_ai_semi_news()
     weekly_cal = get_weekly_calendar()
 
@@ -578,7 +594,7 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 보유 종목 25개 수집 (NaN 결측치 방어)
+    # 5. 보유 종목 25개 수집
     high_vol = []
     stock_cards = []
     stock_data_list = []
@@ -638,11 +654,9 @@ def run_radar():
         except Exception:
             continue
 
-    # HTML 웹 대시보드 1시간 주기 자동 갱신
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
-    # 텔레그램 발송 (아침 07시 KST 정기 발송)
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
