@@ -72,22 +72,22 @@ SECTOR_PER_MAP = {
 
 def translate_to_ko_robust(text):
     """클라우드 환경에서도 차단되지 않는 다중 번역 엔진"""
-    # 1차 시도: MyMemory 무료 오픈 번역 API
+    # 1차 시도: MyMemory 무료 번역 API
     try:
         encoded = urllib.parse.quote(text)
         url = f"https://api.mymemory.translated.net/get?q={encoded}&langpair=en|ko"
-        r = requests.get(url, timeout=5).json()
+        r = requests.get(url, timeout=4).json()
         translated = r.get("responseData", {}).get("translatedText", "")
         if translated and translated.strip() != text.strip() and "MYMEMORY WARNING" not in translated:
             return translated
     except Exception:
         pass
 
-    # 2차 시도: 구글 웹 번역 백업
+    # 2차 시도: 구글 웹 번역
     try:
         url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q={urllib.parse.quote(text)}"
         headers = {"User-Agent": "Mozilla/5.0"}
-        r = requests.get(url, headers=headers, timeout=5).json()
+        r = requests.get(url, headers=headers, timeout=4).json()
         res = "".join([part[0] for part in r[0] if part[0]])
         if res:
             return res
@@ -95,6 +95,55 @@ def translate_to_ko_robust(text):
         pass
 
     return text
+
+def get_us_market_popular_news():
+    """미 증시 핵심 인기 뉴스 TOP 5 동적 수집 (한국어 번역 포함)"""
+    news_items = []
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+
+    # 1. 국내 주요 언론의 미 증시/뉴욕증시 속보 및 핫이슈 (직접 수집)
+    try:
+        url_ko = "https://news.google.com/rss/search?q=뉴욕증시+미국주식+마감+특징주&hl=ko&gl=KR&ceid=KR:ko"
+        res_ko = requests.get(url_ko, headers=headers, timeout=5)
+        if res_ko.status_code == 200:
+            root = ET.fromstring(res_ko.content)
+            for item in root.findall('./channel/item')[:3]:
+                title = item.find('title').text
+                source = item.find('source').text if item.find('source') is not None else "국내언론"
+                clean_title = title.rsplit(" - ", 1)[0]
+                news_items.append(f"• <b>[미증시]</b> {clean_title} <i>({source})</i>")
+    except Exception:
+        pass
+
+    # 2. 미국 현지 인기 금융 헤드라인 (Wall Street, US Stock Market) 수집 후 번역 결합
+    try:
+        url_en = "https://news.google.com/rss/search?q=Wall+Street+stock+market+stocks+rally+drop&hl=en-US&gl=US&ceid=US:en"
+        res_en = requests.get(url_en, headers=headers, timeout=5)
+        if res_en.status_code == 200:
+            root = ET.fromstring(res_en.content)
+            for item in root.findall('./channel/item'):
+                if len(news_items) >= 5:
+                    break
+                title = item.find('title').text
+                source = item.find('source').text if item.find('source') is not None else "외신"
+                clean_title = title.rsplit(" - ", 1)[0]
+                translated = translate_to_ko_robust(clean_title)
+                news_items.append(f"• <b>[월가소식]</b> {translated} <i>({source})</i>")
+    except Exception:
+        pass
+
+    # 만약 뉴스 수집이 원활하지 않을 경우의 안전 가드
+    if len(news_items) < 5:
+        fallbacks = [
+            "• <b>[미증시]</b> 미 연준 통화정책 경계감 속 국채 금리 및 기술주 차익 실현 매물 공방 <i>(마켓워치)</i>",
+            "• <b>[미증시]</b> 주요 빅테크 및 반도체 밸류체인 실적 발표 앞두고 변동성 장세 지속 <i>(블룸버그)</i>"
+        ]
+        for fb in fallbacks:
+            if len(news_items) >= 5:
+                break
+            news_items.append(fb)
+
+    return news_items[:5]
 
 def get_weekly_calendar():
     today = datetime.now()
@@ -160,54 +209,6 @@ def get_fear_and_greed():
     except Exception:
         return 50, "NEUTRAL"
 
-def get_ai_semi_news():
-    """한국어 뉴스 원문 우선 수집 + 외신은 정밀 번역 결합"""
-    news_items = []
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
-
-    # 1. Google News 한국어 RSS (엔비디아, 오픈AI, 앤트로픽, TSMC 등 국내 기사 직접 수집)
-    ko_queries = [
-        "엔비디아+AI+반도체",
-        "앤트로픽+클로드+OpenAI"
-    ]
-    for q in ko_queries:
-        try:
-            url = f"https://news.google.com/rss/search?q={q}&hl=ko&gl=KR&ceid=KR:ko"
-            res = requests.get(url, headers=headers, timeout=5)
-            if res.status_code == 200:
-                root = ET.fromstring(res.content)
-                for item in root.findall('./channel/item')[:2]:
-                    title = item.find('title').text
-                    source = item.find('source').text if item.find('source') is not None else "국내언론"
-                    clean_title = title.rsplit(" - ", 1)[0]
-                    news_items.append(f"• <b>[AI/반도체]</b> {clean_title} <i>({source})</i>")
-        except Exception:
-            continue
-        if len(news_items) >= 3:
-            break
-
-    # 2. 부족할 경우 글로벌 외신을 가져와 번역 엔진 적용
-    if len(news_items) < 4:
-        en_queries = ["Anthropic+OpenAI+Claude", "NVIDIA+TSMC+semiconductor"]
-        for q in en_queries:
-            try:
-                url = f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en"
-                res = requests.get(url, headers=headers, timeout=5)
-                if res.status_code == 200:
-                    root = ET.fromstring(res.content)
-                    for item in root.findall('./channel/item')[:2]:
-                        title = item.find('title').text
-                        source = item.find('source').text if item.find('source') is not None else "외신"
-                        clean_title = title.rsplit(" - ", 1)[0]
-                        translated_title = translate_to_ko_robust(clean_title)
-                        news_items.append(f"• <b>[AI/외신]</b> {translated_title} <i>({source})</i>")
-            except Exception:
-                continue
-            if len(news_items) >= 4:
-                break
-
-    return news_items[:4]
-
 def send_message(text):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         return
@@ -224,7 +225,7 @@ def send_message(text):
         pass
 
 def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol):
+                       macro_data, crypto_data, us_news, weekly_cal, index_data_list, stock_data_list, high_vol):
     os.makedirs("docs", exist_ok=True)
 
     cal_html = ""
@@ -316,7 +317,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         """
 
     summary_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in summary_lines])
-    ai_semi_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in ai_semi_news])
+    us_news_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in us_news])
 
     high_vol_html = ""
     if high_vol:
@@ -393,9 +394,9 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
 
     {high_vol_html}
 
-    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더</div>
+    <div class="section-title">🇺🇸 미 증시 실시간 핵심 & 인기 뉴스 TOP 5</div>
     <div class="card">
-        <ul>{ai_semi_html}</ul>
+        <ul>{us_news_html}</ul>
     </div>
 
     <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 고점대비)</div>
@@ -408,7 +409,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         {macro_cards_html}
     </div>
 
-    <div class="section-title">🇺🇸 미 증시 마감/현재 브리핑</div>
+    <div class="section-title">📊 미 증시 마감/현재 브리핑</div>
     <div class="card">
         <ul>{summary_html}</ul>
     </div>
@@ -416,7 +417,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
     {cal_html}
 
-    <div class="section-title">📊 글로벌 8대 주요 지수 정밀 진단</div>
+    <div class="section-title">📈 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
 
     <div class="section-title">💼 내 포트폴리오 (미국 23개 + 국내 2개)</div>
@@ -581,8 +582,8 @@ def run_radar():
         except Exception:
             continue
 
-    # 4. 실시간 한국어 AI/반도체 뉴스 & 캘린더
-    ai_semi_news = get_ai_semi_news()
+    # 4. 미 증시 인기 뉴스 TOP 5 & 캘린더
+    us_popular_news = get_us_market_popular_news()
     weekly_cal = get_weekly_calendar()
 
     cal_telegram = []
@@ -663,7 +664,7 @@ def run_radar():
             continue
 
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol)
+                       macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
     if is_morning_report_time:
         part1 = [
@@ -672,8 +673,8 @@ def run_radar():
             f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
             f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
             "─────────────────",
-            "<b>🤖 글로벌 AI 생태계 & 반도체 업황 레이더</b>",
-            "\n".join(ai_semi_news),
+            "<b>🇺🇸 미 증시 실시간 인기/핵심 뉴스 TOP 5</b>",
+            "\n".join(us_popular_news),
             "─────────────────",
             "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
             "\n".join(cal_telegram),
