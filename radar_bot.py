@@ -4,6 +4,7 @@ import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 import pytz
+import xml.etree.ElementTree as ET
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -121,7 +122,8 @@ def get_fear_and_greed():
         pass
 
     try:
-        vix = yf.Ticker("^VIX").history(period="2d")['Close'].iloc[-1]
+        hist_vix = yf.Ticker("^VIX").history(period="5d").dropna(subset=['Close'])
+        vix = hist_vix['Close'].iloc[-1]
         if vix >= 30:
             return int(round(100 - vix*2)), "EXTREME FEAR"
         elif vix >= 22:
@@ -134,29 +136,53 @@ def get_fear_and_greed():
         return 50, "NEUTRAL"
 
 def get_ai_semi_news():
-    dynamic_news = []
-    for ticker in AI_SEMI_TICKERS:
+    """실시간 AI 생태계 & 반도체 업황 뉴스 동적 수집 (고정 문구 완전 배제)"""
+    news_items = []
+    
+    # 1. Google News RSS 실시간 AI & 반도체 키워드 검색
+    rss_queries = [
+        "Artificial+Intelligence+Anthropic+OpenAI",
+        "Semiconductor+NVIDIA+TSMC"
+    ]
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    }
+
+    for query in rss_queries:
         try:
-            t = yf.Ticker(ticker)
-            raw_news = t.news
-            if raw_news and len(raw_news) > 0:
-                title = raw_news[0].get("title", "")
-                pub = raw_news[0].get("publisher", "")
-                if title and not any(ticker in item for item in dynamic_news):
-                    dynamic_news.append(f"• <b>[{ticker}]</b> {title} <i>({pub})</i>")
+            url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+            res = requests.get(url, headers=headers, timeout=5)
+            if res.status_code == 200:
+                root = ET.fromstring(res.content)
+                for item in root.findall('./channel/item')[:2]:
+                    title = item.find('title').text
+                    source = item.find('source').text if item.find('source') is not None else "Google News"
+                    clean_title = title.rsplit(" - ", 1)[0]
+                    news_items.append(f"• <b>[AI/Semi]</b> {clean_title} <i>({source})</i>")
         except Exception:
             continue
-        if len(dynamic_news) >= 2:
+        if len(news_items) >= 3:
             break
 
-    full_news = [
-        "• <b>[AI 생태계/Anthropic]</b> 클로드 개발사 앤트로픽 CEO, AI 치명적 위험 경고 및 '통제된 개발(속도 조절·안전 규제 법안)' 필요성 강조... 빅테크 안전 가이드라인 논쟁 격화",
-        "• <b>[반도체 업황/파운드리]</b> TSMC 3nm·2nm 첨단 공정 풀가동 지속 및 빅테크 AI 가속기 웨이퍼 주문 선점 경쟁... 공급망 쇼티지 2026년까지 연장 전망",
-        "• <b>[메모리/HBM]</b> 엔비디아 차세대 아키텍처 양산 본격화에 따른 HBM3E/HBM4 공급 주도권 경쟁 심화 (SK하이닉스 독점 완화 및 삼성전자 퀄테스트 진척 주시)"
-    ]
-    if dynamic_news:
-        full_news.extend(dynamic_news[:2])
-    return full_news[:4]
+    # 2. 보조: Yahoo Finance 티커별 당일 실시간 뉴스 보강
+    if len(news_items) < 4:
+        for ticker in AI_SEMI_TICKERS:
+            try:
+                t = yf.Ticker(ticker)
+                raw_news = t.news
+                if raw_news and len(raw_news) > 0:
+                    title = raw_news[0].get("title", "")
+                    pub = raw_news[0].get("publisher", "")
+                    card = f"• <b>[{ticker}]</b> {title} <i>({pub})</i>"
+                    if card not in news_items:
+                        news_items.append(card)
+            except Exception:
+                continue
+            if len(news_items) >= 4:
+                break
+
+    return news_items[:4]
 
 def send_message(text):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
@@ -229,7 +255,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 가상자산 카드 HTML (1H, 24H, 7D고점대비, 30D고점대비)
     crypto_cards_html = ""
     for c in crypto_data:
         d_chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
@@ -418,7 +443,7 @@ def run_radar():
         fg_status = "⚖️ [중립 구간 - 숨고르기]"
         core_signal = "🟡 WAIT (관망 및 선별 분할매수)"
 
-    # 1. 지수 수집
+    # 1. 지수 수집 (NaN 결측치 방어)
     index_cards = []
     index_changes = {}
     index_data_list = []
@@ -426,24 +451,24 @@ def run_radar():
     for name, sym in INDEX_TICKERS.items():
         try:
             t = yf.Ticker(sym)
-            hist = t.history(period="3mo")
+            hist = t.history(period="3mo").dropna(subset=['Close'])
             if len(hist) < 2:
                 continue
 
-            cur_p = hist['Close'].iloc[-1]
-            prev_p = hist['Close'].iloc[-2]
-            w1_p = hist['Close'].iloc[-5] if len(hist) >= 5 else hist['Close'].iloc[0]
-            m1_p = hist['Close'].iloc[-21] if len(hist) >= 21 else hist['Close'].iloc[0]
+            cur_p = float(hist['Close'].iloc[-1])
+            prev_p = float(hist['Close'].iloc[-2])
+            w1_p = float(hist['Close'].iloc[-5]) if len(hist) >= 5 else float(hist['Close'].iloc[0])
+            m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
 
-            d_chg = ((cur_p - prev_p) / prev_p) * 100
-            w_chg = ((cur_p - w1_p) / w1_p) * 100
-            m_chg = ((cur_p - m1_p) / m1_p) * 100
+            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
+            w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
+            m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
             index_changes[sym] = d_chg
 
             high_52w = t.info.get("fiftyTwoWeekHigh")
-            if not high_52w:
-                high_52w = hist['High'].max()
-            mdd = ((cur_p - high_52w) / high_52w) * 100
+            if not high_52w or pd.isna(high_52w):
+                high_52w = float(hist['High'].max())
+            mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
 
             rsi_val = calculate_rsi(hist['Close'], period=14)
             rsi_str = "N/A" if pd.isna(rsi_val) else (f"🔥 {rsi_val:.1f}" if rsi_val >= 70 else (f"❄️ {rsi_val:.1f}" if rsi_val <= 30 else f"{rsi_val:.1f}"))
@@ -464,18 +489,18 @@ def run_radar():
         except Exception:
             continue
 
-    # 2. 매크로 & 환율 수집
+    # 2. 매크로 & 환율 수집 (NaN 결측치 방어)
     macro_data = []
     macro_telegram = []
     for name, sym in MACRO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
-            hist = t.history(period="5d")
+            hist = t.history(period="5d").dropna(subset=['Close'])
             if len(hist) < 2:
                 continue
-            cur_p = hist['Close'].iloc[-1]
-            prev_p = hist['Close'].iloc[-2]
-            d_chg = ((cur_p - prev_p) / prev_p) * 100
+            cur_p = float(hist['Close'].iloc[-1])
+            prev_p = float(hist['Close'].iloc[-2])
+            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
 
             if sym == "^TNX":
                 cur_str = f"{cur_p:.3f}%"
@@ -496,34 +521,30 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1H, 24H, D-7 고점대비, D-30 고점대비 산출)
+    # 3. 가상자산 수집 (1H, 24H, 7D, 30D 고점대비 산출)
     crypto_data = []
     crypto_telegram = []
     for name, sym in CRYPTO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
-            # 1시간봉 기준
-            hist_1h = t.history(period="2d", interval="1h")
+            hist_1h = t.history(period="2d", interval="1h").dropna(subset=['Close'])
             if len(hist_1h) >= 2:
-                cur_p = hist_1h['Close'].iloc[-1]
-                prev_1h_p = hist_1h['Close'].iloc[-2]
+                cur_p = float(hist_1h['Close'].iloc[-1])
+                prev_1h_p = float(hist_1h['Close'].iloc[-2])
                 h1_chg = ((cur_p - prev_1h_p) / prev_1h_p) * 100
             else:
-                cur_p = t.history(period="2d")['Close'].iloc[-1]
+                cur_p = float(t.history(period="2d").dropna(subset=['Close'])['Close'].iloc[-1])
                 h1_chg = 0.0
 
-            # 24시간 및 일봉 기준 (최근 35일치 데이터 확보)
-            hist_d = t.history(period="35d")
-            prev_d_p = hist_d['Close'].iloc[-2] if len(hist_d) >= 2 else cur_p
+            hist_d = t.history(period="35d").dropna(subset=['Close'])
+            prev_d_p = float(hist_d['Close'].iloc[-2]) if len(hist_d) >= 2 else cur_p
             d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
 
-            # D-7일간 고점대비 변동률
-            high_7d = hist_d['High'].iloc[-7:].max() if len(hist_d) >= 7 else hist_d['High'].max()
-            d7_mdd = ((cur_p - high_7d) / high_7d) * 100
+            high_7d = float(hist_d['High'].iloc[-7:].max()) if len(hist_d) >= 7 else float(hist_d['High'].max())
+            d7_mdd = ((cur_p - high_7d) / high_7d) * 100 if high_7d else 0.0
 
-            # D-30일간 고점대비 변동률
-            high_30d = hist_d['High'].iloc[-30:].max() if len(hist_d) >= 30 else hist_d['High'].max()
-            d30_mdd = ((cur_p - high_30d) / high_30d) * 100
+            high_30d = float(hist_d['High'].iloc[-30:].max()) if len(hist_d) >= 30 else float(hist_d['High'].max())
+            d30_mdd = ((cur_p - high_30d) / high_30d) * 100 if high_30d else 0.0
 
             crypto_data.append({
                 "name": name, "cur_p": cur_p, "h1_chg": h1_chg, "d_chg": d_chg,
@@ -536,7 +557,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 4. AI & 반도체 업황 뉴스 & 캘린더
+    # 4. 실시간 동적 AI/반도체 뉴스 & 캘린더
     ai_semi_news = get_ai_semi_news()
     weekly_cal = get_weekly_calendar()
 
@@ -557,7 +578,7 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 보유 종목 25개 수집
+    # 5. 보유 종목 25개 수집 (NaN 결측치 방어)
     high_vol = []
     stock_cards = []
     stock_data_list = []
@@ -565,23 +586,23 @@ def run_radar():
     for ticker in MY_TICKERS:
         try:
             t = yf.Ticker(ticker)
-            hist = t.history(period="3mo")
+            hist = t.history(period="3mo").dropna(subset=['Close'])
             if len(hist) < 2:
                 continue
 
-            cur_p = hist['Close'].iloc[-1]
-            prev_p = hist['Close'].iloc[-2]
-            w1_p = hist['Close'].iloc[-5] if len(hist) >= 5 else hist['Close'].iloc[0]
-            m1_p = hist['Close'].iloc[-21] if len(hist) >= 21 else hist['Close'].iloc[0]
+            cur_p = float(hist['Close'].iloc[-1])
+            prev_p = float(hist['Close'].iloc[-2])
+            w1_p = float(hist['Close'].iloc[-5]) if len(hist) >= 5 else float(hist['Close'].iloc[0])
+            m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
 
-            d_chg = ((cur_p - prev_p) / prev_p) * 100
-            w_chg = ((cur_p - w1_p) / w1_p) * 100
-            m_chg = ((cur_p - m1_p) / m1_p) * 100
+            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
+            w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
+            m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
 
             high_52w = t.info.get("fiftyTwoWeekHigh")
-            if not high_52w:
-                high_52w = hist['High'].max()
-            mdd = ((cur_p - high_52w) / high_52w) * 100
+            if not high_52w or pd.isna(high_52w):
+                high_52w = float(hist['High'].max())
+            mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
 
             fwd_pe = t.info.get("forwardPE")
             pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
@@ -617,9 +638,11 @@ def run_radar():
         except Exception:
             continue
 
+    # HTML 웹 대시보드 1시간 주기 자동 갱신
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, ai_semi_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
+    # 텔레그램 발송 (아침 07시 KST 정기 발송)
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
