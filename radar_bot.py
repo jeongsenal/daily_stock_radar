@@ -35,8 +35,6 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
-AI_SEMI_TICKERS = ["NVDA", "TSM", "ASML", "AMD", "AVGO", "MSFT"]
-
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
@@ -72,16 +70,30 @@ SECTOR_PER_MAP = {
     "000660.KS": ("9.8x", "국내반도체")
 }
 
-def translate_to_ko(text):
-    """영문 헤드라인을 한국어로 무료 번역"""
+def translate_to_ko_robust(text):
+    """클라우드 환경에서도 차단되지 않는 다중 번역 엔진"""
+    # 1차 시도: MyMemory 무료 오픈 번역 API
     try:
-        url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q={urllib.parse.quote(text)}"
-        res = requests.get(url, timeout=4)
-        if res.status_code == 200:
-            result = res.json()
-            return "".join([item[0] for item in result[0] if item[0]])
+        encoded = urllib.parse.quote(text)
+        url = f"https://api.mymemory.translated.net/get?q={encoded}&langpair=en|ko"
+        r = requests.get(url, timeout=5).json()
+        translated = r.get("responseData", {}).get("translatedText", "")
+        if translated and translated.strip() != text.strip() and "MYMEMORY WARNING" not in translated:
+            return translated
     except Exception:
         pass
+
+    # 2차 시도: 구글 웹 번역 백업
+    try:
+        url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q={urllib.parse.quote(text)}"
+        headers = {"User-Agent": "Mozilla/5.0"}
+        r = requests.get(url, headers=headers, timeout=5).json()
+        res = "".join([part[0] for part in r[0] if part[0]])
+        if res:
+            return res
+    except Exception:
+        pass
+
     return text
 
 def get_weekly_calendar():
@@ -149,50 +161,46 @@ def get_fear_and_greed():
         return 50, "NEUTRAL"
 
 def get_ai_semi_news():
-    """실시간 AI & 반도체 뉴스 수집 및 한국어 자동 번역"""
+    """한국어 뉴스 원문 우선 수집 + 외신은 정밀 번역 결합"""
     news_items = []
-    
-    # 1. Google News RSS 수집
-    rss_queries = [
-        "Artificial+Intelligence+Anthropic+OpenAI",
-        "Semiconductor+NVIDIA+TSMC"
-    ]
-    
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
-    for query in rss_queries:
+    # 1. Google News 한국어 RSS (엔비디아, 오픈AI, 앤트로픽, TSMC 등 국내 기사 직접 수집)
+    ko_queries = [
+        "엔비디아+AI+반도체",
+        "앤트로픽+클로드+OpenAI"
+    ]
+    for q in ko_queries:
         try:
-            url = f"https://news.google.com/rss/search?q={query}&hl=en-US&gl=US&ceid=US:en"
+            url = f"https://news.google.com/rss/search?q={q}&hl=ko&gl=KR&ceid=KR:ko"
             res = requests.get(url, headers=headers, timeout=5)
             if res.status_code == 200:
                 root = ET.fromstring(res.content)
                 for item in root.findall('./channel/item')[:2]:
                     title = item.find('title').text
-                    source = item.find('source').text if item.find('source') is not None else "Google News"
+                    source = item.find('source').text if item.find('source') is not None else "국내언론"
                     clean_title = title.rsplit(" - ", 1)[0]
-                    # 한국어로 번역
-                    ko_title = translate_to_ko(clean_title)
-                    news_items.append(f"• <b>[AI/Semi]</b> {ko_title} <i>({source})</i>")
+                    news_items.append(f"• <b>[AI/반도체]</b> {clean_title} <i>({source})</i>")
         except Exception:
             continue
         if len(news_items) >= 3:
             break
 
-    # 2. Yahoo Finance 보조 수집
+    # 2. 부족할 경우 글로벌 외신을 가져와 번역 엔진 적용
     if len(news_items) < 4:
-        for ticker in AI_SEMI_TICKERS:
+        en_queries = ["Anthropic+OpenAI+Claude", "NVIDIA+TSMC+semiconductor"]
+        for q in en_queries:
             try:
-                t = yf.Ticker(ticker)
-                raw_news = t.news
-                if raw_news and len(raw_news) > 0:
-                    title = raw_news[0].get("title", "")
-                    pub = raw_news[0].get("publisher", "")
-                    ko_title = translate_to_ko(title)
-                    card = f"• <b>[{ticker}]</b> {ko_title} <i>({pub})</i>"
-                    if card not in news_items:
-                        news_items.append(card)
+                url = f"https://news.google.com/rss/search?q={q}&hl=en-US&gl=US&ceid=US:en"
+                res = requests.get(url, headers=headers, timeout=5)
+                if res.status_code == 200:
+                    root = ET.fromstring(res.content)
+                    for item in root.findall('./channel/item')[:2]:
+                        title = item.find('title').text
+                        source = item.find('source').text if item.find('source') is not None else "외신"
+                        clean_title = title.rsplit(" - ", 1)[0]
+                        translated_title = translate_to_ko_robust(clean_title)
+                        news_items.append(f"• <b>[AI/외신]</b> {translated_title} <i>({source})</i>")
             except Exception:
                 continue
             if len(news_items) >= 4:
@@ -385,7 +393,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
 
     {high_vol_html}
 
-    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더 (한국어 번역)</div>
+    <div class="section-title">🤖 글로벌 AI 생태계 & 반도체 업황 레이더</div>
     <div class="card">
         <ul>{ai_semi_html}</ul>
     </div>
@@ -573,7 +581,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 4. 실시간 AI/반도체 뉴스 (한국어 번역 적용) & 캘린더
+    # 4. 실시간 한국어 AI/반도체 뉴스 & 캘린더
     ai_semi_news = get_ai_semi_news()
     weekly_cal = get_weekly_calendar()
 
