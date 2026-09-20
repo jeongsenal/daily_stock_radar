@@ -35,6 +35,21 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
+# 미국 11대 섹터 ETF
+SECTOR_ETF_TICKERS = {
+    "XLK": "Technology (기술)",
+    "XLV": "Healthcare (헬스케어)",
+    "XLP": "Consumer Staples (필수소비재)",
+    "XLU": "Utilities (유틸리티)",
+    "XLY": "Consumer Discr. (임의소비재)",
+    "XLC": "Communication (통신서비스)",
+    "XLB": "Basic Materials (소재/원자재)",
+    "XLF": "Financial Services (금융)",
+    "XLI": "Industrials (산업재)",
+    "XLE": "Energy (에너지)",
+    "XLRE": "Real Estate (부동산)"
+}
+
 # 1. 내 포트폴리오 (미국 23개 + 한국 2개)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
@@ -43,7 +58,7 @@ MY_TICKERS = [
     "005930.KS", "000660.KS"
 ]
 
-# 2. 신규 관심종목 (13개)
+# 2. 관심종목 (13개)
 WATCH_TICKERS = [
     "PWR", "LITE", "FCX", "CVX", "CRCL", "CAT", "OXY", 
     "AAPL", "AMZN", "META", "HOOD", "PANW", "ORCL"
@@ -239,8 +254,47 @@ def send_message(text):
     except Exception:
         pass
 
+def fetch_sector_etfs():
+    """11대 섹터 ETF 데이터 수집 (전일, 1주일, 1개월, 1년, 52주 고점대비)"""
+    sector_list = []
+    for sym, name in SECTOR_ETF_TICKERS.items():
+        try:
+            t = yf.Ticker(sym)
+            hist = t.history(period="1y").dropna(subset=['Close'])
+            if len(hist) < 2:
+                continue
+
+            cur_p = float(hist['Close'].iloc[-1])
+            prev_p = float(hist['Close'].iloc[-2])
+            w1_p = float(hist['Close'].iloc[-5]) if len(hist) >= 5 else float(hist['Close'].iloc[0])
+            m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
+            y1_p = float(hist['Close'].iloc[0])
+
+            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
+            w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
+            m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
+            y_chg = ((cur_p - y1_p) / y1_p) * 100 if y1_p else 0.0
+
+            high_52w = t.info.get("fiftyTwoWeekHigh")
+            if not high_52w or pd.isna(high_52w):
+                high_52w = float(hist['High'].max())
+            mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
+
+            sector_list.append({
+                "sym": sym,
+                "name": name,
+                "cur_p": cur_p,
+                "d_chg": d_chg,
+                "w_chg": w_chg,
+                "m_chg": m_chg,
+                "y_chg": y_chg,
+                "mdd": mdd
+            })
+        except Exception:
+            continue
+    return sector_list
+
 def fetch_stock_data_list(ticker_list):
-    """주식 리스트를 받아 이동평균선 이격도 및 지표를 계산하는 공통 함수"""
     stock_data_list = []
     stock_cards = []
     high_vol = []
@@ -318,7 +372,8 @@ def fetch_stock_data_list(ticker_list):
     return stock_data_list, stock_cards, high_vol
 
 def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, us_news, weekly_cal, index_data_list, my_stocks, watch_stocks, high_vol):
+                       macro_data, crypto_data, us_news, weekly_cal, index_data_list, 
+                       sector_etfs, my_stocks, watch_stocks, high_vol):
     os.makedirs("docs", exist_ok=True)
 
     cal_html = ""
@@ -392,6 +447,25 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                 <span class="badge-sub">30D 고점: {c['d30_mdd']:+.1f}%</span>
             </div>
         </div>
+        """
+
+    # 11대 섹터 테이블 행 HTML 생성
+    sector_rows_html = ""
+    for s in sector_etfs:
+        c_d = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
+        c_w = "#ef4444" if s['w_chg'] < 0 else "#22c55e"
+        c_m = "#ef4444" if s['m_chg'] < 0 else "#22c55e"
+        c_y = "#ef4444" if s['y_chg'] < 0 else "#22c55e"
+        sector_rows_html += f"""
+        <tr>
+            <td class="bold">{s['sym']} <span class="text-sub" style="font-size: 11px;">({s['name'].split()[0]})</span></td>
+            <td>${s['cur_p']:.2f}</td>
+            <td style="color: {c_d}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
+            <td style="color: {c_w};">{s['w_chg']:+.2f}%</td>
+            <td style="color: {c_m};">{s['m_chg']:+.2f}%</td>
+            <td style="color: {c_y};">{s['y_chg']:+.2f}%</td>
+            <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
+        </tr>
         """
 
     def render_table_rows(stock_list):
@@ -526,6 +600,27 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     <div class="section-title">📈 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
 
+    <!-- 💡 [요청 위치] 내 포트폴리오 바로 위에 배치된 11대 섹터 시황 레이더 -->
+    <div class="section-title">🏢 미국 11대 섹터 시황 레이더 (US Equity Sectors)</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>섹터 티커 (Name)</th>
+                    <th>현재가</th>
+                    <th>전일대비</th>
+                    <th>1주</th>
+                    <th>1달</th>
+                    <th>1년</th>
+                    <th>52주 MDD</th>
+                </tr>
+            </thead>
+            <tbody>
+                {sector_rows_html}
+            </tbody>
+        </table>
+    </div>
+
     <div class="section-title">💼 내 포트폴리오 (미국 23개 + 국내 2개)</div>
     <div class="table-wrap">
         <table>
@@ -565,7 +660,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             </tbody>
         </table>
     </div>
-    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인 (초록색: 이평 상회, 빨간색: 이평 하회)</div>
+    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인 (초록색: 상승/이평 상회, 빨간색: 하락/이평 하회)</div>
 </body>
 </html>
 """
@@ -750,15 +845,30 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 종목 수집 (내 포트폴리오 25개 + 관심종목 13개)
+    # 5. 미국 11대 섹터 ETF 수집
+    sector_etfs = fetch_sector_etfs()
+    
+    # 텔레그램용 섹터 브리핑 (상위 3개 / 하위 3개 정렬)
+    sector_summary_telegram = []
+    if sector_etfs:
+        sorted_sectors = sorted(sector_etfs, key=lambda x: x['d_chg'], reverse=True)
+        top3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[:3]]
+        bot3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[-3:]]
+        sector_summary_telegram = [
+            f"• <b>강세 섹터:</b> {', '.join(top3)}",
+            f"• <b>약세 섹터:</b> {', '.join(bot3)}"
+        ]
+
+    # 6. 보유 종목 (25개) 및 관심 종목 (13개) 수집
     my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
     watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
     
     total_high_vol = my_high_vol + watch_high_vol
 
-    # HTML 웹 대시보드 1시간 주기 자동 갱신
+    # HTML 웹 대시보드 생성 (1시간 주기 자동 갱신)
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, my_stocks, watch_stocks, total_high_vol)
+                       macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
+                       sector_etfs, my_stocks, watch_stocks, total_high_vol)
 
     # 아침 07:00 KST 정기 발송 (Part 1, 2, 3 분할)
     if is_morning_report_time:
@@ -767,6 +877,9 @@ def run_radar():
             f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
             f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
             f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
+            "─────────────────",
+            "<b>🏢 11대 섹터 당일 동향 요약</b>",
+            "\n".join(sector_summary_telegram) if sector_summary_telegram else "• 섹터 데이터 집계 중",
             "─────────────────",
             "<b>🇺🇸 미 증시 실시간 인기/핵심 뉴스 TOP 5</b>",
             "\n".join(us_popular_news),
