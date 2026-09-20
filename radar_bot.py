@@ -60,48 +60,57 @@ MY_TICKERS = [
 
 WATCH_TICKERS = [
     "PWR", "LITE", "FCX", "CVX", "CRCL", "CAT", "OXY", 
-    "AAPL", "AMZN", "META", "HOOD", "PANW", "ORCL"
+    "AAPL", "AMZN", "META", "HOOD", "PANW", "ORCL",
+    "CRWD", "FTNT", "ZS", "CYBR"
 ]
 
-SECTOR_PER_MAP = {
-    "DELL": ("22.0x", "IT하드웨어"),
-    "SOXL": ("—", "레버리지"),
-    "GEV": ("20.5x", "전력인프라"),
-    "HWM": ("21.0x", "우주항공"),
-    "INTC": ("23.5x", "반도체"),
-    "IONQ": ("22.0x", "양자컴퓨팅"),
-    "MRVL": ("23.5x", "반도체"),
-    "MU": ("23.5x", "반도체"),
-    "NVDA": ("23.5x", "반도체"),
-    "PLTR": ("25.0x", "소프트웨어"),
-    "RKLB": ("21.0x", "우주항공"),
-    "SNDK": ("23.5x", "반도체"),
-    "TSM": ("23.5x", "반도체"),
-    "ABCL": ("16.5x", "바이오"),
-    "CRDO": ("23.5x", "네트워킹"),
-    "NBIS": ("22.0x", "클라우드"),
-    "AMD": ("23.5x", "반도체"),
-    "AMAT": ("23.5x", "반도체장비"),
-    "ALAB": ("23.5x", "네트워킹"),
-    "BE": ("20.5x", "전력인프라"),
-    "COHR": ("23.5x", "광통신"),
-    "SCHD": ("16.0x", "배당ETF"),
-    "TQQQ": ("—", "레버리지"),
-    "005930.KS": ("12.5x", "국내반도체"),
-    "000660.KS": ("9.8x", "국내반도체"),
-    "PWR": ("25.0x", "인프라엔지니어링"),
-    "LITE": ("22.0x", "광학/네트워크"),
-    "FCX": ("15.0x", "구리/원자재"),
-    "CVX": ("12.0x", "에너지/오일"),
-    "CRCL": ("20.0x", "헬스케어/기술"),
-    "CAT": ("16.0x", "중장비/산업"),
-    "OXY": ("12.0x", "에너지/버핏"),
-    "AAPL": ("28.0x", "빅테크/디바이스"),
-    "AMZN": ("32.0x", "이커머스/클라우드"),
-    "META": ("25.0x", "소셜/AI"),
-    "HOOD": ("24.0x", "핀테크/브로커리지"),
-    "PANW": ("45.0x", "사이버보안"),
-    "ORCL": ("25.0x", "클라우드/엔터프라이즈")
+# 💡 각 종목별 (F-PER 기준치, 섹터명, Full Name) 매핑
+STOCK_INFO_MAP = {
+    # 내 포트폴리오 (25개)
+    "DELL": ("22.0x", "IT하드웨어", "Dell Technologies"),
+    "SOXL": ("—", "레버리지", "Direxion Daily Semiconductor 3x"),
+    "GEV": ("20.5x", "전력인프라", "GE Vernova Inc."),
+    "HWM": ("21.0x", "우주항공", "Howmet Aerospace"),
+    "INTC": ("23.5x", "반도체", "Intel Corporation"),
+    "IONQ": ("22.0x", "양자컴퓨팅", "IonQ Inc."),
+    "MRVL": ("23.5x", "반도체", "Marvell Technology"),
+    "MU": ("23.5x", "반도체", "Micron Technology"),
+    "NVDA": ("23.5x", "반도체", "NVIDIA Corporation"),
+    "PLTR": ("25.0x", "소프트웨어", "Palantir Technologies"),
+    "RKLB": ("21.0x", "우주항공", "Rocket Lab USA"),
+    "SNDK": ("23.5x", "반도체", "SanDisk / Flash Storage"),
+    "TSM": ("23.5x", "반도체", "Taiwan Semiconductor (TSMC)"),
+    "ABCL": ("16.5x", "바이오", "AbCellera Biologics"),
+    "CRDO": ("23.5x", "네트워킹", "Credo Technology Group"),
+    "NBIS": ("22.0x", "클라우드", "Nebius Group N.V."),
+    "AMD": ("23.5x", "반도체", "Advanced Micro Devices"),
+    "AMAT": ("23.5x", "반도체장비", "Applied Materials"),
+    "ALAB": ("23.5x", "네트워킹", "Astera Labs Inc."),
+    "BE": ("20.5x", "전력인프라", "Bloom Energy Corporation"),
+    "COHR": ("23.5x", "광통신", "Coherent Corp."),
+    "SCHD": ("16.0x", "배당ETF", "Schwab US Dividend Equity ETF"),
+    "TQQQ": ("—", "레버리지", "ProShares UltraPro QQQ 3x"),
+    "005930.KS": ("12.5x", "국내반도체", "삼성전자 (Samsung Electronics)"),
+    "000660.KS": ("9.8x", "국내반도체", "SK하이닉스 (SK Hynix)"),
+    
+    # 관심종목 (17개)
+    "PWR": ("25.0x", "인프라엔지니어링", "Quanta Services"),
+    "LITE": ("22.0x", "광학/네트워크", "Lumentum Holdings"),
+    "FCX": ("15.0x", "구리/원자재", "Freeport-McMoRan"),
+    "CVX": ("12.0x", "에너지/오일", "Chevron Corporation"),
+    "CRCL": ("20.0x", "핀테크/디지털", "Circle Internet Group"),
+    "CAT": ("16.0x", "중장비/산업", "Caterpillar Inc."),
+    "OXY": ("12.0x", "에너지/버핏", "Occidental Petroleum"),
+    "AAPL": ("28.0x", "빅테크/디바이스", "Apple Inc."),
+    "AMZN": ("32.0x", "이커머스/클라우드", "Amazon.com Inc."),
+    "META": ("25.0x", "소셜/AI", "Meta Platforms"),
+    "HOOD": ("24.0x", "핀테크/브로커리지", "Robinhood Markets"),
+    "PANW": ("45.0x", "사이버보안", "Palo Alto Networks"),
+    "ORCL": ("25.0x", "클라우드/엔터프라이즈", "Oracle Corporation"),
+    "CRWD": ("55.0x", "엔드포인트보안", "CrowdStrike Holdings"),
+    "FTNT": ("35.0x", "네트워크보안", "Fortinet Inc."),
+    "ZS": ("45.0x", "클라우드보안", "Zscaler Inc."),
+    "CYBR": ("40.0x", "신원인증보안", "CyberArk Software")
 }
 
 def translate_to_ko_robust(text):
@@ -237,11 +246,9 @@ def get_fear_and_greed():
         return 50, "NEUTRAL"
 
 def get_sp500_market_breadth():
-    """S&P 500 마켓 브레드: 50일선/200일선 상회 종목 비율(%) 수집 및 진단"""
     s50_val = None
     s200_val = None
 
-    # Barchart $S5FI, $S5TH 실시간 수집
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
@@ -264,7 +271,6 @@ def get_sp500_market_breadth():
     except Exception:
         pass
 
-    # 폴백: 섹터 ETF 11개의 50일/200일선 상회 비율로 대체 근사치 산출
     if s50_val is None or s200_val is None:
         above_50 = 0
         above_200 = 0
@@ -292,7 +298,6 @@ def get_sp500_market_breadth():
             s50_val = 50.0
             s200_val = 60.0
 
-    # 종합 진단 평결
     if s200_val >= 60.0 and s50_val >= 50.0:
         health_status = "🟢 광범위한 대세 상승장 (건전한 상승 흐름)"
     elif s200_val >= 50.0 and s50_val < 35.0:
@@ -400,13 +405,15 @@ def fetch_stock_data_list(ticker_list):
 
             fwd_pe = t.info.get("forwardPE")
             pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
-            sec_pe, _ = SECTOR_PER_MAP.get(ticker, ("22.0x", "섹터"))
+            
+            # 정보 매핑 가져오기
+            sec_pe, sector_name, full_name = STOCK_INFO_MAP.get(ticker, ("22.0x", "일반", ticker))
 
-            display_name = "삼성전자" if ticker == "005930.KS" else ("SK하이닉스" if ticker == "000660.KS" else ticker)
+            display_name = full_name.split()[0] if "(" in full_name else ticker
 
             if abs(d_chg) >= 10.0:
                 sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
-                high_vol.append(f"🚨 <b>{display_name}</b>: {d_chg:+.1f}% {sign_txt}")
+                high_vol.append(f"🚨 <b>{display_name} ({ticker})</b>: {d_chg:+.1f}% {sign_txt}")
 
             if "SOXL" in ticker or "TQQQ" in ticker:
                 sig = "⚪ 비중관리"
@@ -418,7 +425,9 @@ def fetch_stock_data_list(ticker_list):
                 sig = "🟡 홀딩/분할"
 
             stock_data_list.append({
-                "ticker": ticker, "ticker_name": display_name,
+                "ticker": ticker, 
+                "full_name": full_name,
+                "sector_name": sector_name,
                 "cur_p": cur_p, "d_chg": d_chg, "mdd": mdd,
                 "disp20": disp20, "disp50": disp50, "disp200": disp200,
                 "disp20_str": disp20_str, "disp50_str": disp50_str, "disp200_str": disp200_str,
@@ -427,9 +436,10 @@ def fetch_stock_data_list(ticker_list):
 
             p_str = f"₩{cur_p:,.0f}" if ".KS" in ticker else f"${cur_p:.2f}"
             card = (
-                f"▪️ <b>{display_name}</b>: <b>{p_str}</b> ({d_chg:+.1f}%)\n"
-                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}% | <b>MDD: {mdd:.1f}%</b> | F-PER: <b>{pe_str}</b> ({sig})\n"
-                f"   이격도: 20D <b>{disp20_str}</b> | 50D <b>{disp50_str}</b> | 200D <b>{disp200_str}</b>"
+                f"▪️ <b>{ticker}</b> ({full_name}) | <code>{sector_name}</code>\n"
+                f"   <b>가격:</b> {p_str} ({d_chg:+.1f}%) | <b>MDD:</b> {mdd:.1f}%\n"
+                f"   <b>이격도:</b> 20D <b>{disp20_str}</b> | 50D <b>{disp50_str}</b> | 200D <b>{disp200_str}</b>\n"
+                f"   <b>밸류:</b> F-PER <b>{pe_str}</b> (섹터: {sec_pe}) ➔ {sig}"
             )
             stock_cards.append(card)
         except Exception:
@@ -534,6 +544,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </tr>
         """
 
+    # 💡 티커 / Full Name / Sector 3단 스택 디자인 행 생성
     def render_table_rows(stock_list):
         rows = ""
         for s in stock_list:
@@ -542,10 +553,15 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             c50 = "#22c55e" if s['disp50'] and s['disp50'] >= 0 else "#ef4444"
             c200 = "#22c55e" if s['disp200'] and s['disp200'] >= 0 else "#ef4444"
             cur_display = f"₩{s['cur_p']:,.0f}" if ".KS" in s['ticker'] else f"${s['cur_p']:.2f}"
+            
             rows += f"""
             <tr>
-                <td class="bold">{s['ticker_name']}</td>
-                <td>{cur_display}</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">{s['ticker']}</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">{s['full_name']}</div>
+                    <span class="sector-tag">{s['sector_name']}</span>
+                </td>
+                <td style="font-weight: 700;">{cur_display}</td>
                 <td style="color: {chg_color}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
                 <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -608,12 +624,13 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .border-t {{ border-top: 1px solid var(--border); }}
         .badge-mdd {{ background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }}
         .badge-sub {{ background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 11px; }}
+        .sector-tag {{ display: inline-block; font-size: 10px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25); }}
         .section-title {{ font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }}
         ul {{ padding-left: 18px; }}
         li {{ margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }}
         .table-wrap {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 14px; }}
-        table {{ width: 100%; border-collapse: collapse; min-width: 620px; font-size: 13px; }}
-        th, td {{ padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }}
+        table {{ width: 100%; border-collapse: collapse; min-width: 650px; font-size: 13px; }}
+        th, td {{ padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }}
         th {{ background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }}
         .bold {{ font-weight: bold; }}
         .signal-tag {{ font-size: 11px; padding: 2px 6px; background: #23314e; border-radius: 4px; white-space: nowrap; }}
@@ -638,7 +655,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <div class="mt-2 text-sub">CNN Fear & Greed: <b>{score}점 ({rating})</b> | {fg_status}</div>
     </div>
 
-    <!-- 💡 [신규 탑재] S&P 500 마켓 브레드 (50일선/200일선 상회 비율) -->
     <div class="card" style="border-left: 4px solid var(--accent);">
         <div class="flex-between">
             <span class="card-title">🌡️ S&P 500 마켓 브레드 (Market Breadth)</span>
@@ -710,7 +726,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <table>
             <thead>
                 <tr>
-                    <th>종목명</th>
+                    <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
@@ -725,12 +741,12 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </table>
     </div>
 
-    <div class="section-title">⭐ 관심종목 레이더 (Watchlist 13개)</div>
+    <div class="section-title">⭐ 관심종목 레이더 (Watchlist 17개)</div>
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>종목명</th>
+                    <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
@@ -774,7 +790,6 @@ def run_radar():
         fg_status = "⚖️ [중립 구간 - 숨고르기]"
         core_signal = "🟡 WAIT (관망 및 선별 분할매수)"
 
-    # 💡 마켓 브레드 데이터 수집
     s50_val, s200_val, breadth_status = get_sp500_market_breadth()
 
     # 1. 지수 수집
@@ -948,13 +963,13 @@ def run_radar():
             f"• <b>약세 섹터:</b> {', '.join(bot3)}"
         ]
 
-    # 6. 종목 수집 (내 포트폴리오 25개 + 관심 종목 13개)
+    # 6. 종목 수집 (내 포트폴리오 25개 + 관심 종목 17개)
     my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
     watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
     
     total_high_vol = my_high_vol + watch_high_vol
 
-    # HTML 웹 대시보드 1시간 주기 자동 갱신
+    # HTML 웹 대시보드 생성 (1시간 주기 자동 갱신)
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, 
                        s50_val, s200_val, breadth_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
@@ -1001,7 +1016,7 @@ def run_radar():
         send_message("\n".join(part2))
 
         part3 = [
-            "<b>⭐ 관심종목(Watchlist) 13개 정밀 진단 (Part 3/3)</b>",
+            "<b>⭐ 관심종목(Watchlist) 17개 정밀 진단 (Part 3/3)</b>",
             "─────────────────"
         ]
         if watch_high_vol:
