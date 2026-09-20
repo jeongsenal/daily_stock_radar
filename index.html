@@ -36,12 +36,13 @@
         .border-t { border-top: 1px solid var(--border); }
         .badge-mdd { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
         .badge-sub { background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .sector-tag { display: inline-block; font-size: 10px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25); }
         .section-title { font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }
         ul { padding-left: 18px; }
         li { margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 14px; }
-        table { width: 100%; border-collapse: collapse; min-width: 620px; font-size: 13px; }
-        th, td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; min-width: 650px; font-size: 13px; }
+        th, td { padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
         th { background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }
         .bold { font-weight: bold; }
         .signal-tag { font-size: 11px; padding: 2px 6px; background: #23314e; border-radius: 4px; white-space: nowrap; }
@@ -57,7 +58,7 @@
 <body>
     <header>
         <h1>📡 GLOBAL 증시 & 자산 투자 레이더 <span class="badge-live">LIVE 1H</span></h1>
-        <div class="date">최근 동기화: 2026-09-20 16:04 KST (1시간 주기 자동 갱신)</div>
+        <div class="date">최근 동기화: 2026-09-20 16:26 KST (1시간 주기 자동 갱신)</div>
     </header>
 
     <div class="signal-box">
@@ -66,7 +67,6 @@
         <div class="mt-2 text-sub">CNN Fear & Greed: <b>29점 (FEAR)</b> | 👀 [관심 알림 - 저점 매수 모니터링]</div>
     </div>
 
-    <!-- 💡 [신규 탑재] S&P 500 마켓 브레드 (50일선/200일선 상회 비율) -->
     <div class="card" style="border-left: 4px solid var(--accent);">
         <div class="flex-between">
             <span class="card-title">🌡️ S&P 500 마켓 브레드 (Market Breadth)</span>
@@ -85,11 +85,11 @@
         </div>
     </div>
 
-    <div class='high-vol-box'><h4>🚨 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>SNDK</b>: +11.0% 급등 🚀</div></div>
+    <div class='high-vol-box'><h4>🚨 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>SNDK (SNDK)</b>: +11.0% 급등 🚀</div></div>
 
     <div class="section-title">🇺🇸 미 증시 실시간 핵심 & 인기 뉴스 TOP 5</div>
     <div class="card">
-        <ul><li><b>[미증시]</b> [특징주] 삼전·닉스, 0.2∼0.4% 하락 마감(종합) <i>(연합뉴스)</i></li><li><b>[미증시]</b> 인텔 4.11%·델 3.64% 상승…SK하이닉스와 美 메모리 생산 협력설 [뉴욕증시 특징주] <i>(citytimes.co.kr)</i></li><li><b>[미증시]</b> [특징주] '자사주 매입'에도 중동 긴장 재고조 속 삼전·닉스 4%대↓(종합) <i>(연합뉴스)</i></li><li><b>[월가소식]</b> NuScale Power는 원자력 주식이 투표 랠리를 되돌리면서 7% 하락합니다. 오클로 폴스 5%, 센트러스 에너지 슬라이드 3% <i>(247wallst.com)</i></li><li><b>[월가소식]</b> 유가가 하락하고 인플레이션이 악화됨에 따라 미국 증시는 사상 최고치로 상승합니다. <i>(AP News)</i></li></ul>
+        <ul><li><b>[미증시]</b> [특징주] 삼전·닉스, 0.2∼0.4% 하락 마감(종합) <i>(연합뉴스)</i></li><li><b>[미증시]</b> [특징주] '자사주 매입'에도 중동 긴장 재고조 속 삼전·닉스 4%대↓(종합) <i>(매일경제 마켓)</i></li><li><b>[미증시]</b> [특징주] 삼전닉스, 약보합 마감…기관은 사고, 외국인은 팔고(종합) <i>(한국경제TV)</i></li><li><b>[월가소식]</b> NuScale Power는 원자력 주식이 투표 랠리를 되돌리면서 7% 하락합니다. 오클로 폴스 5%, 센트러스 에너지 슬라이드 3% <i>(24/7 Wall St.)</i></li><li><b>[월가소식]</b> 유가가 하락하고 인플레이션이 악화됨에 따라 미국 증시는 사상 최고치로 상승합니다. <i>(AP News)</i></li></ul>
     </div>
 
     <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 고점대비)</div>
@@ -98,30 +98,30 @@
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">비트코인 (BTC)</span>
-                <span class="price">$80,270.88</span>
+                <span class="price">$80,367.01</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">1H: -0.02%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -0.78%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.12%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -0.66%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="badge-sub">7D 고점: -1.3%</span>
-                <span class="badge-sub">30D 고점: -2.4%</span>
+                <span class="badge-sub">7D 고점: -1.2%</span>
+                <span class="badge-sub">30D 고점: -2.3%</span>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold">이더리움 (ETH)</span>
-                <span class="price">$2,572.80</span>
+                <span class="price">$2,576.07</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">1H: -0.02%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -1.48%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.11%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -1.35%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="badge-sub">7D 고점: -2.7%</span>
-                <span class="badge-sub">30D 고점: -3.4%</span>
+                <span class="badge-sub">7D 고점: -2.6%</span>
+                <span class="badge-sub">30D 고점: -3.3%</span>
             </div>
         </div>
         
@@ -131,12 +131,12 @@
                 <span class="price">$1.38</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">1H: +0.12%</span>
-                <span style="color: #ef4444; font-weight: bold;">24H: -1.01%</span>
+                <span style="color: #22c55e; font-weight: bold;">1H: +0.21%</span>
+                <span style="color: #ef4444; font-weight: bold;">24H: -0.92%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
-                <span class="badge-sub">7D 고점: -7.1%</span>
-                <span class="badge-sub">30D 고점: -17.9%</span>
+                <span class="badge-sub">7D 고점: -7.0%</span>
+                <span class="badge-sub">30D 고점: -17.8%</span>
             </div>
         </div>
         
@@ -541,7 +541,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>종목명</th>
+                    <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
@@ -553,8 +553,12 @@
             <tbody>
                 
             <tr>
-                <td class="bold">DELL</td>
-                <td>$568.06</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">DELL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Dell Technologies</div>
+                    <span class="sector-tag">IT하드웨어</span>
+                </td>
+                <td style="font-weight: 700;">$568.06</td>
                 <td style="color: #ef4444; font-weight: bold;">-3.46%</td>
                 <td><span class="badge-mdd">-4.6%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -567,8 +571,12 @@
             </tr>
             
             <tr>
-                <td class="bold">SOXL</td>
-                <td>$123.67</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">SOXL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Direxion Daily Semiconductor 3x</div>
+                    <span class="sector-tag">레버리지</span>
+                </td>
+                <td style="font-weight: 700;">$123.67</td>
                 <td style="color: #22c55e; font-weight: bold;">+7.71%</td>
                 <td><span class="badge-mdd">-59.0%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -581,8 +589,12 @@
             </tr>
             
             <tr>
-                <td class="bold">GEV</td>
-                <td>$940.33</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">GEV</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">GE Vernova Inc.</div>
+                    <span class="sector-tag">전력인프라</span>
+                </td>
+                <td style="font-weight: 700;">$940.33</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.66%</td>
                 <td><span class="badge-mdd">-21.4%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -595,8 +607,12 @@
             </tr>
             
             <tr>
-                <td class="bold">HWM</td>
-                <td>$229.67</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">HWM</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Howmet Aerospace</div>
+                    <span class="sector-tag">우주항공</span>
+                </td>
+                <td style="font-weight: 700;">$229.67</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.73%</td>
                 <td><span class="badge-mdd">-25.9%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -609,8 +625,12 @@
             </tr>
             
             <tr>
-                <td class="bold">INTC</td>
-                <td>$108.60</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">INTC</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Intel Corporation</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$108.60</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.18%</td>
                 <td><span class="badge-mdd">-23.7%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -623,8 +643,12 @@
             </tr>
             
             <tr>
-                <td class="bold">IONQ</td>
-                <td>$39.13</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">IONQ</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">IonQ Inc.</div>
+                    <span class="sector-tag">양자컴퓨팅</span>
+                </td>
+                <td style="font-weight: 700;">$39.13</td>
                 <td style="color: #ef4444; font-weight: bold;">-3.00%</td>
                 <td><span class="badge-mdd">-53.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -637,8 +661,12 @@
             </tr>
             
             <tr>
-                <td class="bold">MRVL</td>
-                <td>$244.25</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">MRVL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Marvell Technology</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$244.25</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.45%</td>
                 <td><span class="badge-mdd">-26.0%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -651,8 +679,12 @@
             </tr>
             
             <tr>
-                <td class="bold">MU</td>
-                <td>$1015.80</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">MU</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Micron Technology</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$1015.80</td>
                 <td style="color: #22c55e; font-weight: bold;">+3.92%</td>
                 <td><span class="badge-mdd">-19.1%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -665,8 +697,12 @@
             </tr>
             
             <tr>
-                <td class="bold">NVDA</td>
-                <td>$222.27</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">NVDA</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">NVIDIA Corporation</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$222.27</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.34%</td>
                 <td><span class="badge-mdd">-6.0%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -679,8 +715,12 @@
             </tr>
             
             <tr>
-                <td class="bold">PLTR</td>
-                <td>$177.64</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">PLTR</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Palantir Technologies</div>
+                    <span class="sector-tag">소프트웨어</span>
+                </td>
+                <td style="font-weight: 700;">$177.64</td>
                 <td style="color: #22c55e; font-weight: bold;">+0.79%</td>
                 <td><span class="badge-mdd">-14.4%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -693,8 +733,12 @@
             </tr>
             
             <tr>
-                <td class="bold">RKLB</td>
-                <td>$64.57</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">RKLB</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Rocket Lab USA</div>
+                    <span class="sector-tag">우주항공</span>
+                </td>
+                <td style="font-weight: 700;">$64.57</td>
                 <td style="color: #ef4444; font-weight: bold;">-4.79%</td>
                 <td><span class="badge-mdd">-57.2%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -707,8 +751,12 @@
             </tr>
             
             <tr>
-                <td class="bold">SNDK</td>
-                <td>$1791.82</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">SNDK</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">SanDisk / Flash Storage</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$1791.82</td>
                 <td style="color: #22c55e; font-weight: bold;">+10.99%</td>
                 <td><span class="badge-mdd">-23.9%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -721,8 +769,12 @@
             </tr>
             
             <tr>
-                <td class="bold">TSM</td>
-                <td>$434.67</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">TSM</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Taiwan Semiconductor (TSMC)</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$434.67</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.02%</td>
                 <td><span class="badge-mdd">-9.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -735,8 +787,12 @@
             </tr>
             
             <tr>
-                <td class="bold">ABCL</td>
-                <td>$12.63</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">ABCL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">AbCellera Biologics</div>
+                    <span class="sector-tag">바이오</span>
+                </td>
+                <td style="font-weight: 700;">$12.63</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.79%</td>
                 <td><span class="badge-mdd">-4.2%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -749,8 +805,12 @@
             </tr>
             
             <tr>
-                <td class="bold">CRDO</td>
-                <td>$175.89</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">CRDO</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Credo Technology Group</div>
+                    <span class="sector-tag">네트워킹</span>
+                </td>
+                <td style="font-weight: 700;">$175.89</td>
                 <td style="color: #22c55e; font-weight: bold;">+4.54%</td>
                 <td><span class="badge-mdd">-43.0%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -763,8 +823,12 @@
             </tr>
             
             <tr>
-                <td class="bold">NBIS</td>
-                <td>$223.54</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">NBIS</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Nebius Group N.V.</div>
+                    <span class="sector-tag">클라우드</span>
+                </td>
+                <td style="font-weight: 700;">$223.54</td>
                 <td style="color: #22c55e; font-weight: bold;">+2.55%</td>
                 <td><span class="badge-mdd">-25.5%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -777,8 +841,12 @@
             </tr>
             
             <tr>
-                <td class="bold">AMD</td>
-                <td>$559.82</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">AMD</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Advanced Micro Devices</div>
+                    <span class="sector-tag">반도체</span>
+                </td>
+                <td style="font-weight: 700;">$559.82</td>
                 <td style="color: #22c55e; font-weight: bold;">+2.70%</td>
                 <td><span class="badge-mdd">-4.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -791,8 +859,12 @@
             </tr>
             
             <tr>
-                <td class="bold">AMAT</td>
-                <td>$444.57</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">AMAT</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Applied Materials</div>
+                    <span class="sector-tag">반도체장비</span>
+                </td>
+                <td style="font-weight: 700;">$444.57</td>
                 <td style="color: #22c55e; font-weight: bold;">+6.51%</td>
                 <td><span class="badge-mdd">-39.9%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -805,8 +877,12 @@
             </tr>
             
             <tr>
-                <td class="bold">ALAB</td>
-                <td>$303.25</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">ALAB</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Astera Labs Inc.</div>
+                    <span class="sector-tag">네트워킹</span>
+                </td>
+                <td style="font-weight: 700;">$303.25</td>
                 <td style="color: #22c55e; font-weight: bold;">+3.30%</td>
                 <td><span class="badge-mdd">-39.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -819,8 +895,12 @@
             </tr>
             
             <tr>
-                <td class="bold">BE</td>
-                <td>$265.63</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">BE</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Bloom Energy Corporation</div>
+                    <span class="sector-tag">전력인프라</span>
+                </td>
+                <td style="font-weight: 700;">$265.63</td>
                 <td style="color: #ef4444; font-weight: bold;">-5.39%</td>
                 <td><span class="badge-mdd">-24.4%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -833,8 +913,12 @@
             </tr>
             
             <tr>
-                <td class="bold">COHR</td>
-                <td>$317.36</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">COHR</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Coherent Corp.</div>
+                    <span class="sector-tag">광통신</span>
+                </td>
+                <td style="font-weight: 700;">$317.36</td>
                 <td style="color: #22c55e; font-weight: bold;">+7.22%</td>
                 <td><span class="badge-mdd">-27.9%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -847,8 +931,12 @@
             </tr>
             
             <tr>
-                <td class="bold">SCHD</td>
-                <td>$33.68</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">SCHD</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Schwab US Dividend Equity ETF</div>
+                    <span class="sector-tag">배당ETF</span>
+                </td>
+                <td style="font-weight: 700;">$33.68</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.62%</td>
                 <td><span class="badge-mdd">-4.6%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -861,8 +949,12 @@
             </tr>
             
             <tr>
-                <td class="bold">TQQQ</td>
-                <td>$72.64</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">TQQQ</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">ProShares UltraPro QQQ 3x</div>
+                    <span class="sector-tag">레버리지</span>
+                </td>
+                <td style="font-weight: 700;">$72.64</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.77%</td>
                 <td><span class="badge-mdd">-17.5%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -875,8 +967,12 @@
             </tr>
             
             <tr>
-                <td class="bold">삼성전자</td>
-                <td>₩261,000</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">005930.KS</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">삼성전자 (Samsung Electronics)</div>
+                    <span class="sector-tag">국내반도체</span>
+                </td>
+                <td style="font-weight: 700;">₩261,000</td>
                 <td style="color: #22c55e; font-weight: bold;">+3.37%</td>
                 <td><span class="badge-mdd">-30.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -889,8 +985,12 @@
             </tr>
             
             <tr>
-                <td class="bold">SK하이닉스</td>
-                <td>₩1,857,000</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">000660.KS</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">SK하이닉스 (SK Hynix)</div>
+                    <span class="sector-tag">국내반도체</span>
+                </td>
+                <td style="font-weight: 700;">₩1,857,000</td>
                 <td style="color: #22c55e; font-weight: bold;">+6.42%</td>
                 <td><span class="badge-mdd">-37.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -906,12 +1006,12 @@
         </table>
     </div>
 
-    <div class="section-title">⭐ 관심종목 레이더 (Watchlist 13개)</div>
+    <div class="section-title">⭐ 관심종목 레이더 (Watchlist 17개)</div>
     <div class="table-wrap">
         <table>
             <thead>
                 <tr>
-                    <th>종목명</th>
+                    <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
@@ -923,8 +1023,12 @@
             <tbody>
                 
             <tr>
-                <td class="bold">PWR</td>
-                <td>$636.71</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">PWR</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Quanta Services</div>
+                    <span class="sector-tag">인프라엔지니어링</span>
+                </td>
+                <td style="font-weight: 700;">$636.71</td>
                 <td style="color: #22c55e; font-weight: bold;">+3.27%</td>
                 <td><span class="badge-mdd">-19.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -937,8 +1041,12 @@
             </tr>
             
             <tr>
-                <td class="bold">LITE</td>
-                <td>$930.91</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">LITE</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Lumentum Holdings</div>
+                    <span class="sector-tag">광학/네트워크</span>
+                </td>
+                <td style="font-weight: 700;">$930.91</td>
                 <td style="color: #22c55e; font-weight: bold;">+4.17%</td>
                 <td><span class="badge-mdd">-14.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -951,8 +1059,12 @@
             </tr>
             
             <tr>
-                <td class="bold">FCX</td>
-                <td>$71.54</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">FCX</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Freeport-McMoRan</div>
+                    <span class="sector-tag">구리/원자재</span>
+                </td>
+                <td style="font-weight: 700;">$71.54</td>
                 <td style="color: #22c55e; font-weight: bold;">+0.97%</td>
                 <td><span class="badge-mdd">-10.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -965,8 +1077,12 @@
             </tr>
             
             <tr>
-                <td class="bold">CVX</td>
-                <td>$209.51</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">CVX</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Chevron Corporation</div>
+                    <span class="sector-tag">에너지/오일</span>
+                </td>
+                <td style="font-weight: 700;">$209.51</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.97%</td>
                 <td><span class="badge-mdd">-3.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -979,8 +1095,12 @@
             </tr>
             
             <tr>
-                <td class="bold">CRCL</td>
-                <td>$91.78</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">CRCL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Circle Internet Group</div>
+                    <span class="sector-tag">핀테크/디지털</span>
+                </td>
+                <td style="font-weight: 700;">$91.78</td>
                 <td style="color: #22c55e; font-weight: bold;">+7.86%</td>
                 <td><span class="badge-mdd">-42.4%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -993,8 +1113,12 @@
             </tr>
             
             <tr>
-                <td class="bold">CAT</td>
-                <td>$808.99</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">CAT</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Caterpillar Inc.</div>
+                    <span class="sector-tag">중장비/산업</span>
+                </td>
+                <td style="font-weight: 700;">$808.99</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.30%</td>
                 <td><span class="badge-mdd">-24.6%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1007,8 +1131,12 @@
             </tr>
             
             <tr>
-                <td class="bold">OXY</td>
-                <td>$58.84</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">OXY</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Occidental Petroleum</div>
+                    <span class="sector-tag">에너지/버핏</span>
+                </td>
+                <td style="font-weight: 700;">$58.84</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.76%</td>
                 <td><span class="badge-mdd">-12.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1021,8 +1149,12 @@
             </tr>
             
             <tr>
-                <td class="bold">AAPL</td>
-                <td>$336.13</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">AAPL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Apple Inc.</div>
+                    <span class="sector-tag">빅테크/디바이스</span>
+                </td>
+                <td style="font-weight: 700;">$336.13</td>
                 <td style="color: #ef4444; font-weight: bold;">-0.26%</td>
                 <td><span class="badge-mdd">-2.4%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1035,8 +1167,12 @@
             </tr>
             
             <tr>
-                <td class="bold">AMZN</td>
-                <td>$253.71</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">AMZN</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Amazon.com Inc.</div>
+                    <span class="sector-tag">이커머스/클라우드</span>
+                </td>
+                <td style="font-weight: 700;">$253.71</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.00%</td>
                 <td><span class="badge-mdd">-11.7%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1049,8 +1185,12 @@
             </tr>
             
             <tr>
-                <td class="bold">META</td>
-                <td>$665.75</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">META</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Meta Platforms</div>
+                    <span class="sector-tag">소셜/AI</span>
+                </td>
+                <td style="font-weight: 700;">$665.75</td>
                 <td style="color: #ef4444; font-weight: bold;">-2.43%</td>
                 <td><span class="badge-mdd">-15.3%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1063,8 +1203,12 @@
             </tr>
             
             <tr>
-                <td class="bold">HOOD</td>
-                <td>$119.82</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">HOOD</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Robinhood Markets</div>
+                    <span class="sector-tag">핀테크/브로커리지</span>
+                </td>
+                <td style="font-weight: 700;">$119.82</td>
                 <td style="color: #22c55e; font-weight: bold;">+9.12%</td>
                 <td><span class="badge-mdd">-22.1%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1077,8 +1221,12 @@
             </tr>
             
             <tr>
-                <td class="bold">PANW</td>
-                <td>$363.58</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">PANW</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Palo Alto Networks</div>
+                    <span class="sector-tag">사이버보안</span>
+                </td>
+                <td style="font-weight: 700;">$363.58</td>
                 <td style="color: #ef4444; font-weight: bold;">-3.06%</td>
                 <td><span class="badge-mdd">-8.8%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1091,8 +1239,12 @@
             </tr>
             
             <tr>
-                <td class="bold">ORCL</td>
-                <td>$147.61</td>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">ORCL</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Oracle Corporation</div>
+                    <span class="sector-tag">클라우드/엔터프라이즈</span>
+                </td>
+                <td style="font-weight: 700;">$147.61</td>
                 <td style="color: #ef4444; font-weight: bold;">-1.98%</td>
                 <td><span class="badge-mdd">-55.2%</span></td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1101,6 +1253,60 @@
                     200D: <b style="color: #ef4444;">-10.8%</b>
                 </td>
                 <td>13.4x <span class="text-sub">(25.0x)</span></td>
+                <td><span class="signal-tag">🟢 저평가분할</span></td>
+            </tr>
+            
+            <tr>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">CRWD</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">CrowdStrike Holdings</div>
+                    <span class="sector-tag">엔드포인트보안</span>
+                </td>
+                <td style="font-weight: 700;">$237.65</td>
+                <td style="color: #ef4444; font-weight: bold;">-3.28%</td>
+                <td><span class="badge-mdd">-5.1%</span></td>
+                <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                    20D: <b style="color: #22c55e;">+10.1%</b><br>
+                    50D: <b style="color: #22c55e;">+14.8%</b><br>
+                    200D: <b style="color: #22c55e;">+61.7%</b>
+                </td>
+                <td>148.0x <span class="text-sub">(55.0x)</span></td>
+                <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+            </tr>
+            
+            <tr>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">FTNT</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Fortinet Inc.</div>
+                    <span class="sector-tag">네트워크보안</span>
+                </td>
+                <td style="font-weight: 700;">$169.84</td>
+                <td style="color: #ef4444; font-weight: bold;">-1.59%</td>
+                <td><span class="badge-mdd">-3.6%</span></td>
+                <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                    20D: <b style="color: #22c55e;">+4.8%</b><br>
+                    50D: <b style="color: #22c55e;">+6.0%</b><br>
+                    200D: <b style="color: #22c55e;">+49.1%</b>
+                </td>
+                <td>45.0x <span class="text-sub">(35.0x)</span></td>
+                <td><span class="signal-tag">🟡 홀딩/분할</span></td>
+            </tr>
+            
+            <tr>
+                <td style="line-height: 1.35;">
+                    <div class="bold" style="font-size: 14px;">ZS</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Zscaler Inc.</div>
+                    <span class="sector-tag">클라우드보안</span>
+                </td>
+                <td style="font-weight: 700;">$197.31</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.08%</td>
+                <td><span class="badge-mdd">-41.4%</span></td>
+                <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                    20D: <b style="color: #22c55e;">+10.1%</b><br>
+                    50D: <b style="color: #22c55e;">+17.7%</b><br>
+                    200D: <b style="color: #22c55e;">+17.2%</b>
+                </td>
+                <td>35.2x <span class="text-sub">(45.0x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
