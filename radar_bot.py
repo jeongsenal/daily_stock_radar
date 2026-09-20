@@ -64,7 +64,6 @@ WATCH_TICKERS = [
     "CRWD", "FTNT", "ZS", "CYBR"
 ]
 
-# 💡 각 종목별 (F-PER 기준치, 섹터명, Full Name) 매핑
 STOCK_INFO_MAP = {
     # 내 포트폴리오 (25개)
     "DELL": ("22.0x", "IT하드웨어", "Dell Technologies"),
@@ -349,7 +348,16 @@ def fetch_sector_etfs():
             high_52w = t.info.get("fiftyTwoWeekHigh")
             if not high_52w or pd.isna(high_52w):
                 high_52w = float(hist['High'].max())
+            low_52w = t.info.get("fiftyTwoWeekLow")
+            if not low_52w or pd.isna(low_52w):
+                low_52w = float(hist['Low'].min())
+
             mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
+            
+            # 슬라이더 위치 퍼센트 (0% ~ 100%)
+            slider_pct = 0.0
+            if high_52w > low_52w:
+                slider_pct = max(0.0, min(100.0, ((cur_p - low_52w) / (high_52w - low_52w)) * 100))
 
             sector_list.append({
                 "sym": sym,
@@ -359,7 +367,10 @@ def fetch_sector_etfs():
                 "w_chg": w_chg,
                 "m_chg": m_chg,
                 "y_chg": y_chg,
-                "mdd": mdd
+                "mdd": mdd,
+                "high_52w": high_52w,
+                "low_52w": low_52w,
+                "slider_pct": slider_pct
             })
         except Exception:
             continue
@@ -389,7 +400,16 @@ def fetch_stock_data_list(ticker_list):
             high_52w = t.info.get("fiftyTwoWeekHigh")
             if not high_52w or pd.isna(high_52w):
                 high_52w = float(hist['High'].max())
+            low_52w = t.info.get("fiftyTwoWeekLow")
+            if not low_52w or pd.isna(low_52w):
+                low_52w = float(hist['Low'].min())
+
             mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
+            
+            # 슬라이더 위치 퍼센트 (0% ~ 100%)
+            slider_pct = 0.0
+            if high_52w > low_52w:
+                slider_pct = max(0.0, min(100.0, ((cur_p - low_52w) / (high_52w - low_52w)) * 100))
 
             sma20 = float(hist['Close'].rolling(window=20).mean().iloc[-1]) if len(hist) >= 20 else None
             sma50 = float(hist['Close'].rolling(window=50).mean().iloc[-1]) if len(hist) >= 50 else None
@@ -406,9 +426,7 @@ def fetch_stock_data_list(ticker_list):
             fwd_pe = t.info.get("forwardPE")
             pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
             
-            # 정보 매핑 가져오기
             sec_pe, sector_name, full_name = STOCK_INFO_MAP.get(ticker, ("22.0x", "일반", ticker))
-
             display_name = full_name.split()[0] if "(" in full_name else ticker
 
             if abs(d_chg) >= 10.0:
@@ -428,7 +446,9 @@ def fetch_stock_data_list(ticker_list):
                 "ticker": ticker, 
                 "full_name": full_name,
                 "sector_name": sector_name,
-                "cur_p": cur_p, "d_chg": d_chg, "mdd": mdd,
+                "cur_p": cur_p, "d_chg": d_chg, 
+                "high_52w": high_52w, "low_52w": low_52w,
+                "mdd": mdd, "slider_pct": slider_pct,
                 "disp20": disp20, "disp50": disp50, "disp200": disp200,
                 "disp20_str": disp20_str, "disp50_str": disp50_str, "disp200_str": disp200_str,
                 "pe_str": pe_str, "sec_pe": sec_pe, "sig": sig
@@ -526,12 +546,14 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
+    # 💡 11대 섹터 테이블 슬라이더 바 행 생성
     sector_rows_html = ""
     for s in sector_etfs:
         c_d = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
         c_w = "#ef4444" if s['w_chg'] < 0 else "#22c55e"
         c_m = "#ef4444" if s['m_chg'] < 0 else "#22c55e"
         c_y = "#ef4444" if s['y_chg'] < 0 else "#22c55e"
+        
         sector_rows_html += f"""
         <tr>
             <td class="bold">{s['sym']} <span class="text-sub" style="font-size: 11px;">({s['name'].split()[0]})</span></td>
@@ -540,11 +562,22 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             <td style="color: {c_w};">{s['w_chg']:+.2f}%</td>
             <td style="color: {c_m};">{s['m_chg']:+.2f}%</td>
             <td style="color: {c_y};">{s['y_chg']:+.2f}%</td>
-            <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
+            <td style="min-width: 170px;">
+                <div class="slider-wrap">
+                    <span class="slider-val">{s['low_52w']:.1f}</span>
+                    <div class="slider-track">
+                        <div class="slider-dot" style="left: {s['slider_pct']:.1f}%;"></div>
+                    </div>
+                    <span class="slider-val">{s['high_52w']:.1f}</span>
+                </div>
+                <div class="slider-sub">
+                    <span class="badge-mdd">MDD {s['mdd']:.1f}%</span>
+                </div>
+            </td>
         </tr>
         """
 
-    # 💡 티커 / Full Name / Sector 3단 스택 디자인 행 생성
+    # 💡 포트폴리오 & 관심종목 슬라이더 바 행 생성
     def render_table_rows(stock_list):
         rows = ""
         for s in stock_list:
@@ -552,18 +585,33 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             c20 = "#22c55e" if s['disp20'] and s['disp20'] >= 0 else "#ef4444"
             c50 = "#22c55e" if s['disp50'] and s['disp50'] >= 0 else "#ef4444"
             c200 = "#22c55e" if s['disp200'] and s['disp200'] >= 0 else "#ef4444"
-            cur_display = f"₩{s['cur_p']:,.0f}" if ".KS" in s['ticker'] else f"${s['cur_p']:.2f}"
+            
+            is_kr = ".KS" in s['ticker']
+            cur_display = f"₩{s['cur_p']:,.0f}" if is_kr else f"${s['cur_p']:.2f}"
+            low_str = f"₩{s['low_52w']:,.0f}" if is_kr else f"{s['low_52w']:.1f}"
+            high_str = f"₩{s['high_52w']:,.0f}" if is_kr else f"{s['high_52w']:.1f}"
             
             rows += f"""
             <tr>
-                <td style="line-height: 1.35;">
+                <td style="line-height: 1.35; min-width: 150px;">
                     <div class="bold" style="font-size: 14px;">{s['ticker']}</div>
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">{s['full_name']}</div>
                     <span class="sector-tag">{s['sector_name']}</span>
                 </td>
                 <td style="font-weight: 700;">{cur_display}</td>
                 <td style="color: {chg_color}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
-                <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
+                <td style="min-width: 175px;">
+                    <div class="slider-wrap">
+                        <span class="slider-val">{low_str}</span>
+                        <div class="slider-track">
+                            <div class="slider-dot" style="left: {s['slider_pct']:.1f}%;"></div>
+                        </div>
+                        <span class="slider-val">{high_str}</span>
+                    </div>
+                    <div class="slider-sub">
+                        <span class="badge-mdd">MDD {s['mdd']:.1f}%</span>
+                    </div>
+                </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
                     20D: <b style="color: {c20};">{s['disp20_str']}</b><br>
                     50D: <b style="color: {c50};">{s['disp50_str']}</b><br>
@@ -629,11 +677,19 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         ul {{ padding-left: 18px; }}
         li {{ margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }}
         .table-wrap {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 14px; }}
-        table {{ width: 100%; border-collapse: collapse; min-width: 650px; font-size: 13px; }}
+        table {{ width: 100%; border-collapse: collapse; min-width: 680px; font-size: 13px; }}
         th, td {{ padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }}
         th {{ background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }}
         .bold {{ font-weight: bold; }}
         .signal-tag {{ font-size: 11px; padding: 2px 6px; background: #23314e; border-radius: 4px; white-space: nowrap; }}
+        
+        /* 💡 52주 슬라이더 바 전용 CSS */
+        .slider-wrap {{ display: flex; align-items: center; gap: 6px; }}
+        .slider-val {{ font-size: 11px; color: var(--text-sub); white-space: nowrap; }}
+        .slider-track {{ position: relative; flex: 1; height: 5px; background: #2b3954; border-radius: 3px; min-width: 55px; }}
+        .slider-dot {{ position: absolute; top: -3.5px; width: 12px; height: 12px; background: #38bdf8; border: 2px solid #0b0f19; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }}
+        .slider-sub {{ margin-top: 4px; display: flex; align-items: center; gap: 6px; }}
+
         .high-vol-box {{ background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px; }}
         .high-vol-box h4 {{ color: #f87171; font-size: 13px; margin-bottom: 6px; }}
         .vol-item {{ font-size: 12px; margin-bottom: 2px; }}
@@ -712,7 +768,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                     <th>1주</th>
                     <th>1달</th>
                     <th>1년</th>
-                    <th>52주 MDD</th>
+                    <th>52주 범위 & MDD</th>
                 </tr>
             </thead>
             <tbody>
@@ -729,7 +785,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                     <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
-                    <th>52주 MDD</th>
+                    <th>52주 범위 & MDD</th>
                     <th>이격도 (20/50/200D)</th>
                     <th>F-PER</th>
                     <th>신호</th>
@@ -749,7 +805,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                     <th>종목 정보 (Ticker / Name / Sector)</th>
                     <th>현재가</th>
                     <th>전일대비</th>
-                    <th>52주 MDD</th>
+                    <th>52주 범위 & MDD</th>
                     <th>이격도 (20/50/200D)</th>
                     <th>F-PER</th>
                     <th>신호</th>
@@ -760,7 +816,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             </tbody>
         </table>
     </div>
-    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인 (초록색: 상승/이평 상회, 빨간색: 하락/이평 하회)</div>
+    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인 (슬라이더의 파란 점은 52주 내 현재 주가 위치입니다)</div>
 </body>
 </html>
 """
@@ -969,7 +1025,7 @@ def run_radar():
     
     total_high_vol = my_high_vol + watch_high_vol
 
-    # HTML 웹 대시보드 생성 (1시간 주기 자동 갱신)
+    # HTML 웹 대시보드 1시간 주기 자동 갱신
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, 
                        s50_val, s200_val, breadth_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
