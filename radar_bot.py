@@ -72,7 +72,6 @@ SECTOR_PER_MAP = {
 
 def translate_to_ko_robust(text):
     """클라우드 환경에서도 차단되지 않는 다중 번역 엔진"""
-    # 1차 시도: MyMemory 무료 번역 API
     try:
         encoded = urllib.parse.quote(text)
         url = f"https://api.mymemory.translated.net/get?q={encoded}&langpair=en|ko"
@@ -83,7 +82,6 @@ def translate_to_ko_robust(text):
     except Exception:
         pass
 
-    # 2차 시도: 구글 웹 번역
     try:
         url = f"https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ko&dt=t&q={urllib.parse.quote(text)}"
         headers = {"User-Agent": "Mozilla/5.0"}
@@ -97,11 +95,9 @@ def translate_to_ko_robust(text):
     return text
 
 def get_us_market_popular_news():
-    """미 증시 핵심 인기 뉴스 TOP 5 동적 수집 (한국어 번역 포함)"""
     news_items = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
-    # 1. 국내 주요 언론의 미 증시/뉴욕증시 속보 및 핫이슈 (직접 수집)
     try:
         url_ko = "https://news.google.com/rss/search?q=뉴욕증시+미국주식+마감+특징주&hl=ko&gl=KR&ceid=KR:ko"
         res_ko = requests.get(url_ko, headers=headers, timeout=5)
@@ -115,7 +111,6 @@ def get_us_market_popular_news():
     except Exception:
         pass
 
-    # 2. 미국 현지 인기 금융 헤드라인 (Wall Street, US Stock Market) 수집 후 번역 결합
     try:
         url_en = "https://news.google.com/rss/search?q=Wall+Street+stock+market+stocks+rally+drop&hl=en-US&gl=US&ceid=US:en"
         res_en = requests.get(url_en, headers=headers, timeout=5)
@@ -132,7 +127,6 @@ def get_us_market_popular_news():
     except Exception:
         pass
 
-    # 만약 뉴스 수집이 원활하지 않을 경우의 안전 가드
     if len(news_items) < 5:
         fallbacks = [
             "• <b>[미증시]</b> 미 연준 통화정책 경계감 속 국채 금리 및 기술주 차익 실현 매물 공방 <i>(마켓워치)</i>",
@@ -546,9 +540,11 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집
+    # 3. 가상자산 수집 및 솔라나 5%+ 변동 감시
     crypto_data = []
     crypto_telegram = []
+    solana_alert_msg = None
+
     for name, sym in CRYPTO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
@@ -579,8 +575,28 @@ def run_radar():
                 f"• <b>{name}</b>: <b>${cur_p:,.2f}</b> (1H: {h1_chg:+.2f}% | 24H: {d_chg:+.2f}%)\n"
                 f"  └ 7D고점: <b>{d7_mdd:+.1f}%</b> | 30D고점: <b>{d30_mdd:+.1f}%</b>"
             )
+
+            # 💡 솔라나(SOL-USD) 24시간 변동폭 5% 이상 등락 감지 시 단독 알림 세팅
+            if sym == "SOL-USD" and abs(d_chg) >= 5.0:
+                direction = "급등 🚀" if d_chg > 0 else "급락 🩸"
+                solana_alert_msg = (
+                    f"🚨 <b>[솔라나(SOL) 5%+ 변동성 긴급 레이더]</b>\n"
+                    f"─────────────────\n"
+                    f"• <b>현재가:</b> ${cur_p:,.2f}\n"
+                    f"• <b>24시간 변동률:</b> <b>{d_chg:+.2f}% ({direction})</b>\n"
+                    f"• <b>직전 1시간 변동:</b> {h1_chg:+.2f}%\n"
+                    f"• <b>7D 최고대비:</b> {d7_mdd:+.1f}% | <b>30D 최고대비:</b> {d30_mdd:+.1f}%\n"
+                    f"• <b>측정 시각:</b> {update_time_str} KST\n"
+                    f"─────────────────\n"
+                    f"💡 <i>솔라나 24시간 등락폭이 ±5% 기준을 초과하여 발송된 실시간 알림입니다.</i>"
+                )
+
         except Exception:
             continue
+
+    # 💡 솔라나 5%+ 변동 감지 시 아침 7시가 아니더라도 즉시 텔레그램 속보 전송
+    if solana_alert_msg:
+        send_message(solana_alert_msg)
 
     # 4. 미 증시 인기 뉴스 TOP 5 & 캘린더
     us_popular_news = get_us_market_popular_news()
@@ -663,9 +679,11 @@ def run_radar():
         except Exception:
             continue
 
+    # 웹 대시보드 HTML 파일 생성 (1시간 주기)
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
+    # 아침 07:00 KST 정기 종합 브리핑
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
