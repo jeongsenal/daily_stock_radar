@@ -21,9 +21,11 @@ INDEX_TICKERS = {
     "코스닥 (KOSDAQ)": "^KQ11"
 }
 
+# 💡 WTI 유가(CL=F) 추가
 MACRO_TICKERS = {
     "미국채 10년물 금리": "^TNX",
     "달러 인덱스 (DXY)": "DX-Y.NYB",
+    "WTI 원유 (배럴)": "CL=F",
     "원/달러 환율 (KRW)": "USDKRW=X",
     "원/엔 환율 (100엔)": "JPYKRW=X"
 }
@@ -255,7 +257,6 @@ def send_message(text):
         pass
 
 def fetch_sector_etfs():
-    """11대 섹터 ETF 데이터 수집 (전일, 1주일, 1개월, 1년, 52주 고점대비)"""
     sector_list = []
     for sym, name in SECTOR_ETF_TICKERS.items():
         try:
@@ -449,7 +450,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 11대 섹터 테이블 행 HTML 생성
     sector_rows_html = ""
     for s in sector_etfs:
         c_d = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
@@ -584,7 +584,8 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         {crypto_cards_html}
     </div>
 
-    <div class="section-title">💵 환율 & 금리 (Macro FX/Rates)</div>
+    <!-- 💡 유가(WTI)가 포함된 확장된 환율·금리·유가 섹터 -->
+    <div class="section-title">💵 환율·금리 & 유가 (Macro FX/Rates/Oil)</div>
     <div class="grid-2">
         {macro_cards_html}
     </div>
@@ -600,7 +601,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     <div class="section-title">📈 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
 
-    <!-- 💡 [요청 위치] 내 포트폴리오 바로 위에 배치된 11대 섹터 시황 레이더 -->
     <div class="section-title">🏢 미국 11대 섹터 시황 레이더 (US Equity Sectors)</div>
     <div class="table-wrap">
         <table>
@@ -736,7 +736,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 2. 매크로 & 환율 수집
+    # 2. 매크로 & 환율/유가 수집
     macro_data = []
     macro_telegram = []
     for name, sym in MACRO_TICKERS.items():
@@ -751,10 +751,13 @@ def run_radar():
 
             if sym == "^TNX":
                 cur_str = f"{cur_p:.3f}%"
-                comment = "금리 안정" if d_chg < 0 else "금리 상승"
+                comment = "금리 안정" if d_chg < 0 else "금리 상승 압력"
             elif sym == "DX-Y.NYB":
                 cur_str = f"{cur_p:.2f}pt"
-                comment = "달러 약세" if d_chg < 0 else "달러 강세"
+                comment = "달러 약세 (우호적)" if d_chg < 0 else "달러 강세"
+            elif sym == "CL=F":
+                cur_str = f"${cur_p:.2f}"
+                comment = "인플레 완화 (호재)" if d_chg < 0 else "유가 상승 (인플레 경계)"
             elif sym == "USDKRW=X":
                 cur_str = f"{cur_p:,.1f}원"
                 comment = "원화 절상" if d_chg < 0 else "환율 상승"
@@ -848,7 +851,6 @@ def run_radar():
     # 5. 미국 11대 섹터 ETF 수집
     sector_etfs = fetch_sector_etfs()
     
-    # 텔레그램용 섹터 브리핑 (상위 3개 / 하위 3개 정렬)
     sector_summary_telegram = []
     if sector_etfs:
         sorted_sectors = sorted(sector_etfs, key=lambda x: x['d_chg'], reverse=True)
@@ -859,18 +861,18 @@ def run_radar():
             f"• <b>약세 섹터:</b> {', '.join(bot3)}"
         ]
 
-    # 6. 보유 종목 (25개) 및 관심 종목 (13개) 수집
+    # 6. 종목 수집 (내 포트폴리오 25개 + 관심 종목 13개)
     my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
     watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
     
     total_high_vol = my_high_vol + watch_high_vol
 
-    # HTML 웹 대시보드 생성 (1시간 주기 자동 갱신)
+    # HTML 웹 대시보드 1시간 주기 자동 갱신
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
                        sector_etfs, my_stocks, watch_stocks, total_high_vol)
 
-    # 아침 07:00 KST 정기 발송 (Part 1, 2, 3 분할)
+    # 아침 07:00 KST 정기 발송
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/3)</b>",
@@ -887,7 +889,7 @@ def run_radar():
             "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
             "\n".join(cal_telegram),
             "─────────────────",
-            "<b>💵 환율 & 금리 (Macro FX/Rates)</b>",
+            "<b>💵 환율·금리 & 유가 (Macro FX/Rates/Oil)</b>",
             "\n".join(macro_telegram),
             "─────────────────",
             "<b>🪙 가상자산 시황 (1H / 24H / 7D·30D 고점대비)</b>",
