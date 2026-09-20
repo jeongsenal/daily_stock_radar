@@ -35,6 +35,7 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
+# 1. 내 포트폴리오 (미국 23개 + 한국 2개)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
@@ -42,7 +43,14 @@ MY_TICKERS = [
     "005930.KS", "000660.KS"
 ]
 
+# 2. 신규 관심종목 (13개)
+WATCH_TICKERS = [
+    "PWR", "LITE", "FCX", "CVX", "CRCL", "CAT", "OXY", 
+    "AAPL", "AMZN", "META", "HOOD", "PANW", "ORCL"
+]
+
 SECTOR_PER_MAP = {
+    # 내 포트폴리오
     "DELL": ("22.0x", "IT하드웨어"),
     "SOXL": ("—", "레버리지"),
     "GEV": ("20.5x", "전력인프라"),
@@ -67,11 +75,24 @@ SECTOR_PER_MAP = {
     "SCHD": ("16.0x", "배당ETF"),
     "TQQQ": ("—", "레버리지"),
     "005930.KS": ("12.5x", "국내반도체"),
-    "000660.KS": ("9.8x", "국내반도체")
+    "000660.KS": ("9.8x", "국내반도체"),
+    # 관심종목
+    "PWR": ("25.0x", "인프라엔지니어링"),
+    "LITE": ("22.0x", "광학/네트워크"),
+    "FCX": ("15.0x", "구리/원자재"),
+    "CVX": ("12.0x", "에너지/오일"),
+    "CRCL": ("20.0x", "헬스케어/기술"),
+    "CAT": ("16.0x", "중장비/산업"),
+    "OXY": ("12.0x", "에너지/버핏"),
+    "AAPL": ("28.0x", "빅테크/디바이스"),
+    "AMZN": ("32.0x", "이커머스/클라우드"),
+    "META": ("25.0x", "소셜/AI"),
+    "HOOD": ("24.0x", "핀테크/브로커리지"),
+    "PANW": ("45.0x", "사이버보안"),
+    "ORCL": ("25.0x", "클라우드/엔터프라이즈")
 }
 
 def translate_to_ko_robust(text):
-    """클라우드 환경에서도 차단되지 않는 다중 번역 엔진"""
     try:
         encoded = urllib.parse.quote(text)
         url = f"https://api.mymemory.translated.net/get?q={encoded}&langpair=en|ko"
@@ -218,8 +239,86 @@ def send_message(text):
     except Exception:
         pass
 
+def fetch_stock_data_list(ticker_list):
+    """주식 리스트를 받아 이동평균선 이격도 및 지표를 계산하는 공통 함수"""
+    stock_data_list = []
+    stock_cards = []
+    high_vol = []
+
+    for ticker in ticker_list:
+        try:
+            t = yf.Ticker(ticker)
+            hist = t.history(period="1y").dropna(subset=['Close'])
+            if len(hist) < 2:
+                continue
+
+            cur_p = float(hist['Close'].iloc[-1])
+            prev_p = float(hist['Close'].iloc[-2])
+            w1_p = float(hist['Close'].iloc[-5]) if len(hist) >= 5 else float(hist['Close'].iloc[0])
+            m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
+
+            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
+            w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
+            m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
+
+            high_52w = t.info.get("fiftyTwoWeekHigh")
+            if not high_52w or pd.isna(high_52w):
+                high_52w = float(hist['High'].max())
+            mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
+
+            sma20 = float(hist['Close'].rolling(window=20).mean().iloc[-1]) if len(hist) >= 20 else None
+            sma50 = float(hist['Close'].rolling(window=50).mean().iloc[-1]) if len(hist) >= 50 else None
+            sma200 = float(hist['Close'].rolling(window=200).mean().iloc[-1]) if len(hist) >= 200 else None
+
+            disp20 = ((cur_p - sma20) / sma20) * 100 if sma20 and not pd.isna(sma20) else None
+            disp50 = ((cur_p - sma50) / sma50) * 100 if sma50 and not pd.isna(sma50) else None
+            disp200 = ((cur_p - sma200) / sma200) * 100 if sma200 and not pd.isna(sma200) else None
+
+            disp20_str = f"{disp20:+.1f}%" if disp20 is not None else "N/A"
+            disp50_str = f"{disp50:+.1f}%" if disp50 is not None else "N/A"
+            disp200_str = f"{disp200:+.1f}%" if disp200 is not None else "N/A"
+
+            fwd_pe = t.info.get("forwardPE")
+            pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
+            sec_pe, _ = SECTOR_PER_MAP.get(ticker, ("22.0x", "섹터"))
+
+            display_name = "삼성전자" if ticker == "005930.KS" else ("SK하이닉스" if ticker == "000660.KS" else ticker)
+
+            if abs(d_chg) >= 10.0:
+                sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
+                high_vol.append(f"🚨 <b>{display_name}</b>: {d_chg:+.1f}% {sign_txt}")
+
+            if "SOXL" in ticker or "TQQQ" in ticker:
+                sig = "⚪ 비중관리"
+            elif pe_str != "N/A" and float(pe_str.replace("x","")) < float(sec_pe.replace("x","")):
+                sig = "🟢 저평가분할"
+            elif mdd <= -35.0:
+                sig = "🟡 낙폭과대"
+            else:
+                sig = "🟡 홀딩/분할"
+
+            stock_data_list.append({
+                "ticker": ticker, "ticker_name": display_name,
+                "cur_p": cur_p, "d_chg": d_chg, "mdd": mdd,
+                "disp20": disp20, "disp50": disp50, "disp200": disp200,
+                "disp20_str": disp20_str, "disp50_str": disp50_str, "disp200_str": disp200_str,
+                "pe_str": pe_str, "sec_pe": sec_pe, "sig": sig
+            })
+
+            p_str = f"₩{cur_p:,.0f}" if ".KS" in ticker else f"${cur_p:.2f}"
+            card = (
+                f"▪️ <b>{display_name}</b>: <b>{p_str}</b> ({d_chg:+.1f}%)\n"
+                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}% | <b>MDD: {mdd:.1f}%</b> | F-PER: <b>{pe_str}</b> ({sig})\n"
+                f"   이격도: 20D <b>{disp20_str}</b> | 50D <b>{disp50_str}</b> | 200D <b>{disp200_str}</b>"
+            )
+            stock_cards.append(card)
+        except Exception:
+            continue
+
+    return stock_data_list, stock_cards, high_vol
+
 def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, us_news, weekly_cal, index_data_list, stock_data_list, high_vol):
+                       macro_data, crypto_data, us_news, weekly_cal, index_data_list, my_stocks, watch_stocks, high_vol):
     os.makedirs("docs", exist_ok=True)
 
     cal_html = ""
@@ -295,29 +394,33 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    rows_html = ""
-    for s in stock_data_list:
-        chg_color = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
-        c20 = "#22c55e" if s['disp20'] and s['disp20'] >= 0 else "#ef4444"
-        c50 = "#22c55e" if s['disp50'] and s['disp50'] >= 0 else "#ef4444"
-        c200 = "#22c55e" if s['disp200'] and s['disp200'] >= 0 else "#ef4444"
-        cur_display = f"₩{s['cur_p']:,.0f}" if ".KS" in s['ticker'] else f"${s['cur_p']:.2f}"
-        
-        rows_html += f"""
-        <tr>
-            <td class="bold">{s['ticker_name']}</td>
-            <td>{cur_display}</td>
-            <td style="color: {chg_color}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
-            <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
-            <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                20D: <b style="color: {c20};">{s['disp20_str']}</b><br>
-                50D: <b style="color: {c50};">{s['disp50_str']}</b><br>
-                200D: <b style="color: {c200};">{s['disp200_str']}</b>
-            </td>
-            <td>{s['pe_str']} <span class="text-sub">({s['sec_pe']})</span></td>
-            <td><span class="signal-tag">{s['sig']}</span></td>
-        </tr>
-        """
+    def render_table_rows(stock_list):
+        rows = ""
+        for s in stock_list:
+            chg_color = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
+            c20 = "#22c55e" if s['disp20'] and s['disp20'] >= 0 else "#ef4444"
+            c50 = "#22c55e" if s['disp50'] and s['disp50'] >= 0 else "#ef4444"
+            c200 = "#22c55e" if s['disp200'] and s['disp200'] >= 0 else "#ef4444"
+            cur_display = f"₩{s['cur_p']:,.0f}" if ".KS" in s['ticker'] else f"${s['cur_p']:.2f}"
+            rows += f"""
+            <tr>
+                <td class="bold">{s['ticker_name']}</td>
+                <td>{cur_display}</td>
+                <td style="color: {chg_color}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
+                <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
+                <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                    20D: <b style="color: {c20};">{s['disp20_str']}</b><br>
+                    50D: <b style="color: {c50};">{s['disp50_str']}</b><br>
+                    200D: <b style="color: {c200};">{s['disp200_str']}</b>
+                </td>
+                <td>{s['pe_str']} <span class="text-sub">({s['sec_pe']})</span></td>
+                <td><span class="signal-tag">{s['sig']}</span></td>
+            </tr>
+            """
+        return rows
+
+    my_rows_html = render_table_rows(my_stocks)
+    watch_rows_html = render_table_rows(watch_stocks)
 
     summary_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in summary_lines])
     us_news_html = "".join([f"<li>{line.replace('• ', '')}</li>" for line in us_news])
@@ -368,7 +471,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .section-title {{ font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }}
         ul {{ padding-left: 18px; }}
         li {{ margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }}
-        .table-wrap {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); }}
+        .table-wrap {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); margin-bottom: 14px; }}
         table {{ width: 100%; border-collapse: collapse; min-width: 620px; font-size: 13px; }}
         th, td {{ padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }}
         th {{ background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }}
@@ -438,7 +541,27 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                 </tr>
             </thead>
             <tbody>
-                {rows_html}
+                {my_rows_html}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="section-title">⭐ 관심종목 레이더 (Watchlist 13개)</div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>종목명</th>
+                    <th>현재가</th>
+                    <th>전일대비</th>
+                    <th>52주 MDD</th>
+                    <th>이격도 (20/50/200D)</th>
+                    <th>F-PER</th>
+                    <th>신호</th>
+                </tr>
+            </thead>
+            <tbody>
+                {watch_rows_html}
             </tbody>
         </table>
     </div>
@@ -550,7 +673,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 및 솔라나 5%+ 변동 감시
+    # 3. 가상자산 수집 및 솔라나 변동성 감시
     crypto_data = []
     crypto_telegram = []
     solana_alert_msg = None
@@ -627,88 +750,20 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 보유 종목 25개 수집 및 20/50/200 이평선 이격도 계산
-    high_vol = []
-    stock_cards = []
-    stock_data_list = []
+    # 5. 종목 수집 (내 포트폴리오 25개 + 관심종목 13개)
+    my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
+    watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
+    
+    total_high_vol = my_high_vol + watch_high_vol
 
-    for ticker in MY_TICKERS:
-        try:
-            t = yf.Ticker(ticker)
-            hist = t.history(period="1y").dropna(subset=['Close'])
-            if len(hist) < 2:
-                continue
-
-            cur_p = float(hist['Close'].iloc[-1])
-            prev_p = float(hist['Close'].iloc[-2])
-            w1_p = float(hist['Close'].iloc[-5]) if len(hist) >= 5 else float(hist['Close'].iloc[0])
-            m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
-
-            d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
-            w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
-            m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
-
-            high_52w = t.info.get("fiftyTwoWeekHigh")
-            if not high_52w or pd.isna(high_52w):
-                high_52w = float(hist['High'].max())
-            mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
-
-            # 💡 20일, 50일, 200일 이동평균선 및 이격도 계산
-            sma20 = float(hist['Close'].rolling(window=20).mean().iloc[-1]) if len(hist) >= 20 else None
-            sma50 = float(hist['Close'].rolling(window=50).mean().iloc[-1]) if len(hist) >= 50 else None
-            sma200 = float(hist['Close'].rolling(window=200).mean().iloc[-1]) if len(hist) >= 200 else None
-
-            disp20 = ((cur_p - sma20) / sma20) * 100 if sma20 and not pd.isna(sma20) else None
-            disp50 = ((cur_p - sma50) / sma50) * 100 if sma50 and not pd.isna(sma50) else None
-            disp200 = ((cur_p - sma200) / sma200) * 100 if sma200 and not pd.isna(sma200) else None
-
-            disp20_str = f"{disp20:+.1f}%" if disp20 is not None else "N/A"
-            disp50_str = f"{disp50:+.1f}%" if disp50 is not None else "N/A"
-            disp200_str = f"{disp200:+.1f}%" if disp200 is not None else "N/A"
-
-            fwd_pe = t.info.get("forwardPE")
-            pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
-            sec_pe, _ = SECTOR_PER_MAP.get(ticker, ("22.0x", "섹터"))
-
-            display_name = "삼성전자" if ticker == "005930.KS" else ("SK하이닉스" if ticker == "000660.KS" else ticker)
-
-            if abs(d_chg) >= 10.0:
-                sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
-                high_vol.append(f"🚨 <b>{display_name}</b>: {d_chg:+.1f}% {sign_txt}")
-
-            if "SOXL" in ticker or "TQQQ" in ticker:
-                sig = "⚪ 비중관리"
-            elif pe_str != "N/A" and float(pe_str.replace("x","")) < float(sec_pe.replace("x","")):
-                sig = "🟢 저평가분할"
-            elif mdd <= -35.0:
-                sig = "🟡 낙폭과대"
-            else:
-                sig = "🟡 홀딩/분할"
-
-            stock_data_list.append({
-                "ticker": ticker, "ticker_name": display_name,
-                "cur_p": cur_p, "d_chg": d_chg, "mdd": mdd,
-                "disp20": disp20, "disp50": disp50, "disp200": disp200,
-                "disp20_str": disp20_str, "disp50_str": disp50_str, "disp200_str": disp200_str,
-                "pe_str": pe_str, "sec_pe": sec_pe, "sig": sig
-            })
-
-            p_str = f"₩{cur_p:,.0f}" if ".KS" in ticker else f"${cur_p:.2f}"
-            card = (
-                f"▪️ <b>{display_name}</b>: <b>{p_str}</b> ({d_chg:+.1f}%)\n"
-                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}% | <b>MDD: {mdd:.1f}%</b> | F-PER: <b>{pe_str}</b> ({sig})\n"
-                f"   이격도: 20D <b>{disp20_str}</b> | 50D <b>{disp50_str}</b> | 200D <b>{disp200_str}</b>"
-            )
-            stock_cards.append(card)
-        except Exception:
-            continue
-
+    # HTML 웹 대시보드 1시간 주기 자동 갱신
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
-                       macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, stock_data_list, high_vol)
+                       macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, my_stocks, watch_stocks, total_high_vol)
 
+    # 아침 07:00 KST 정기 발송 (Part 1, 2, 3 분할)
     if is_morning_report_time:
         part1 = [
-            "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
+            "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/3)</b>",
             f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
             f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
             f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
@@ -731,15 +786,26 @@ def run_radar():
         send_message("\n".join(part1))
 
         part2 = [
-            "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/2)</b>",
+            "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/3)</b>",
             "─────────────────"
         ]
-        if high_vol:
+        if my_high_vol:
             part2.append("<b>🚨 마감 기준 10%+ 고변동 종목</b>")
-            part2.extend(high_vol)
+            part2.extend(my_high_vol)
             part2.append("─────────────────")
-        part2.extend(stock_cards)
+        part2.extend(my_stock_cards)
         send_message("\n".join(part2))
+
+        part3 = [
+            "<b>⭐ 관심종목(Watchlist) 13개 정밀 진단 (Part 3/3)</b>",
+            "─────────────────"
+        ]
+        if watch_high_vol:
+            part3.append("<b>🚨 관심종목 10%+ 고변동 포착</b>")
+            part3.extend(watch_high_vol)
+            part3.append("─────────────────")
+        part3.extend(watch_stock_cards)
+        send_message("\n".join(part3))
 
 if __name__ == "__main__":
     run_radar()
