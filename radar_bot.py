@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import pytz
 import xml.etree.ElementTree as ET
 import urllib.parse
+import re
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -21,7 +22,6 @@ INDEX_TICKERS = {
     "코스닥 (KOSDAQ)": "^KQ11"
 }
 
-# 💡 WTI 유가(CL=F) 추가
 MACRO_TICKERS = {
     "미국채 10년물 금리": "^TNX",
     "달러 인덱스 (DXY)": "DX-Y.NYB",
@@ -37,7 +37,6 @@ CRYPTO_TICKERS = {
     "솔라나 (SOL)": "SOL-USD"
 }
 
-# 미국 11대 섹터 ETF
 SECTOR_ETF_TICKERS = {
     "XLK": "Technology (기술)",
     "XLV": "Healthcare (헬스케어)",
@@ -52,7 +51,6 @@ SECTOR_ETF_TICKERS = {
     "XLRE": "Real Estate (부동산)"
 }
 
-# 1. 내 포트폴리오 (미국 23개 + 한국 2개)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
@@ -60,14 +58,12 @@ MY_TICKERS = [
     "005930.KS", "000660.KS"
 ]
 
-# 2. 관심종목 (13개)
 WATCH_TICKERS = [
     "PWR", "LITE", "FCX", "CVX", "CRCL", "CAT", "OXY", 
     "AAPL", "AMZN", "META", "HOOD", "PANW", "ORCL"
 ]
 
 SECTOR_PER_MAP = {
-    # 내 포트폴리오
     "DELL": ("22.0x", "IT하드웨어"),
     "SOXL": ("—", "레버리지"),
     "GEV": ("20.5x", "전력인프라"),
@@ -93,7 +89,6 @@ SECTOR_PER_MAP = {
     "TQQQ": ("—", "레버리지"),
     "005930.KS": ("12.5x", "국내반도체"),
     "000660.KS": ("9.8x", "국내반도체"),
-    # 관심종목
     "PWR": ("25.0x", "인프라엔지니어링"),
     "LITE": ("22.0x", "광학/네트워크"),
     "FCX": ("15.0x", "구리/원자재"),
@@ -241,6 +236,76 @@ def get_fear_and_greed():
     except Exception:
         return 50, "NEUTRAL"
 
+def get_sp500_market_breadth():
+    """S&P 500 마켓 브레드: 50일선/200일선 상회 종목 비율(%) 수집 및 진단"""
+    s50_val = None
+    s200_val = None
+
+    # Barchart $S5FI, $S5TH 실시간 수집
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    }
+    
+    try:
+        r50 = requests.get("https://www.barchart.com/stocks/quotes/%24S5FI/overview", headers=headers, timeout=5)
+        if r50.status_code == 200:
+            m50 = re.search(r'"lastPrice":\s*"?([0-9\.]+)"?', r50.text)
+            if m50:
+                s50_val = float(m50.group(1))
+    except Exception:
+        pass
+
+    try:
+        r200 = requests.get("https://www.barchart.com/stocks/quotes/%24S5TH/overview", headers=headers, timeout=5)
+        if r200.status_code == 200:
+            m200 = re.search(r'"lastPrice":\s*"?([0-9\.]+)"?', r200.text)
+            if m200:
+                s200_val = float(m200.group(1))
+    except Exception:
+        pass
+
+    # 폴백: 섹터 ETF 11개의 50일/200일선 상회 비율로 대체 근사치 산출
+    if s50_val is None or s200_val is None:
+        above_50 = 0
+        above_200 = 0
+        total = 0
+        for sym in SECTOR_ETF_TICKERS.keys():
+            try:
+                h = yf.Ticker(sym).history(period="1y").dropna(subset=['Close'])
+                if len(h) >= 200:
+                    cp = h['Close'].iloc[-1]
+                    m50 = h['Close'].iloc[-50:].mean()
+                    m200 = h['Close'].iloc[-200:].mean()
+                    if cp > m50:
+                        above_50 += 1
+                    if cp > m200:
+                        above_200 += 1
+                    total += 1
+            except Exception:
+                continue
+        if total > 0:
+            if s50_val is None:
+                s50_val = round((above_50 / total) * 100, 1)
+            if s200_val is None:
+                s200_val = round((above_200 / total) * 100, 1)
+        else:
+            s50_val = 50.0
+            s200_val = 60.0
+
+    # 종합 진단 평결
+    if s200_val >= 60.0 and s50_val >= 50.0:
+        health_status = "🟢 광범위한 대세 상승장 (건전한 상승 흐름)"
+    elif s200_val >= 50.0 and s50_val < 35.0:
+        health_status = "🟡 대세 상승장 내 단기 조정 (눌림목 반등 기회)"
+    elif s200_val < 50.0 and s50_val >= 50.0:
+        health_status = "🟠 소수 주도주 중심의 차별화 반등 (선별 대응 필요)"
+    elif s200_val < 40.0 and s50_val < 25.0:
+        health_status = "🚨 시장 전반 극단적 과매도/침체 (바닥권 모니터링)"
+    else:
+        health_status = "⚖️ 종목별 순환매 및 혼조세 (중립 구간)"
+
+    return s50_val, s200_val, health_status
+
 def send_message(text):
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT_ID:
         return
@@ -372,7 +437,8 @@ def fetch_stock_data_list(ticker_list):
 
     return stock_data_list, stock_cards, high_vol
 
-def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
+def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, 
+                       s50_val, s200_val, breadth_status, summary_lines, 
                        macro_data, crypto_data, us_news, weekly_cal, index_data_list, 
                        sector_etfs, my_stocks, watch_stocks, high_vol):
     os.makedirs("docs", exist_ok=True)
@@ -572,6 +638,25 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <div class="mt-2 text-sub">CNN Fear & Greed: <b>{score}점 ({rating})</b> | {fg_status}</div>
     </div>
 
+    <!-- 💡 [신규 탑재] S&P 500 마켓 브레드 (50일선/200일선 상회 비율) -->
+    <div class="card" style="border-left: 4px solid var(--accent);">
+        <div class="flex-between">
+            <span class="card-title">🌡️ S&P 500 마켓 브레드 (Market Breadth)</span>
+            <span class="badge-sub">시장 건전성 온·습도계</span>
+        </div>
+        <div class="flex-between mt-2 pt-2 border-t">
+            <div>
+                <span class="text-sub">50일선 상회 (단기 모멘텀):</span> <b>{s50_val:.1f}%</b>
+            </div>
+            <div>
+                <span class="text-sub">200일선 상회 (대세 상승선):</span> <b>{s200_val:.1f}%</b>
+            </div>
+        </div>
+        <div class="mt-2" style="font-size: 12px; color: #38bdf8;">
+            <b>상태 진단:</b> {breadth_status}
+        </div>
+    </div>
+
     {high_vol_html}
 
     <div class="section-title">🇺🇸 미 증시 실시간 핵심 & 인기 뉴스 TOP 5</div>
@@ -584,7 +669,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         {crypto_cards_html}
     </div>
 
-    <!-- 💡 유가(WTI)가 포함된 확장된 환율·금리·유가 섹터 -->
     <div class="section-title">💵 환율·금리 & 유가 (Macro FX/Rates/Oil)</div>
     <div class="grid-2">
         {macro_cards_html}
@@ -689,6 +773,9 @@ def run_radar():
     else:
         fg_status = "⚖️ [중립 구간 - 숨고르기]"
         core_signal = "🟡 WAIT (관망 및 선별 분할매수)"
+
+    # 💡 마켓 브레드 데이터 수집
+    s50_val, s200_val, breadth_status = get_sp500_market_breadth()
 
     # 1. 지수 수집
     index_cards = []
@@ -868,7 +955,8 @@ def run_radar():
     total_high_vol = my_high_vol + watch_high_vol
 
     # HTML 웹 대시보드 1시간 주기 자동 갱신
-    generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
+    generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, 
+                       s50_val, s200_val, breadth_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
                        sector_etfs, my_stocks, watch_stocks, total_high_vol)
 
@@ -879,6 +967,7 @@ def run_radar():
             f"<b>📅 일자:</b> {now_str} (아침 07:00 KST)",
             f"<b>🚦 오늘의 핵심 신호:</b> {core_signal}",
             f"<b>🌡️ CNN 공탐지수:</b> {score}점 ({rating}) | {fg_status}",
+            f"<b>📊 S&P 500 마켓 브레드:</b> 50일선 <b>{s50_val:.1f}%</b> | 200일선 <b>{s200_val:.1f}%</b>\n  └ <i>{breadth_status}</i>",
             "─────────────────",
             "<b>🏢 11대 섹터 당일 동향 요약</b>",
             "\n".join(sector_summary_telegram) if sector_summary_telegram else "• 섹터 데이터 집계 중",
