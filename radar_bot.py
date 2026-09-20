@@ -298,13 +298,22 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     rows_html = ""
     for s in stock_data_list:
         chg_color = "#ef4444" if s['d_chg'] < 0 else "#22c55e"
+        c20 = "#22c55e" if s['disp20'] and s['disp20'] >= 0 else "#ef4444"
+        c50 = "#22c55e" if s['disp50'] and s['disp50'] >= 0 else "#ef4444"
+        c200 = "#22c55e" if s['disp200'] and s['disp200'] >= 0 else "#ef4444"
         cur_display = f"₩{s['cur_p']:,.0f}" if ".KS" in s['ticker'] else f"${s['cur_p']:.2f}"
+        
         rows_html += f"""
         <tr>
             <td class="bold">{s['ticker_name']}</td>
             <td>{cur_display}</td>
             <td style="color: {chg_color}; font-weight: bold;">{s['d_chg']:+.2f}%</td>
             <td><span class="badge-mdd">{s['mdd']:.1f}%</span></td>
+            <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                20D: <b style="color: {c20};">{s['disp20_str']}</b><br>
+                50D: <b style="color: {c50};">{s['disp50_str']}</b><br>
+                200D: <b style="color: {c200};">{s['disp200_str']}</b>
+            </td>
             <td>{s['pe_str']} <span class="text-sub">({s['sec_pe']})</span></td>
             <td><span class="signal-tag">{s['sig']}</span></td>
         </tr>
@@ -360,7 +369,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         ul {{ padding-left: 18px; }}
         li {{ margin-bottom: 6px; color: #cbd5e1; font-size: 13px; }}
         .table-wrap {{ overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 12px; border: 1px solid var(--border); background: var(--card-bg); }}
-        table {{ width: 100%; border-collapse: collapse; min-width: 540px; font-size: 13px; }}
+        table {{ width: 100%; border-collapse: collapse; min-width: 620px; font-size: 13px; }}
         th, td {{ padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border); }}
         th {{ background: #1a243b; color: var(--text-sub); font-size: 11px; text-transform: uppercase; }}
         .bold {{ font-weight: bold; }}
@@ -423,6 +432,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                     <th>현재가</th>
                     <th>전일대비</th>
                     <th>52주 MDD</th>
+                    <th>이격도 (20/50/200D)</th>
                     <th>F-PER</th>
                     <th>신호</th>
                 </tr>
@@ -432,7 +442,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
             </tbody>
         </table>
     </div>
-    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인</div>
+    <div class="mt-2 text-sub" style="text-align: right;">※ 표를 좌우로 밀어서 전체 항목 확인 (초록색: 이평 상회, 빨간색: 이평 하회)</div>
 </body>
 </html>
 """
@@ -470,7 +480,7 @@ def run_radar():
     for name, sym in INDEX_TICKERS.items():
         try:
             t = yf.Ticker(sym)
-            hist = t.history(period="3mo").dropna(subset=['Close'])
+            hist = t.history(period="1y").dropna(subset=['Close'])
             if len(hist) < 2:
                 continue
 
@@ -576,7 +586,6 @@ def run_radar():
                 f"  └ 7D고점: <b>{d7_mdd:+.1f}%</b> | 30D고점: <b>{d30_mdd:+.1f}%</b>"
             )
 
-            # 💡 솔라나(SOL-USD) 24시간 변동폭 5% 이상 등락 감지 시 단독 알림 세팅
             if sym == "SOL-USD" and abs(d_chg) >= 5.0:
                 direction = "급등 🚀" if d_chg > 0 else "급락 🩸"
                 solana_alert_msg = (
@@ -594,7 +603,6 @@ def run_radar():
         except Exception:
             continue
 
-    # 💡 솔라나 5%+ 변동 감지 시 아침 7시가 아니더라도 즉시 텔레그램 속보 전송
     if solana_alert_msg:
         send_message(solana_alert_msg)
 
@@ -619,7 +627,7 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 보유 종목 25개 수집
+    # 5. 보유 종목 25개 수집 및 20/50/200 이평선 이격도 계산
     high_vol = []
     stock_cards = []
     stock_data_list = []
@@ -627,7 +635,7 @@ def run_radar():
     for ticker in MY_TICKERS:
         try:
             t = yf.Ticker(ticker)
-            hist = t.history(period="3mo").dropna(subset=['Close'])
+            hist = t.history(period="1y").dropna(subset=['Close'])
             if len(hist) < 2:
                 continue
 
@@ -644,6 +652,19 @@ def run_radar():
             if not high_52w or pd.isna(high_52w):
                 high_52w = float(hist['High'].max())
             mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
+
+            # 💡 20일, 50일, 200일 이동평균선 및 이격도 계산
+            sma20 = float(hist['Close'].rolling(window=20).mean().iloc[-1]) if len(hist) >= 20 else None
+            sma50 = float(hist['Close'].rolling(window=50).mean().iloc[-1]) if len(hist) >= 50 else None
+            sma200 = float(hist['Close'].rolling(window=200).mean().iloc[-1]) if len(hist) >= 200 else None
+
+            disp20 = ((cur_p - sma20) / sma20) * 100 if sma20 and not pd.isna(sma20) else None
+            disp50 = ((cur_p - sma50) / sma50) * 100 if sma50 and not pd.isna(sma50) else None
+            disp200 = ((cur_p - sma200) / sma200) * 100 if sma200 and not pd.isna(sma200) else None
+
+            disp20_str = f"{disp20:+.1f}%" if disp20 is not None else "N/A"
+            disp50_str = f"{disp50:+.1f}%" if disp50 is not None else "N/A"
+            disp200_str = f"{disp200:+.1f}%" if disp200 is not None else "N/A"
 
             fwd_pe = t.info.get("forwardPE")
             pe_str = f"{fwd_pe:.1f}x" if fwd_pe and fwd_pe > 0 else "N/A"
@@ -667,23 +688,24 @@ def run_radar():
             stock_data_list.append({
                 "ticker": ticker, "ticker_name": display_name,
                 "cur_p": cur_p, "d_chg": d_chg, "mdd": mdd,
+                "disp20": disp20, "disp50": disp50, "disp200": disp200,
+                "disp20_str": disp20_str, "disp50_str": disp50_str, "disp200_str": disp200_str,
                 "pe_str": pe_str, "sec_pe": sec_pe, "sig": sig
             })
 
             p_str = f"₩{cur_p:,.0f}" if ".KS" in ticker else f"${cur_p:.2f}"
             card = (
                 f"▪️ <b>{display_name}</b>: <b>{p_str}</b> ({d_chg:+.1f}%)\n"
-                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}% | <b>MDD: {mdd:.1f}%</b> | F-PER: <b>{pe_str}</b> ({sig})"
+                f"   1주: {w_chg:+.1f}% | 1달: {m_chg:+.1f}% | <b>MDD: {mdd:.1f}%</b> | F-PER: <b>{pe_str}</b> ({sig})\n"
+                f"   이격도: 20D <b>{disp20_str}</b> | 50D <b>{disp50_str}</b> | 200D <b>{disp200_str}</b>"
             )
             stock_cards.append(card)
         except Exception:
             continue
 
-    # 웹 대시보드 HTML 파일 생성 (1시간 주기)
     generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_status, summary_lines, 
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, stock_data_list, high_vol)
 
-    # 아침 07:00 KST 정기 종합 브리핑
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/2)</b>",
@@ -703,7 +725,7 @@ def run_radar():
             "<b>🪙 가상자산 시황 (1H / 24H / 7D·30D 고점대비)</b>",
             "\n".join(crypto_telegram),
             "─────────────────",
-            "<b>📊 주요 8대 지수 정밀 진단</b>",
+            "<b>📈 주요 8대 지수 정밀 진단</b>",
             "\n\n".join(index_cards)
         ]
         send_message("\n".join(part1))
