@@ -35,7 +35,6 @@
         .pt-2 { padding-top: 8px; }
         .border-t { border-top: 1px solid var(--border); }
         .badge-mdd { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
-        .badge-sub { background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
         .sector-tag { display: inline-block; font-size: 10px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25); }
         .section-title { font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }
         ul { padding-left: 18px; }
@@ -53,6 +52,8 @@
         .slider-dot { position: absolute; top: -3.5px; width: 12px; height: 12px; background: #38bdf8; border: 2px solid #0b0f19; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }
         .slider-sub { margin-top: 4px; display: flex; align-items: center; gap: 6px; }
 
+        .crypto-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; color: #cbd5e1; }
+
         .high-vol-box { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px; }
         .high-vol-box h4 { color: #f87171; font-size: 13px; margin-bottom: 6px; }
         .vol-item { font-size: 12px; margin-bottom: 2px; }
@@ -65,7 +66,7 @@
 <body>
     <header>
         <h1>📡 GLOBAL 증시 & 자산 투자 레이더 <span class="badge-live">LIVE 1H</span></h1>
-        <div class="date">최근 동기화: 2026-09-22 00:22 KST (1시간 주기 자동 갱신)</div>
+        <div class="date">최근 동기화: 2026-09-22 00:31 KST (1시간 주기 자동 갱신)</div>
     </header>
 
     <div class="signal-box">
@@ -92,43 +93,39 @@
         </div>
     </div>
 
-    <div class='high-vol-box'><h4>🚨 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>SOXL (SOXL)</b>: +12.0% 급등 🚀</div><div class='vol-item'>🚨 <b>INTC (INTC)</b>: +13.2% 급등 🚀</div></div>
+    <div class='high-vol-box'><h4>🚨 10%+ 고변동 종목</h4><div class='vol-item'>🚨 <b>SOXL (SOXL)</b>: +13.0% 급등 🚀</div><div class='vol-item'>🚨 <b>INTC (INTC)</b>: +14.1% 급등 🚀</div></div>
 
     <div class="section-title">🇺🇸 미 증시 실시간 핵심 & 인기 뉴스 TOP 5</div>
     <div class="card">
-        <ul><li><b>[미증시]</b> [특징주] 삼전·닉스, 0.2∼0.4% 하락 마감(종합) <i>(yna.co.kr)</i></li><li><b>[미증시]</b> 인텔 4.11%·델 3.64% 상승…SK하이닉스와 美 메모리 생산 협력설 [뉴욕증시 특징주] <i>(citytimes.co.kr)</i></li><li><b>[미증시]</b> 뉴욕증시 개장 전 특징주...뉴코·스틸다이내믹스↑ VS 알리바바·반도체주↓ <i>(뉴스핌)</i></li><li><b>[월가소식]</b> 석유 하락과 AI 재고 랠리에 따라 월스트리트가 상승 - CHOSUNBIZ <i>(Chosunbiz)</i></li><li><b>[월가소식]</b> 주식 랠리, 베슨트 시그널 후 오일 드롭 호르무즈에서 이란 거래 <i>(WSJ)</i></li></ul>
+        <ul><li><b>[미증시]</b> [특징주] 삼전·닉스, 0.2∼0.4% 하락 마감(종합) <i>(yna.co.kr)</i></li><li><b>[미증시]</b> 인텔 4.11%·델 3.64% 상승…SK하이닉스와 美 메모리 생산 협력설 [뉴욕증시 특징주] <i>(citytimes.co.kr)</i></li><li><b>[미증시]</b> 뉴욕증시 개장 전 특징주...뉴코·스틸다이내믹스↑ VS 알리바바·반도체주↓ <i>(뉴스핌)</i></li><li><b>[월가소식]</b> 석유 하락과 AI 재고 랠리에 따라 월스트리트가 상승 - CHOSUNBIZ <i>(Chosunbiz)</i></li><li><b>[월가소식]</b> 월스트리트 집회, 다우지수, 이란 회담 낙관론에 대한 기록으로 마감 <i>(Reuters)</i></li></ul>
     </div>
 
-    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 종합)</div>
+    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D / 30D 변동률)</div>
     <div class="grid-2">
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold" style="font-size: 14px;">비트코인 (BTC)</span>
-                <span class="price">$86,069.21</span>
+                <span class="price">$85,838.23</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">1H: +0.27%</span>
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">24H: +6.07%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: #22c55e;">+13.83%</b> <span class="badge-sub">고점 -0.2%</span></div>
-                <div>30D: <b style="color: #22c55e;">+10.69%</b> <span class="badge-sub">고점 -0.2%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: #22c55e;">+0.00%</b></div>
+                <div>24시간: <b style="color: #22c55e;">+5.79%</b></div>
+                <div>주간(7D): <b style="color: #22c55e;">+13.52%</b></div>
+                <div>월간(30D): <b style="color: #22c55e;">+10.40%</b></div>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold" style="font-size: 14px;">이더리움 (ETH)</span>
-                <span class="price">$2,737.48</span>
+                <span class="price">$2,729.69</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">1H: +0.04%</span>
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">24H: +3.57%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: #22c55e;">+14.11%</b> <span class="badge-sub">고점 -0.4%</span></div>
-                <div>30D: <b style="color: #22c55e;">+11.11%</b> <span class="badge-sub">고점 -0.4%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: #ef4444;">-0.24%</b></div>
+                <div>24시간: <b style="color: #22c55e;">+3.28%</b></div>
+                <div>주간(7D): <b style="color: #22c55e;">+13.78%</b></div>
+                <div>월간(30D): <b style="color: #22c55e;">+10.79%</b></div>
             </div>
         </div>
         
@@ -137,43 +134,37 @@
                 <span class="bold" style="font-size: 14px;">리플 (XRP)</span>
                 <span class="price">$1.49</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold; font-size: 12px;">1H: -0.50%</span>
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">24H: +5.68%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: #22c55e;">+15.98%</b> <span class="badge-sub">고점 -0.9%</span></div>
-                <div>30D: <b style="color: #ef4444;">-2.11%</b> <span class="badge-sub">고점 -3.6%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: #ef4444;">-0.65%</b></div>
+                <div>24시간: <b style="color: #22c55e;">+5.52%</b></div>
+                <div>주간(7D): <b style="color: #22c55e;">+15.80%</b></div>
+                <div>월간(30D): <b style="color: #ef4444;">-2.27%</b></div>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold" style="font-size: 14px;">솔라나 (SOL)</span>
-                <span class="price">$117.88</span>
+                <span class="price">$117.57</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold; font-size: 12px;">1H: -0.12%</span>
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">24H: +6.07%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: #22c55e;">+21.67%</b> <span class="badge-sub">고점 -0.8%</span></div>
-                <div>30D: <b style="color: #22c55e;">+23.51%</b> <span class="badge-sub">고점 -0.8%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: #ef4444;">-0.38%</b></div>
+                <div>24시간: <b style="color: #22c55e;">+5.79%</b></div>
+                <div>주간(7D): <b style="color: #22c55e;">+21.35%</b></div>
+                <div>월간(30D): <b style="color: #22c55e;">+23.18%</b></div>
             </div>
         </div>
         
         <div class="crypto-card">
             <div class="flex-between">
                 <span class="bold" style="font-size: 14px;">에테나 (ENA)</span>
-                <span class="price">$0.2175</span>
+                <span class="price">$0.2152</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold; font-size: 12px;">1H: -2.45%</span>
-                <span style="color: #22c55e; font-weight: bold; font-size: 12px;">24H: +0.30%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: #22c55e;">+55.82%</b> <span class="badge-sub">고점 -5.1%</span></div>
-                <div>30D: <b style="color: #22c55e;">+34.73%</b> <span class="badge-sub">고점 -5.1%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: #ef4444;">-3.51%</b></div>
+                <div>24시간: <b style="color: #ef4444;">-0.79%</b></div>
+                <div>주간(7D): <b style="color: #22c55e;">+54.12%</b></div>
+                <div>월간(30D): <b style="color: #22c55e;">+33.26%</b></div>
             </div>
         </div>
         
@@ -185,10 +176,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">미국채 10년물 금리</span>
-                <span class="price">4.963%</span>
+                <span class="price">4.959%</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-0.70%</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.78%</span>
                 <span class="text-sub">금리 안정</span>
             </div>
         </div>
@@ -196,10 +187,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">달러 인덱스 (DXY)</span>
-                <span class="price">100.38pt</span>
+                <span class="price">100.39pt</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.16%</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.17%</span>
                 <span class="text-sub">달러 강세</span>
             </div>
         </div>
@@ -207,10 +198,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">WTI 원유 (배럴)</span>
-                <span class="price">$92.32</span>
+                <span class="price">$92.35</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-7.96%</span>
+                <span style="color: #ef4444; font-weight: bold;">-7.93%</span>
                 <span class="text-sub">인플레 완화 (호재)</span>
             </div>
         </div>
@@ -218,10 +209,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">원/달러 환율 (KRW)</span>
-                <span class="price">1,374.8원</span>
+                <span class="price">1,374.7원</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-0.34%</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.35%</span>
                 <span class="text-sub">원화 절상</span>
             </div>
         </div>
@@ -229,10 +220,10 @@
         <div class="macro-card">
             <div class="flex-between">
                 <span class="bold">원/엔 환율 (100엔)</span>
-                <span class="price">871.1원</span>
+                <span class="price">870.7원</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-1.41%</span>
+                <span style="color: #ef4444; font-weight: bold;">-1.45%</span>
                 <span class="text-sub">엔저 지속</span>
             </div>
         </div>
@@ -241,7 +232,7 @@
 
     <div class="section-title">📊 미 증시 마감/현재 브리핑</div>
     <div class="card">
-        <ul><li><b>S&P 500(SPY)</b>: +1.09% 마감/진행</li><li><b>나스닥 100(QQQ)</b>: +2.06% 마감/진행</li><li><b>반도체(SOXX)</b>: +3.99% 시현</li><li><b>VIX 변동성</b>: 전일대비 -1.08% 기록</li><li><b>CNN 공탐지수</b>: 33pt (FEAR)</li></ul>
+        <ul><li><b>S&P 500(SPY)</b>: +1.08% 마감/진행</li><li><b>나스닥 100(QQQ)</b>: +2.12% 마감/진행</li><li><b>반도체(SOXX)</b>: +4.31% 시현</li><li><b>VIX 변동성</b>: 전일대비 -0.41% 기록</li><li><b>CNN 공탐지수</b>: 33pt (FEAR)</li></ul>
     </div>
 
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
@@ -302,97 +293,97 @@
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">S&P 500 (SPY)</span>
-                <span class="price">$770.00</span>
+                <span class="price">$769.93</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+1.09%</span>
-                <span class="text-sub">1주 +1.92% | 1달 +0.81%</span>
+                <span style="color: #22c55e; font-weight: bold;">+1.08%</span>
+                <span class="text-sub">1주 +1.91% | 1달 +0.80%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: $779.37</span>
-                <span class="badge-mdd">MDD -1.20%</span>
+                <span class="badge-mdd">MDD -1.21%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>53.7</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>53.6</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">나스닥 100 (QQQ)</span>
-                <span class="price">$736.34</span>
+                <span class="price">$736.74</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+2.06%</span>
-                <span class="text-sub">1주 +4.51% | 1달 +3.21%</span>
+                <span style="color: #22c55e; font-weight: bold;">+2.12%</span>
+                <span class="text-sub">1주 +4.57% | 1달 +3.27%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: $748.65</span>
-                <span class="badge-mdd">MDD -1.64%</span>
+                <span class="badge-mdd">MDD -1.59%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>62.4</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>62.6</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">다우존스 (DIA)</span>
-                <span class="price">$518.57</span>
+                <span class="price">$518.01</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.52%</span>
-                <span class="text-sub">1주 -0.28% | 1달 -2.34%</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.41%</span>
+                <span class="text-sub">1주 -0.39% | 1달 -2.45%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: $546.75</span>
-                <span class="badge-mdd">MDD -5.15%</span>
+                <span class="badge-mdd">MDD -5.26%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>38.6</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>38.0</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">러셀 2000 (IWM)</span>
-                <span class="price">$285.99</span>
+                <span class="price">$285.93</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+0.67%</span>
-                <span class="text-sub">1주 +0.30% | 1달 -4.41%</span>
+                <span style="color: #22c55e; font-weight: bold;">+0.64%</span>
+                <span class="text-sub">1주 +0.28% | 1달 -4.43%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: $305.18</span>
-                <span class="badge-mdd">MDD -6.29%</span>
+                <span class="badge-mdd">MDD -6.31%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>36.8</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>36.7</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">반도체 (SOXX)</span>
-                <span class="price">$554.34</span>
+                <span class="price">$556.06</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #22c55e; font-weight: bold;">+3.99%</span>
-                <span class="text-sub">1주 +11.12% | 1달 +6.66%</span>
+                <span style="color: #22c55e; font-weight: bold;">+4.31%</span>
+                <span class="text-sub">1주 +11.47% | 1달 +6.99%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: $655.95</span>
-                <span class="badge-mdd">MDD -15.49%</span>
+                <span class="badge-mdd">MDD -15.23%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>64.2</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>64.6</b></div>
         </div>
         
         <div class="card">
             <div class="flex-between">
                 <span class="card-title">VIX 변동성</span>
-                <span class="price">pt14.65</span>
+                <span class="price">pt14.75</span>
             </div>
             <div class="flex-between mt-1">
-                <span style="color: #ef4444; font-weight: bold;">-1.08%</span>
-                <span class="text-sub">1주 -14.83% | 1달 -7.57%</span>
+                <span style="color: #ef4444; font-weight: bold;">-0.41%</span>
+                <span class="text-sub">1주 -14.24% | 1달 -6.94%</span>
             </div>
             <div class="flex-between mt-2 pt-2 border-t">
                 <span class="text-sub">52주 최고: pt35.30</span>
-                <span class="badge-mdd">MDD -58.50%</span>
+                <span class="badge-mdd">MDD -58.22%</span>
             </div>
-            <div class="mt-1 text-sub">RSI(14): <b>43.2</b></div>
+            <div class="mt-1 text-sub">RSI(14): <b>43.6</b></div>
         </div>
         
         <div class="card">
@@ -446,16 +437,16 @@
                 
         <tr>
             <td class="bold">XLK <span class="text-sub" style="font-size: 11px;">(Technology)</span></td>
-            <td>$193.35</td>
-            <td style="color: #22c55e; font-weight: bold;">+1.98%</td>
-            <td style="color: #22c55e;">+5.23%</td>
-            <td style="color: #22c55e;">+5.48%</td>
-            <td style="color: #22c55e;">+37.35%</td>
+            <td>$193.45</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.03%</td>
+            <td style="color: #22c55e;">+5.28%</td>
+            <td style="color: #22c55e;">+5.53%</td>
+            <td style="color: #22c55e;">+37.42%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">126.7</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 92.5%;"></div>
+                        <div class="slider-dot" style="left: 92.7%;"></div>
                     </div>
                     <span class="slider-val">198.7</span>
                 </div>
@@ -467,73 +458,73 @@
         
         <tr>
             <td class="bold">XLV <span class="text-sub" style="font-size: 11px;">(Healthcare)</span></td>
-            <td>$168.79</td>
-            <td style="color: #22c55e; font-weight: bold;">+0.24%</td>
-            <td style="color: #22c55e;">+0.67%</td>
-            <td style="color: #ef4444;">-3.34%</td>
-            <td style="color: #22c55e;">+25.12%</td>
+            <td>$168.60</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.13%</td>
+            <td style="color: #22c55e;">+0.56%</td>
+            <td style="color: #ef4444;">-3.44%</td>
+            <td style="color: #22c55e;">+24.99%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">133.7</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 81.8%;"></div>
+                        <div class="slider-dot" style="left: 81.4%;"></div>
                     </div>
                     <span class="slider-val">176.6</span>
                 </div>
                 <div class="slider-sub">
-                    <span class="badge-mdd">MDD -4.4%</span>
+                    <span class="badge-mdd">MDD -4.5%</span>
                 </div>
             </td>
         </tr>
         
         <tr>
             <td class="bold">XLP <span class="text-sub" style="font-size: 11px;">(Consumer)</span></td>
-            <td>$82.09</td>
-            <td style="color: #ef4444; font-weight: bold;">-0.86%</td>
-            <td style="color: #ef4444;">-1.96%</td>
-            <td style="color: #ef4444;">-4.54%</td>
-            <td style="color: #22c55e;">+7.48%</td>
+            <td>$82.00</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.97%</td>
+            <td style="color: #ef4444;">-2.07%</td>
+            <td style="color: #ef4444;">-4.64%</td>
+            <td style="color: #22c55e;">+7.36%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">75.2</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 46.3%;"></div>
+                        <div class="slider-dot" style="left: 45.7%;"></div>
                     </div>
                     <span class="slider-val">90.1</span>
                 </div>
                 <div class="slider-sub">
-                    <span class="badge-mdd">MDD -8.9%</span>
+                    <span class="badge-mdd">MDD -9.0%</span>
                 </div>
             </td>
         </tr>
         
         <tr>
             <td class="bold">XLU <span class="text-sub" style="font-size: 11px;">(Utilities)</span></td>
-            <td>$40.85</td>
-            <td style="color: #ef4444; font-weight: bold;">-0.60%</td>
-            <td style="color: #ef4444;">-1.13%</td>
-            <td style="color: #ef4444;">-4.48%</td>
-            <td style="color: #ef4444;">-2.08%</td>
+            <td>$40.83</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.66%</td>
+            <td style="color: #ef4444;">-1.19%</td>
+            <td style="color: #ef4444;">-4.54%</td>
+            <td style="color: #ef4444;">-2.14%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">40.6</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 3.9%;"></div>
+                        <div class="slider-dot" style="left: 3.5%;"></div>
                     </div>
                     <span class="slider-val">47.8</span>
                 </div>
                 <div class="slider-sub">
-                    <span class="badge-mdd">MDD -14.5%</span>
+                    <span class="badge-mdd">MDD -14.6%</span>
                 </div>
             </td>
         </tr>
         
         <tr>
             <td class="bold">XLY <span class="text-sub" style="font-size: 11px;">(Consumer)</span></td>
-            <td>$111.68</td>
+            <td>$111.69</td>
             <td style="color: #22c55e; font-weight: bold;">+0.59%</td>
             <td style="color: #22c55e;">+0.73%</td>
-            <td style="color: #ef4444;">-5.37%</td>
+            <td style="color: #ef4444;">-5.36%</td>
             <td style="color: #ef4444;">-6.44%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
@@ -551,37 +542,37 @@
         
         <tr>
             <td class="bold">XLC <span class="text-sub" style="font-size: 11px;">(Communication)</span></td>
-            <td>$113.75</td>
-            <td style="color: #22c55e; font-weight: bold;">+2.65%</td>
-            <td style="color: #ef4444;">-0.25%</td>
-            <td style="color: #22c55e;">+2.11%</td>
-            <td style="color: #ef4444;">-3.20%</td>
+            <td>$113.88</td>
+            <td style="color: #22c55e; font-weight: bold;">+2.77%</td>
+            <td style="color: #ef4444;">-0.13%</td>
+            <td style="color: #22c55e;">+2.23%</td>
+            <td style="color: #ef4444;">-3.09%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">105.0</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 56.7%;"></div>
+                        <div class="slider-dot" style="left: 57.6%;"></div>
                     </div>
                     <span class="slider-val">120.4</span>
                 </div>
                 <div class="slider-sub">
-                    <span class="badge-mdd">MDD -5.5%</span>
+                    <span class="badge-mdd">MDD -5.4%</span>
                 </div>
             </td>
         </tr>
         
         <tr>
             <td class="bold">XLB <span class="text-sub" style="font-size: 11px;">(Basic)</span></td>
-            <td>$49.81</td>
-            <td style="color: #ef4444; font-weight: bold;">-0.37%</td>
-            <td style="color: #ef4444;">-1.82%</td>
-            <td style="color: #ef4444;">-6.98%</td>
-            <td style="color: #22c55e;">+11.70%</td>
+            <td>$49.78</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.42%</td>
+            <td style="color: #ef4444;">-1.87%</td>
+            <td style="color: #ef4444;">-7.02%</td>
+            <td style="color: #22c55e;">+11.65%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">42.0</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 63.9%;"></div>
+                        <div class="slider-dot" style="left: 63.7%;"></div>
                     </div>
                     <span class="slider-val">54.2</span>
                 </div>
@@ -593,16 +584,16 @@
         
         <tr>
             <td class="bold">XLF <span class="text-sub" style="font-size: 11px;">(Financial)</span></td>
-            <td>$55.87</td>
-            <td style="color: #22c55e; font-weight: bold;">+0.02%</td>
-            <td style="color: #ef4444;">-1.72%</td>
-            <td style="color: #ef4444;">-2.80%</td>
-            <td style="color: #22c55e;">+4.72%</td>
+            <td>$55.83</td>
+            <td style="color: #ef4444; font-weight: bold;">-0.05%</td>
+            <td style="color: #ef4444;">-1.79%</td>
+            <td style="color: #ef4444;">-2.87%</td>
+            <td style="color: #22c55e;">+4.65%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">47.7</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 75.0%;"></div>
+                        <div class="slider-dot" style="left: 74.7%;"></div>
                     </div>
                     <span class="slider-val">58.6</span>
                 </div>
@@ -635,37 +626,37 @@
         
         <tr>
             <td class="bold">XLE <span class="text-sub" style="font-size: 11px;">(Energy)</span></td>
-            <td>$62.71</td>
-            <td style="color: #ef4444; font-weight: bold;">-2.50%</td>
-            <td style="color: #ef4444;">-4.89%</td>
-            <td style="color: #ef4444;">-1.47%</td>
-            <td style="color: #22c55e;">+46.26%</td>
+            <td>$62.65</td>
+            <td style="color: #ef4444; font-weight: bold;">-2.57%</td>
+            <td style="color: #ef4444;">-4.97%</td>
+            <td style="color: #ef4444;">-1.55%</td>
+            <td style="color: #22c55e;">+46.14%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">42.4</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 85.5%;"></div>
+                        <div class="slider-dot" style="left: 85.2%;"></div>
                     </div>
                     <span class="slider-val">66.2</span>
                 </div>
                 <div class="slider-sub">
-                    <span class="badge-mdd">MDD -5.2%</span>
+                    <span class="badge-mdd">MDD -5.3%</span>
                 </div>
             </td>
         </tr>
         
         <tr>
             <td class="bold">XLRE <span class="text-sub" style="font-size: 11px;">(Real)</span></td>
-            <td>$42.54</td>
-            <td style="color: #22c55e; font-weight: bold;">+0.04%</td>
-            <td style="color: #ef4444;">-1.22%</td>
-            <td style="color: #ef4444;">-5.62%</td>
-            <td style="color: #22c55e;">+4.82%</td>
+            <td>$42.53</td>
+            <td style="color: #22c55e; font-weight: bold;">+0.01%</td>
+            <td style="color: #ef4444;">-1.24%</td>
+            <td style="color: #ef4444;">-5.65%</td>
+            <td style="color: #22c55e;">+4.80%</td>
             <td style="min-width: 170px;">
                 <div class="slider-wrap">
                     <span class="slider-val">39.7</span>
                     <div class="slider-track">
-                        <div class="slider-dot" style="left: 41.9%;"></div>
+                        <div class="slider-dot" style="left: 41.8%;"></div>
                     </div>
                     <span class="slider-val">46.5</span>
                 </div>
@@ -679,7 +670,8 @@
         </table>
     </div>
 
-    <div class="section-title">💼 내 포트폴리오 (미국 23개 + 국내 2개)</div>
+    <!-- 💡 QLD가 포함된 내 포트폴리오 (26개) -->
+    <div class="section-title">💼 내 포트폴리오 (미국 24개 + 국내 2개)</div>
     <div class="table-wrap">
         <table>
             <thead>
@@ -701,26 +693,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Dell Technologies</div>
                     <span class="sector-tag">IT하드웨어</span>
                 </td>
-                <td style="font-weight: 700;">$574.34</td>
-                <td style="color: #22c55e; font-weight: bold;">+1.10%</td>
+                <td style="font-weight: 700;">$576.14</td>
+                <td style="color: #22c55e; font-weight: bold;">+1.42%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">110.2</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 95.6%;"></div>
+                            <div class="slider-dot" style="left: 96.0%;"></div>
                         </div>
                         <span class="slider-val">595.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -3.6%</span>
+                        <span class="badge-mdd">MDD -3.3%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+12.6%</b><br>
-                    50D: <b style="color: #22c55e;">+23.4%</b><br>
-                    200D: <b style="color: #22c55e;">+109.5%</b>
+                    20D: <b style="color: #22c55e;">+12.9%</b><br>
+                    50D: <b style="color: #22c55e;">+23.8%</b><br>
+                    200D: <b style="color: #22c55e;">+110.2%</b>
                 </td>
-                <td>19.7x <span class="text-sub">(22.0x)</span></td>
+                <td>19.8x <span class="text-sub">(22.0x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
@@ -730,24 +722,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Direxion Daily Semiconductor 3x</div>
                     <span class="sector-tag">레버리지</span>
                 </td>
-                <td style="font-weight: 700;">$138.56</td>
-                <td style="color: #22c55e; font-weight: bold;">+12.04%</td>
+                <td style="font-weight: 700;">$139.76</td>
+                <td style="color: #22c55e; font-weight: bold;">+13.01%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">28.1</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 40.3%;"></div>
+                            <div class="slider-dot" style="left: 40.8%;"></div>
                         </div>
                         <span class="slider-val">302.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -54.1%</span>
+                        <span class="badge-mdd">MDD -53.7%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+20.6%</b><br>
-                    50D: <b style="color: #22c55e;">+8.3%</b><br>
-                    200D: <b style="color: #22c55e;">+22.8%</b>
+                    20D: <b style="color: #22c55e;">+21.6%</b><br>
+                    50D: <b style="color: #22c55e;">+9.3%</b><br>
+                    200D: <b style="color: #22c55e;">+23.9%</b>
                 </td>
                 <td>N/A <span class="text-sub">(—)</span></td>
                 <td><span class="signal-tag">⚪ 비중관리</span></td>
@@ -759,26 +751,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">GE Vernova Inc.</div>
                     <span class="sector-tag">전력인프라</span>
                 </td>
-                <td style="font-weight: 700;">$954.10</td>
-                <td style="color: #22c55e; font-weight: bold;">+1.46%</td>
+                <td style="font-weight: 700;">$956.23</td>
+                <td style="color: #22c55e; font-weight: bold;">+1.69%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">530.2</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 63.7%;"></div>
+                            <div class="slider-dot" style="left: 64.0%;"></div>
                         </div>
                         <span class="slider-val">1195.9</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -20.2%</span>
+                        <span class="badge-mdd">MDD -20.0%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+2.6%</b><br>
-                    50D: <b style="color: #ef4444;">-2.7%</b><br>
-                    200D: <b style="color: #22c55e;">+5.6%</b>
+                    20D: <b style="color: #22c55e;">+2.8%</b><br>
+                    50D: <b style="color: #ef4444;">-2.5%</b><br>
+                    200D: <b style="color: #22c55e;">+5.9%</b>
                 </td>
-                <td>37.7x <span class="text-sub">(20.5x)</span></td>
+                <td>37.8x <span class="text-sub">(20.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -788,26 +780,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Howmet Aerospace</div>
                     <span class="sector-tag">우주항공</span>
                 </td>
-                <td style="font-weight: 700;">$227.38</td>
-                <td style="color: #ef4444; font-weight: bold;">-0.99%</td>
+                <td style="font-weight: 700;">$227.59</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.91%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">183.8</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 34.5%;"></div>
+                            <div class="slider-dot" style="left: 34.7%;"></div>
                         </div>
                         <span class="slider-val">310.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -26.7%</span>
+                        <span class="badge-mdd">MDD -26.6%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-6.9%</b><br>
+                    20D: <b style="color: #ef4444;">-6.8%</b><br>
                     50D: <b style="color: #ef4444;">-14.7%</b><br>
                     200D: <b style="color: #ef4444;">-7.8%</b>
                 </td>
-                <td>35.2x <span class="text-sub">(21.0x)</span></td>
+                <td>35.3x <span class="text-sub">(21.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -817,26 +809,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Intel Corporation</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$122.95</td>
-                <td style="color: #22c55e; font-weight: bold;">+13.21%</td>
+                <td style="font-weight: 700;">$123.93</td>
+                <td style="color: #22c55e; font-weight: bold;">+14.11%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">28.7</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 82.9%;"></div>
+                            <div class="slider-dot" style="left: 83.8%;"></div>
                         </div>
                         <span class="slider-val">142.3</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -13.6%</span>
+                        <span class="badge-mdd">MDD -12.9%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+26.1%</b><br>
-                    50D: <b style="color: #22c55e;">+26.3%</b><br>
-                    200D: <b style="color: #22c55e;">+58.5%</b>
+                    20D: <b style="color: #22c55e;">+27.0%</b><br>
+                    50D: <b style="color: #22c55e;">+27.3%</b><br>
+                    200D: <b style="color: #22c55e;">+59.8%</b>
                 </td>
-                <td>59.6x <span class="text-sub">(23.5x)</span></td>
+                <td>60.1x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -846,24 +838,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">IonQ Inc.</div>
                     <span class="sector-tag">양자컴퓨팅</span>
                 </td>
-                <td style="font-weight: 700;">$40.26</td>
-                <td style="color: #22c55e; font-weight: bold;">+2.89%</td>
+                <td style="font-weight: 700;">$40.24</td>
+                <td style="color: #22c55e; font-weight: bold;">+2.84%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">25.9</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 24.5%;"></div>
+                            <div class="slider-dot" style="left: 24.4%;"></div>
                         </div>
                         <span class="slider-val">84.6</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -52.4%</span>
+                        <span class="badge-mdd">MDD -52.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
                     20D: <b style="color: #22c55e;">+3.0%</b><br>
                     50D: <b style="color: #22c55e;">+2.7%</b><br>
-                    200D: <b style="color: #ef4444;">-8.1%</b>
+                    200D: <b style="color: #ef4444;">-8.2%</b>
                 </td>
                 <td>N/A <span class="text-sub">(22.0x)</span></td>
                 <td><span class="signal-tag">🟡 낙폭과대</span></td>
@@ -875,26 +867,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Marvell Technology</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$253.34</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.72%</td>
+                <td style="font-weight: 700;">$255.35</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.54%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">70.7</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 70.5%;"></div>
+                            <div class="slider-dot" style="left: 71.2%;"></div>
                         </div>
                         <span class="slider-val">329.9</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -23.2%</span>
+                        <span class="badge-mdd">MDD -22.6%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+11.0%</b><br>
-                    50D: <b style="color: #22c55e;">+17.1%</b><br>
-                    200D: <b style="color: #22c55e;">+59.2%</b>
+                    20D: <b style="color: #22c55e;">+11.8%</b><br>
+                    50D: <b style="color: #22c55e;">+18.0%</b><br>
+                    200D: <b style="color: #22c55e;">+60.4%</b>
                 </td>
-                <td>37.5x <span class="text-sub">(23.5x)</span></td>
+                <td>37.8x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -904,26 +896,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Micron Technology</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$1039.80</td>
-                <td style="color: #22c55e; font-weight: bold;">+2.36%</td>
+                <td style="font-weight: 700;">$1047.33</td>
+                <td style="color: #22c55e; font-weight: bold;">+3.10%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">154.7</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 80.4%;"></div>
+                            <div class="slider-dot" style="left: 81.1%;"></div>
                         </div>
                         <span class="slider-val">1255.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -17.1%</span>
+                        <span class="badge-mdd">MDD -16.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+7.9%</b><br>
-                    50D: <b style="color: #22c55e;">+12.0%</b><br>
-                    200D: <b style="color: #22c55e;">+61.5%</b>
+                    20D: <b style="color: #22c55e;">+8.7%</b><br>
+                    50D: <b style="color: #22c55e;">+12.8%</b><br>
+                    200D: <b style="color: #22c55e;">+62.6%</b>
                 </td>
-                <td>6.6x <span class="text-sub">(23.5x)</span></td>
+                <td>6.7x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
@@ -933,7 +925,7 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">NVIDIA Corporation</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$224.91</td>
+                <td style="font-weight: 700;">$224.93</td>
                 <td style="color: #22c55e; font-weight: bold;">+1.19%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
@@ -962,26 +954,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Palantir Technologies</div>
                     <span class="sector-tag">소프트웨어</span>
                 </td>
-                <td style="font-weight: 700;">$181.73</td>
-                <td style="color: #22c55e; font-weight: bold;">+2.30%</td>
+                <td style="font-weight: 700;">$181.91</td>
+                <td style="color: #22c55e; font-weight: bold;">+2.41%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">106.4</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 74.5%;"></div>
+                            <div class="slider-dot" style="left: 74.7%;"></div>
                         </div>
                         <span class="slider-val">207.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -12.4%</span>
+                        <span class="badge-mdd">MDD -12.3%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+3.3%</b><br>
-                    50D: <b style="color: #22c55e;">+14.0%</b><br>
-                    200D: <b style="color: #22c55e;">+19.7%</b>
+                    20D: <b style="color: #22c55e;">+3.4%</b><br>
+                    50D: <b style="color: #22c55e;">+14.2%</b><br>
+                    200D: <b style="color: #22c55e;">+19.8%</b>
                 </td>
-                <td>78.2x <span class="text-sub">(25.0x)</span></td>
+                <td>78.3x <span class="text-sub">(25.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -991,26 +983,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Rocket Lab USA</div>
                     <span class="sector-tag">우주항공</span>
                 </td>
-                <td style="font-weight: 700;">$69.32</td>
-                <td style="color: #22c55e; font-weight: bold;">+7.36%</td>
+                <td style="font-weight: 700;">$69.42</td>
+                <td style="color: #22c55e; font-weight: bold;">+7.51%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">37.6</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 28.0%;"></div>
+                            <div class="slider-dot" style="left: 28.1%;"></div>
                         </div>
                         <span class="slider-val">151.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -54.1%</span>
+                        <span class="badge-mdd">MDD -54.0%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+7.0%</b><br>
-                    50D: <b style="color: #ef4444;">-0.5%</b><br>
-                    200D: <b style="color: #ef4444;">-14.0%</b>
+                    20D: <b style="color: #22c55e;">+7.1%</b><br>
+                    50D: <b style="color: #ef4444;">-0.3%</b><br>
+                    200D: <b style="color: #ef4444;">-13.9%</b>
                 </td>
-                <td>1521.5x <span class="text-sub">(21.0x)</span></td>
+                <td>1523.7x <span class="text-sub">(21.0x)</span></td>
                 <td><span class="signal-tag">🟡 낙폭과대</span></td>
             </tr>
             
@@ -1020,24 +1012,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">SanDisk / Flash Storage</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$1775.30</td>
-                <td style="color: #ef4444; font-weight: bold;">-0.92%</td>
+                <td style="font-weight: 700;">$1777.02</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.83%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">93.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 74.4%;"></div>
+                            <div class="slider-dot" style="left: 74.5%;"></div>
                         </div>
                         <span class="slider-val">2354.4</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -24.6%</span>
+                        <span class="badge-mdd">MDD -24.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+10.9%</b><br>
-                    50D: <b style="color: #22c55e;">+18.2%</b><br>
-                    200D: <b style="color: #22c55e;">+65.0%</b>
+                    20D: <b style="color: #22c55e;">+11.0%</b><br>
+                    50D: <b style="color: #22c55e;">+18.4%</b><br>
+                    200D: <b style="color: #22c55e;">+65.1%</b>
                 </td>
                 <td>6.7x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
@@ -1049,24 +1041,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Taiwan Semiconductor (TSMC)</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$441.03</td>
-                <td style="color: #22c55e; font-weight: bold;">+1.46%</td>
+                <td style="font-weight: 700;">$441.46</td>
+                <td style="color: #22c55e; font-weight: bold;">+1.56%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">265.4</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 82.2%;"></div>
+                            <div class="slider-dot" style="left: 82.4%;"></div>
                         </div>
                         <span class="slider-val">479.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -7.9%</span>
+                        <span class="badge-mdd">MDD -7.8%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+4.3%</b><br>
-                    50D: <b style="color: #22c55e;">+5.9%</b><br>
-                    200D: <b style="color: #22c55e;">+16.6%</b>
+                    20D: <b style="color: #22c55e;">+4.4%</b><br>
+                    50D: <b style="color: #22c55e;">+6.0%</b><br>
+                    200D: <b style="color: #22c55e;">+16.7%</b>
                 </td>
                 <td>20.1x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
@@ -1078,24 +1070,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">AbCellera Biologics</div>
                     <span class="sector-tag">바이오</span>
                 </td>
-                <td style="font-weight: 700;">$12.57</td>
-                <td style="color: #ef4444; font-weight: bold;">-0.48%</td>
+                <td style="font-weight: 700;">$12.54</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.71%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">2.7</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 94.2%;"></div>
+                            <div class="slider-dot" style="left: 93.9%;"></div>
                         </div>
                         <span class="slider-val">13.2</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -4.6%</span>
+                        <span class="badge-mdd">MDD -4.9%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+8.3%</b><br>
-                    50D: <b style="color: #22c55e;">+36.3%</b><br>
-                    200D: <b style="color: #22c55e;">+127.0%</b>
+                    20D: <b style="color: #22c55e;">+8.0%</b><br>
+                    50D: <b style="color: #22c55e;">+36.0%</b><br>
+                    200D: <b style="color: #22c55e;">+126.4%</b>
                 </td>
                 <td>N/A <span class="text-sub">(16.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1107,26 +1099,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Credo Technology Group</div>
                     <span class="sector-tag">네트워킹</span>
                 </td>
-                <td style="font-weight: 700;">$185.44</td>
-                <td style="color: #22c55e; font-weight: bold;">+5.43%</td>
+                <td style="font-weight: 700;">$186.09</td>
+                <td style="color: #22c55e; font-weight: bold;">+5.80%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">86.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 44.5%;"></div>
+                            <div class="slider-dot" style="left: 44.8%;"></div>
                         </div>
                         <span class="slider-val">308.7</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -39.9%</span>
+                        <span class="badge-mdd">MDD -39.7%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-0.6%</b><br>
-                    50D: <b style="color: #ef4444;">-12.6%</b><br>
-                    200D: <b style="color: #22c55e;">+5.5%</b>
+                    20D: <b style="color: #ef4444;">-0.3%</b><br>
+                    50D: <b style="color: #ef4444;">-12.3%</b><br>
+                    200D: <b style="color: #22c55e;">+5.8%</b>
                 </td>
-                <td>19.1x <span class="text-sub">(23.5x)</span></td>
+                <td>19.2x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
@@ -1136,24 +1128,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Nebius Group N.V.</div>
                     <span class="sector-tag">클라우드</span>
                 </td>
-                <td style="font-weight: 700;">$234.65</td>
-                <td style="color: #22c55e; font-weight: bold;">+4.97%</td>
+                <td style="font-weight: 700;">$234.15</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.75%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">73.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 71.2%;"></div>
+                            <div class="slider-dot" style="left: 71.0%;"></div>
                         </div>
                         <span class="slider-val">299.9</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -21.7%</span>
+                        <span class="badge-mdd">MDD -21.9%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+7.6%</b><br>
-                    50D: <b style="color: #22c55e;">+10.5%</b><br>
-                    200D: <b style="color: #22c55e;">+45.4%</b>
+                    20D: <b style="color: #22c55e;">+7.3%</b><br>
+                    50D: <b style="color: #22c55e;">+10.3%</b><br>
+                    200D: <b style="color: #22c55e;">+45.1%</b>
                 </td>
                 <td>N/A <span class="text-sub">(22.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1165,24 +1157,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Advanced Micro Devices</div>
                     <span class="sector-tag">반도체</span>
                 </td>
-                <td style="font-weight: 700;">$611.10</td>
-                <td style="color: #22c55e; font-weight: bold;">+9.16%</td>
+                <td style="font-weight: 700;">$612.64</td>
+                <td style="color: #22c55e; font-weight: bold;">+9.43%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">154.8</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 98.9%;"></div>
+                            <div class="slider-dot" style="left: 99.3%;"></div>
                         </div>
                         <span class="slider-val">616.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -0.8%</span>
+                        <span class="badge-mdd">MDD -0.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+22.8%</b><br>
-                    50D: <b style="color: #22c55e;">+23.0%</b><br>
-                    200D: <b style="color: #22c55e;">+71.4%</b>
+                    20D: <b style="color: #22c55e;">+23.1%</b><br>
+                    50D: <b style="color: #22c55e;">+23.3%</b><br>
+                    200D: <b style="color: #22c55e;">+71.8%</b>
                 </td>
                 <td>39.3x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1194,26 +1186,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Applied Materials</div>
                     <span class="sector-tag">반도체장비</span>
                 </td>
-                <td style="font-weight: 700;">$461.06</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.71%</td>
+                <td style="font-weight: 700;">$462.30</td>
+                <td style="color: #22c55e; font-weight: bold;">+3.99%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">192.4</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 49.1%;"></div>
+                            <div class="slider-dot" style="left: 49.3%;"></div>
                         </div>
                         <span class="slider-val">739.7</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -37.7%</span>
+                        <span class="badge-mdd">MDD -37.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+1.9%</b><br>
-                    50D: <b style="color: #ef4444;">-7.4%</b><br>
-                    200D: <b style="color: #22c55e;">+10.7%</b>
+                    20D: <b style="color: #22c55e;">+2.1%</b><br>
+                    50D: <b style="color: #ef4444;">-7.2%</b><br>
+                    200D: <b style="color: #22c55e;">+11.0%</b>
                 </td>
-                <td>25.0x <span class="text-sub">(23.5x)</span></td>
+                <td>25.1x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 낙폭과대</span></td>
             </tr>
             
@@ -1223,26 +1215,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Astera Labs Inc.</div>
                     <span class="sector-tag">네트워킹</span>
                 </td>
-                <td style="font-weight: 700;">$325.80</td>
-                <td style="color: #22c55e; font-weight: bold;">+7.44%</td>
+                <td style="font-weight: 700;">$326.69</td>
+                <td style="color: #22c55e; font-weight: bold;">+7.73%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">97.9</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 56.8%;"></div>
+                            <div class="slider-dot" style="left: 57.0%;"></div>
                         </div>
                         <span class="slider-val">499.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -34.8%</span>
+                        <span class="badge-mdd">MDD -34.6%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+13.2%</b><br>
-                    50D: <b style="color: #22c55e;">+7.3%</b><br>
-                    200D: <b style="color: #22c55e;">+40.4%</b>
+                    20D: <b style="color: #22c55e;">+13.5%</b><br>
+                    50D: <b style="color: #22c55e;">+7.6%</b><br>
+                    200D: <b style="color: #22c55e;">+40.8%</b>
                 </td>
-                <td>51.0x <span class="text-sub">(23.5x)</span></td>
+                <td>51.1x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1252,13 +1244,13 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Bloom Energy Corporation</div>
                     <span class="sector-tag">전력인프라</span>
                 </td>
-                <td style="font-weight: 700;">$279.02</td>
-                <td style="color: #22c55e; font-weight: bold;">+5.04%</td>
+                <td style="font-weight: 700;">$278.86</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.98%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">61.4</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 75.1%;"></div>
+                            <div class="slider-dot" style="left: 75.0%;"></div>
                         </div>
                         <span class="slider-val">351.3</span>
                     </div>
@@ -1267,9 +1259,9 @@
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+14.2%</b><br>
-                    50D: <b style="color: #22c55e;">+23.4%</b><br>
-                    200D: <b style="color: #22c55e;">+39.7%</b>
+                    20D: <b style="color: #22c55e;">+14.1%</b><br>
+                    50D: <b style="color: #22c55e;">+23.3%</b><br>
+                    200D: <b style="color: #22c55e;">+39.6%</b>
                 </td>
                 <td>56.6x <span class="text-sub">(20.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1281,26 +1273,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Coherent Corp.</div>
                     <span class="sector-tag">광통신</span>
                 </td>
-                <td style="font-weight: 700;">$329.92</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.96%</td>
+                <td style="font-weight: 700;">$332.55</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.79%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">102.1</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 67.4%;"></div>
+                            <div class="slider-dot" style="left: 68.2%;"></div>
                         </div>
                         <span class="slider-val">440.0</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -25.0%</span>
+                        <span class="badge-mdd">MDD -24.4%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+14.3%</b><br>
-                    50D: <b style="color: #22c55e;">+11.1%</b><br>
-                    200D: <b style="color: #22c55e;">+16.3%</b>
+                    20D: <b style="color: #22c55e;">+15.2%</b><br>
+                    50D: <b style="color: #22c55e;">+12.0%</b><br>
+                    200D: <b style="color: #22c55e;">+17.2%</b>
                 </td>
-                <td>23.6x <span class="text-sub">(23.5x)</span></td>
+                <td>23.8x <span class="text-sub">(23.5x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1310,23 +1302,23 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Schwab US Dividend Equity ETF</div>
                     <span class="sector-tag">배당ETF</span>
                 </td>
-                <td style="font-weight: 700;">$33.69</td>
-                <td style="color: #22c55e; font-weight: bold;">+0.01%</td>
+                <td style="font-weight: 700;">$33.66</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.05%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">26.3</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 81.9%;"></div>
+                            <div class="slider-dot" style="left: 81.7%;"></div>
                         </div>
                         <span class="slider-val">35.3</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -4.6%</span>
+                        <span class="badge-mdd">MDD -4.7%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
                     20D: <b style="color: #ef4444;">-2.4%</b><br>
-                    50D: <b style="color: #ef4444;">-0.9%</b><br>
+                    50D: <b style="color: #ef4444;">-1.0%</b><br>
                     200D: <b style="color: #22c55e;">+7.9%</b>
                 </td>
                 <td>N/A <span class="text-sub">(16.0x)</span></td>
@@ -1339,24 +1331,53 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">ProShares UltraPro QQQ 3x</div>
                     <span class="sector-tag">레버리지</span>
                 </td>
-                <td style="font-weight: 700;">$77.39</td>
-                <td style="color: #22c55e; font-weight: bold;">+6.53%</td>
+                <td style="font-weight: 700;">$77.54</td>
+                <td style="color: #22c55e; font-weight: bold;">+6.74%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">37.3</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 78.9%;"></div>
+                            <div class="slider-dot" style="left: 79.2%;"></div>
                         </div>
                         <span class="slider-val">88.1</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -12.2%</span>
+                        <span class="badge-mdd">MDD -12.0%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+9.0%</b><br>
-                    50D: <b style="color: #22c55e;">+9.6%</b><br>
-                    200D: <b style="color: #22c55e;">+24.1%</b>
+                    20D: <b style="color: #22c55e;">+9.2%</b><br>
+                    50D: <b style="color: #22c55e;">+9.8%</b><br>
+                    200D: <b style="color: #22c55e;">+24.3%</b>
+                </td>
+                <td>N/A <span class="text-sub">(—)</span></td>
+                <td><span class="signal-tag">⚪ 비중관리</span></td>
+            </tr>
+            
+            <tr>
+                <td style="line-height: 1.35; min-width: 150px;">
+                    <div class="bold" style="font-size: 14px;">QLD</div>
+                    <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">ProShares Ultra QQQ 2x</div>
+                    <span class="sector-tag">레버리지</span>
+                </td>
+                <td style="font-weight: 700;">$95.10</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.50%</td>
+                <td style="min-width: 175px;">
+                    <div class="slider-wrap">
+                        <span class="slider-val">56.6</span>
+                        <div class="slider-track">
+                            <div class="slider-dot" style="left: 86.3%;"></div>
+                        </div>
+                        <span class="slider-val">101.2</span>
+                    </div>
+                    <div class="slider-sub">
+                        <span class="badge-mdd">MDD -6.0%</span>
+                    </div>
+                </td>
+                <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
+                    20D: <b style="color: #22c55e;">+6.2%</b><br>
+                    50D: <b style="color: #22c55e;">+6.9%</b><br>
+                    200D: <b style="color: #22c55e;">+18.8%</b>
                 </td>
                 <td>N/A <span class="text-sub">(—)</span></td>
                 <td><span class="signal-tag">⚪ 비중관리</span></td>
@@ -1446,13 +1467,13 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Quanta Services</div>
                     <span class="sector-tag">인프라엔지니어링</span>
                 </td>
-                <td style="font-weight: 700;">$641.60</td>
-                <td style="color: #22c55e; font-weight: bold;">+0.77%</td>
+                <td style="font-weight: 700;">$640.91</td>
+                <td style="color: #22c55e; font-weight: bold;">+0.66%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">382.2</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 63.8%;"></div>
+                            <div class="slider-dot" style="left: 63.6%;"></div>
                         </div>
                         <span class="slider-val">788.8</span>
                     </div>
@@ -1461,9 +1482,9 @@
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+3.3%</b><br>
-                    50D: <b style="color: #ef4444;">-0.0%</b><br>
-                    200D: <b style="color: #22c55e;">+7.5%</b>
+                    20D: <b style="color: #22c55e;">+3.2%</b><br>
+                    50D: <b style="color: #ef4444;">-0.1%</b><br>
+                    200D: <b style="color: #22c55e;">+7.4%</b>
                 </td>
                 <td>32.5x <span class="text-sub">(25.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1475,26 +1496,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Lumentum Holdings</div>
                     <span class="sector-tag">광학/네트워크</span>
                 </td>
-                <td style="font-weight: 700;">$969.81</td>
-                <td style="color: #22c55e; font-weight: bold;">+4.18%</td>
+                <td style="font-weight: 700;">$973.52</td>
+                <td style="color: #22c55e; font-weight: bold;">+4.58%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">144.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 87.7%;"></div>
+                            <div class="slider-dot" style="left: 88.1%;"></div>
                         </div>
                         <span class="slider-val">1085.7</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -10.7%</span>
+                        <span class="badge-mdd">MDD -10.3%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+7.1%</b><br>
-                    50D: <b style="color: #22c55e;">+14.8%</b><br>
-                    200D: <b style="color: #22c55e;">+35.2%</b>
+                    20D: <b style="color: #22c55e;">+7.5%</b><br>
+                    50D: <b style="color: #22c55e;">+15.2%</b><br>
+                    200D: <b style="color: #22c55e;">+35.8%</b>
                 </td>
-                <td>24.4x <span class="text-sub">(22.0x)</span></td>
+                <td>24.5x <span class="text-sub">(22.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1504,24 +1525,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Freeport-McMoRan</div>
                     <span class="sector-tag">구리/원자재</span>
                 </td>
-                <td style="font-weight: 700;">$71.30</td>
-                <td style="color: #ef4444; font-weight: bold;">-0.34%</td>
+                <td style="font-weight: 700;">$71.39</td>
+                <td style="color: #ef4444; font-weight: bold;">-0.22%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">35.1</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 80.2%;"></div>
+                            <div class="slider-dot" style="left: 80.4%;"></div>
                         </div>
                         <span class="slider-val">80.2</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -11.1%</span>
+                        <span class="badge-mdd">MDD -11.0%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-3.4%</b><br>
-                    50D: <b style="color: #22c55e;">+3.9%</b><br>
-                    200D: <b style="color: #22c55e;">+14.5%</b>
+                    20D: <b style="color: #ef4444;">-3.3%</b><br>
+                    50D: <b style="color: #22c55e;">+4.1%</b><br>
+                    200D: <b style="color: #22c55e;">+14.7%</b>
                 </td>
                 <td>17.2x <span class="text-sub">(15.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1533,13 +1554,13 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Chevron Corporation</div>
                     <span class="sector-tag">에너지/오일</span>
                 </td>
-                <td style="font-weight: 700;">$205.64</td>
-                <td style="color: #ef4444; font-weight: bold;">-1.85%</td>
+                <td style="font-weight: 700;">$205.52</td>
+                <td style="color: #ef4444; font-weight: bold;">-1.90%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">146.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 83.0%;"></div>
+                            <div class="slider-dot" style="left: 82.8%;"></div>
                         </div>
                         <span class="slider-val">217.8</span>
                     </div>
@@ -1548,9 +1569,9 @@
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-1.4%</b><br>
+                    20D: <b style="color: #ef4444;">-1.5%</b><br>
                     50D: <b style="color: #22c55e;">+3.6%</b><br>
-                    200D: <b style="color: #22c55e;">+13.3%</b>
+                    200D: <b style="color: #22c55e;">+13.2%</b>
                 </td>
                 <td>15.2x <span class="text-sub">(12.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1562,26 +1583,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Circle Internet Group</div>
                     <span class="sector-tag">핀테크/디지털</span>
                 </td>
-                <td style="font-weight: 700;">$94.55</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.02%</td>
+                <td style="font-weight: 700;">$94.14</td>
+                <td style="color: #22c55e; font-weight: bold;">+2.58%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">49.9</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 40.8%;"></div>
+                            <div class="slider-dot" style="left: 40.4%;"></div>
                         </div>
                         <span class="slider-val">159.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -40.7%</span>
+                        <span class="badge-mdd">MDD -41.0%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+3.0%</b><br>
-                    50D: <b style="color: #22c55e;">+22.3%</b><br>
-                    200D: <b style="color: #22c55e;">+10.0%</b>
+                    20D: <b style="color: #22c55e;">+2.6%</b><br>
+                    50D: <b style="color: #22c55e;">+21.8%</b><br>
+                    200D: <b style="color: #22c55e;">+9.5%</b>
                 </td>
-                <td>61.9x <span class="text-sub">(20.0x)</span></td>
+                <td>61.6x <span class="text-sub">(20.0x)</span></td>
                 <td><span class="signal-tag">🟡 낙폭과대</span></td>
             </tr>
             
@@ -1591,18 +1612,18 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Caterpillar Inc.</div>
                     <span class="sector-tag">중장비/산업</span>
                 </td>
-                <td style="font-weight: 700;">$819.67</td>
-                <td style="color: #22c55e; font-weight: bold;">+1.32%</td>
+                <td style="font-weight: 700;">$819.40</td>
+                <td style="color: #22c55e; font-weight: bold;">+1.29%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">459.6</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 58.7%;"></div>
+                            <div class="slider-dot" style="left: 58.6%;"></div>
                         </div>
                         <span class="slider-val">1073.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -23.6%</span>
+                        <span class="badge-mdd">MDD -23.7%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
@@ -1620,24 +1641,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Occidental Petroleum</div>
                     <span class="sector-tag">에너지/버핏</span>
                 </td>
-                <td style="font-weight: 700;">$57.26</td>
-                <td style="color: #ef4444; font-weight: bold;">-2.69%</td>
+                <td style="font-weight: 700;">$57.17</td>
+                <td style="color: #ef4444; font-weight: bold;">-2.84%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">38.8</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 64.4%;"></div>
+                            <div class="slider-dot" style="left: 64.1%;"></div>
                         </div>
                         <span class="slider-val">67.5</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -15.1%</span>
+                        <span class="badge-mdd">MDD -15.2%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-4.5%</b><br>
-                    50D: <b style="color: #ef4444;">-1.1%</b><br>
-                    200D: <b style="color: #22c55e;">+8.3%</b>
+                    20D: <b style="color: #ef4444;">-4.7%</b><br>
+                    50D: <b style="color: #ef4444;">-1.3%</b><br>
+                    200D: <b style="color: #22c55e;">+8.1%</b>
                 </td>
                 <td>14.2x <span class="text-sub">(12.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1649,24 +1670,24 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Apple Inc.</div>
                     <span class="sector-tag">빅테크/디바이스</span>
                 </td>
-                <td style="font-weight: 700;">$337.65</td>
-                <td style="color: #22c55e; font-weight: bold;">+0.45%</td>
+                <td style="font-weight: 700;">$337.12</td>
+                <td style="color: #22c55e; font-weight: bold;">+0.29%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">243.4</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 93.2%;"></div>
+                            <div class="slider-dot" style="left: 92.6%;"></div>
                         </div>
                         <span class="slider-val">344.6</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -2.0%</span>
+                        <span class="badge-mdd">MDD -2.2%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+4.2%</b><br>
-                    50D: <b style="color: #22c55e;">+5.4%</b><br>
-                    200D: <b style="color: #22c55e;">+18.0%</b>
+                    20D: <b style="color: #22c55e;">+4.0%</b><br>
+                    50D: <b style="color: #22c55e;">+5.2%</b><br>
+                    200D: <b style="color: #22c55e;">+17.8%</b>
                 </td>
                 <td>35.2x <span class="text-sub">(28.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
@@ -1678,13 +1699,13 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Amazon.com Inc.</div>
                     <span class="sector-tag">이커머스/클라우드</span>
                 </td>
-                <td style="font-weight: 700;">$255.27</td>
-                <td style="color: #22c55e; font-weight: bold;">+0.61%</td>
+                <td style="font-weight: 700;">$255.22</td>
+                <td style="color: #22c55e; font-weight: bold;">+0.60%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">196.0</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 65.0%;"></div>
+                            <div class="slider-dot" style="left: 64.9%;"></div>
                         </div>
                         <span class="slider-val">287.2</span>
                     </div>
@@ -1707,26 +1728,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Meta Platforms</div>
                     <span class="sector-tag">소셜/AI</span>
                 </td>
-                <td style="font-weight: 700;">$710.60</td>
-                <td style="color: #22c55e; font-weight: bold;">+6.74%</td>
+                <td style="font-weight: 700;">$713.05</td>
+                <td style="color: #22c55e; font-weight: bold;">+7.11%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">520.3</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 71.7%;"></div>
+                            <div class="slider-dot" style="left: 72.6%;"></div>
                         </div>
                         <span class="slider-val">785.7</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -9.6%</span>
+                        <span class="badge-mdd">MDD -9.2%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+14.1%</b><br>
-                    50D: <b style="color: #22c55e;">+16.8%</b><br>
-                    200D: <b style="color: #22c55e;">+13.9%</b>
+                    20D: <b style="color: #22c55e;">+14.5%</b><br>
+                    50D: <b style="color: #22c55e;">+17.2%</b><br>
+                    200D: <b style="color: #22c55e;">+14.3%</b>
                 </td>
-                <td>20.3x <span class="text-sub">(25.0x)</span></td>
+                <td>20.4x <span class="text-sub">(25.0x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
@@ -1736,26 +1757,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Robinhood Markets</div>
                     <span class="sector-tag">핀테크/브로커리지</span>
                 </td>
-                <td style="font-weight: 700;">$123.18</td>
-                <td style="color: #22c55e; font-weight: bold;">+2.80%</td>
+                <td style="font-weight: 700;">$123.58</td>
+                <td style="color: #22c55e; font-weight: bold;">+3.14%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">63.5</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 66.0%;"></div>
+                            <div class="slider-dot" style="left: 66.5%;"></div>
                         </div>
                         <span class="slider-val">153.9</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -19.9%</span>
+                        <span class="badge-mdd">MDD -19.7%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+9.9%</b><br>
-                    50D: <b style="color: #22c55e;">+19.1%</b><br>
-                    200D: <b style="color: #22c55e;">+29.8%</b>
+                    20D: <b style="color: #22c55e;">+10.3%</b><br>
+                    50D: <b style="color: #22c55e;">+19.5%</b><br>
+                    200D: <b style="color: #22c55e;">+30.2%</b>
                 </td>
-                <td>36.4x <span class="text-sub">(24.0x)</span></td>
+                <td>36.5x <span class="text-sub">(24.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1765,26 +1786,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Palo Alto Networks</div>
                     <span class="sector-tag">사이버보안</span>
                 </td>
-                <td style="font-weight: 700;">$372.44</td>
-                <td style="color: #22c55e; font-weight: bold;">+2.44%</td>
+                <td style="font-weight: 700;">$371.59</td>
+                <td style="color: #22c55e; font-weight: bold;">+2.20%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">139.6</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 89.8%;"></div>
+                            <div class="slider-dot" style="left: 89.5%;"></div>
                         </div>
                         <span class="slider-val">398.9</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -6.6%</span>
+                        <span class="badge-mdd">MDD -6.8%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+4.9%</b><br>
-                    50D: <b style="color: #22c55e;">+5.3%</b><br>
-                    200D: <b style="color: #22c55e;">+54.2%</b>
+                    20D: <b style="color: #22c55e;">+4.7%</b><br>
+                    50D: <b style="color: #22c55e;">+5.1%</b><br>
+                    200D: <b style="color: #22c55e;">+53.9%</b>
                 </td>
-                <td>76.3x <span class="text-sub">(45.0x)</span></td>
+                <td>76.2x <span class="text-sub">(45.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1794,8 +1815,8 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Oracle Corporation</div>
                     <span class="sector-tag">클라우드/엔터프라이즈</span>
                 </td>
-                <td style="font-weight: 700;">$149.15</td>
-                <td style="color: #22c55e; font-weight: bold;">+1.04%</td>
+                <td style="font-weight: 700;">$149.20</td>
+                <td style="color: #22c55e; font-weight: bold;">+1.07%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">114.5</span>
@@ -1809,8 +1830,8 @@
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #ef4444;">-0.3%</b><br>
-                    50D: <b style="color: #22c55e;">+5.6%</b><br>
+                    20D: <b style="color: #ef4444;">-0.2%</b><br>
+                    50D: <b style="color: #22c55e;">+5.7%</b><br>
                     200D: <b style="color: #ef4444;">-9.7%</b>
                 </td>
                 <td>13.6x <span class="text-sub">(25.0x)</span></td>
@@ -1823,26 +1844,26 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">CrowdStrike Holdings</div>
                     <span class="sector-tag">엔드포인트보안</span>
                 </td>
-                <td style="font-weight: 700;">$246.31</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.64%</td>
+                <td style="font-weight: 700;">$246.59</td>
+                <td style="color: #22c55e; font-weight: bold;">+3.76%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">85.7</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 97.6%;"></div>
+                            <div class="slider-dot" style="left: 97.7%;"></div>
                         </div>
                         <span class="slider-val">250.3</span>
                     </div>
                     <div class="slider-sub">
-                        <span class="badge-mdd">MDD -1.6%</span>
+                        <span class="badge-mdd">MDD -1.5%</span>
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+12.7%</b><br>
-                    50D: <b style="color: #22c55e;">+18.3%</b><br>
-                    200D: <b style="color: #22c55e;">+66.9%</b>
+                    20D: <b style="color: #22c55e;">+12.8%</b><br>
+                    50D: <b style="color: #22c55e;">+18.4%</b><br>
+                    200D: <b style="color: #22c55e;">+67.1%</b>
                 </td>
-                <td>153.4x <span class="text-sub">(55.0x)</span></td>
+                <td>153.6x <span class="text-sub">(55.0x)</span></td>
                 <td><span class="signal-tag">🟡 홀딩/분할</span></td>
             </tr>
             
@@ -1881,13 +1902,13 @@
                     <div style="font-size: 11px; color: var(--text-sub); margin: 2px 0;">Zscaler Inc.</div>
                     <span class="sector-tag">클라우드보안</span>
                 </td>
-                <td style="font-weight: 700;">$204.09</td>
-                <td style="color: #22c55e; font-weight: bold;">+3.44%</td>
+                <td style="font-weight: 700;">$204.34</td>
+                <td style="color: #22c55e; font-weight: bold;">+3.56%</td>
                 <td style="min-width: 175px;">
                     <div class="slider-wrap">
                         <span class="slider-val">114.6</span>
                         <div class="slider-track">
-                            <div class="slider-dot" style="left: 40.2%;"></div>
+                            <div class="slider-dot" style="left: 40.3%;"></div>
                         </div>
                         <span class="slider-val">337.0</span>
                     </div>
@@ -1896,11 +1917,11 @@
                     </div>
                 </td>
                 <td style="font-size: 11px; line-height: 1.4; white-space: nowrap;">
-                    20D: <b style="color: #22c55e;">+13.2%</b><br>
-                    50D: <b style="color: #22c55e;">+20.8%</b><br>
-                    200D: <b style="color: #22c55e;">+21.4%</b>
+                    20D: <b style="color: #22c55e;">+13.3%</b><br>
+                    50D: <b style="color: #22c55e;">+21.0%</b><br>
+                    200D: <b style="color: #22c55e;">+21.5%</b>
                 </td>
-                <td>36.4x <span class="text-sub">(45.0x)</span></td>
+                <td>36.5x <span class="text-sub">(45.0x)</span></td>
                 <td><span class="signal-tag">🟢 저평가분할</span></td>
             </tr>
             
