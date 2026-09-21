@@ -52,10 +52,11 @@ SECTOR_ETF_TICKERS = {
     "XLRE": "Real Estate (부동산)"
 }
 
+# 💡 내 포트폴리오에 QLD 추가 (총 26개: 미국 24 + 국내 2)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
-    "AMAT", "ALAB", "BE", "COHR", "SCHD", "TQQQ",
+    "AMAT", "ALAB", "BE", "COHR", "SCHD", "TQQQ", "QLD",
     "005930.KS", "000660.KS"
 ]
 
@@ -66,7 +67,7 @@ WATCH_TICKERS = [
 ]
 
 STOCK_INFO_MAP = {
-    # 내 포트폴리오 (25개)
+    # 내 포트폴리오
     "DELL": ("22.0x", "IT하드웨어", "Dell Technologies"),
     "SOXL": ("—", "레버리지", "Direxion Daily Semiconductor 3x"),
     "GEV": ("20.5x", "전력인프라", "GE Vernova Inc."),
@@ -90,10 +91,11 @@ STOCK_INFO_MAP = {
     "COHR": ("23.5x", "광통신", "Coherent Corp."),
     "SCHD": ("16.0x", "배당ETF", "Schwab US Dividend Equity ETF"),
     "TQQQ": ("—", "레버리지", "ProShares UltraPro QQQ 3x"),
+    "QLD": ("—", "레버리지", "ProShares Ultra QQQ 2x"),
     "005930.KS": ("12.5x", "국내반도체", "삼성전자 (Samsung Electronics)"),
     "000660.KS": ("9.8x", "국내반도체", "SK하이닉스 (SK Hynix)"),
     
-    # 관심종목 (17개)
+    # 관심종목
     "PWR": ("25.0x", "인프라엔지니어링", "Quanta Services"),
     "LITE": ("22.0x", "광학/네트워크", "Lumentum Holdings"),
     "FCX": ("15.0x", "구리/원자재", "Freeport-McMoRan"),
@@ -432,7 +434,7 @@ def fetch_stock_data_list(ticker_list):
                 sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
                 high_vol.append(f"🚨 <b>{display_name} ({ticker})</b>: {d_chg:+.1f}% {sign_txt}")
 
-            if "SOXL" in ticker or "TQQQ" in ticker:
+            if "SOXL" in ticker or "TQQQ" in ticker or "QLD" in ticker:
                 sig = "⚪ 비중관리"
             elif pe_str != "N/A" and float(pe_str.replace("x","")) < float(sec_pe.replace("x","")):
                 sig = "🟢 저평가분할"
@@ -524,7 +526,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 💡 [개선] 가상자산 카드: 고점 대비 낙폭을 완전히 빼고 1H, 24H, 7D, 30D 순수 등락률 4개만 크고 깔끔하게 배치
+    # 가상자산 카드 HTML
     crypto_cards_html = ""
     for c in crypto_data:
         h1_c = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
@@ -689,7 +691,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .slider-dot {{ position: absolute; top: -3.5px; width: 12px; height: 12px; background: #38bdf8; border: 2px solid #0b0f19; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }}
         .slider-sub {{ margin-top: 4px; display: flex; align-items: center; gap: 6px; }}
 
-        /* 💡 가상자산 전용 2x2 그리드 스타일 */
         .crypto-grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; color: #cbd5e1; }}
 
         .high-vol-box {{ background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px; }}
@@ -779,7 +780,8 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </table>
     </div>
 
-    <div class="section-title">💼 내 포트폴리오 (미국 23개 + 국내 2개)</div>
+    <!-- 💡 QLD가 포함된 내 포트폴리오 (26개) -->
+    <div class="section-title">💼 내 포트폴리오 (미국 24개 + 국내 2개)</div>
     <div class="table-wrap">
         <table>
             <thead>
@@ -931,7 +933,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1H, 24H, 7D, 30D 순수 등락률 계산)
+    # 3. 가상자산 수집
     crypto_data = []
     crypto_telegram = []
     solana_alert_msg = None
@@ -940,7 +942,6 @@ def run_radar():
         try:
             t = yf.Ticker(sym)
             
-            # 1시간 변동률
             hist_1h = t.history(period="2d", interval="1h").dropna(subset=['Close'])
             if len(hist_1h) >= 2:
                 cur_p = float(hist_1h['Close'].iloc[-1])
@@ -950,7 +951,6 @@ def run_radar():
                 cur_p = float(t.history(period="2d").dropna(subset=['Close'])['Close'].iloc[-1])
                 h1_chg = 0.0
 
-            # 일간, 주간(7D), 월간(30D) 순수 변동폭 계산
             hist_d = t.history(period="45d").dropna(subset=['Close'])
             prev_d_p = float(hist_d['Close'].iloc[-2]) if len(hist_d) >= 2 else cur_p
             d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
@@ -972,7 +972,6 @@ def run_radar():
                 f"  └ 1H: <b>{h1_chg:+.2f}%</b> | 24H: <b>{d_chg:+.2f}%</b> | 7D: <b>{w_chg:+.1f}%</b> | 30D: <b>{m_chg:+.1f}%</b>"
             )
 
-            # 솔라나(SOL-USD) 5%+ 변동 감시
             if sym == "SOL-USD" and abs(d_chg) >= 5.0:
                 direction = "급등 🚀" if d_chg > 0 else "급락 🩸"
                 solana_alert_msg = (
@@ -1027,7 +1026,7 @@ def run_radar():
             f"• <b>약세 섹터:</b> {', '.join(bot3)}"
         ]
 
-    # 6. 종목 수집 (내 포트폴리오 25개 + 관심 종목 17개)
+    # 6. 종목 수집 (내 포트폴리오 26개 + 관심 종목 17개)
     my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
     watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
     
@@ -1069,7 +1068,7 @@ def run_radar():
         send_message("\n".join(part1))
 
         part2 = [
-            "<b>💼 내 포트폴리오 25개 정밀 진단 (Part 2/3)</b>",
+            "<b>💼 내 포트폴리오 26개 정밀 진단 (Part 2/3)</b>",
             "─────────────────"
         ]
         if my_high_vol:
