@@ -30,7 +30,6 @@ MACRO_TICKERS = {
     "원/엔 환율 (100엔)": "JPYKRW=X"
 }
 
-# 💡 에테나(ENA-USD) 추가
 CRYPTO_TICKERS = {
     "비트코인 (BTC)": "BTC-USD",
     "이더리움 (ETH)": "ETH-USD",
@@ -525,15 +524,14 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 💡 가상자산 카드 HTML: 1H / 24H 와 7D / 30D (상승률 & 고점대비) 2단 구성
+    # 💡 [개선] 가상자산 카드: 고점 대비 낙폭을 완전히 빼고 1H, 24H, 7D, 30D 순수 등락률 4개만 크고 깔끔하게 배치
     crypto_cards_html = ""
     for c in crypto_data:
-        d_chg_color = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
-        h_chg_color = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
-        w_chg_color = "#ef4444" if c['w_chg'] < 0 else "#22c55e"
-        m_chg_color = "#ef4444" if c['m_chg'] < 0 else "#22c55e"
+        h1_c = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
+        d_c  = "#ef4444" if c['d_chg'] < 0 else "#22c55e"
+        w_c  = "#ef4444" if c['w_chg'] < 0 else "#22c55e"
+        m_c  = "#ef4444" if c['m_chg'] < 0 else "#22c55e"
         
-        # 가격 표기 (에테나 등 1달러 미만일 경우 소수점 4자리까지 대응)
         p_format = f"${c['cur_p']:,.4f}" if c['cur_p'] < 1.0 else f"${c['cur_p']:,.2f}"
 
         crypto_cards_html += f"""
@@ -542,13 +540,11 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                 <span class="bold" style="font-size: 14px;">{c['name']}</span>
                 <span class="price">{p_format}</span>
             </div>
-            <div class="flex-between mt-1">
-                <span style="color: {h_chg_color}; font-weight: bold; font-size: 12px;">1H: {c['h1_chg']:+.2f}%</span>
-                <span style="color: {d_chg_color}; font-weight: bold; font-size: 12px;">24H: {c['d_chg']:+.2f}%</span>
-            </div>
-            <div class="flex-between mt-2 pt-2 border-t" style="font-size: 11px;">
-                <div>7D: <b style="color: {w_chg_color};">{c['w_chg']:+.2f}%</b> <span class="badge-sub">고점 {c['d7_mdd']:+.1f}%</span></div>
-                <div>30D: <b style="color: {m_chg_color};">{c['m_chg']:+.2f}%</b> <span class="badge-sub">고점 {c['d30_mdd']:+.1f}%</span></div>
+            <div class="crypto-grid-2 mt-2 pt-2 border-t">
+                <div>1시간: <b style="color: {h1_c};">{c['h1_chg']:+.2f}%</b></div>
+                <div>24시간: <b style="color: {d_c};">{c['d_chg']:+.2f}%</b></div>
+                <div>주간(7D): <b style="color: {w_c};">{c['w_chg']:+.2f}%</b></div>
+                <div>월간(30D): <b style="color: {m_c};">{c['m_chg']:+.2f}%</b></div>
             </div>
         </div>
         """
@@ -676,7 +672,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .pt-2 {{ padding-top: 8px; }}
         .border-t {{ border-top: 1px solid var(--border); }}
         .badge-mdd {{ background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }}
-        .badge-sub {{ background: #1e293b; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; font-size: 10px; }}
         .sector-tag {{ display: inline-block; font-size: 10px; background: rgba(56, 189, 248, 0.12); color: #38bdf8; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(56, 189, 248, 0.25); }}
         .section-title {{ font-size: 15px; font-weight: 700; margin: 20px 0 8px; display: flex; align-items: center; gap: 6px; color: #e2e8f0; }}
         ul {{ padding-left: 18px; }}
@@ -693,6 +688,9 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         .slider-track {{ position: relative; flex: 1; height: 5px; background: #2b3954; border-radius: 3px; min-width: 55px; }}
         .slider-dot {{ position: absolute; top: -3.5px; width: 12px; height: 12px; background: #38bdf8; border: 2px solid #0b0f19; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 6px rgba(56, 189, 248, 0.8); }}
         .slider-sub {{ margin-top: 4px; display: flex; align-items: center; gap: 6px; }}
+
+        /* 💡 가상자산 전용 2x2 그리드 스타일 */
+        .crypto-grid-2 {{ display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 12px; color: #cbd5e1; }}
 
         .high-vol-box {{ background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 10px; padding: 12px; margin-bottom: 14px; }}
         .high-vol-box h4 {{ color: #f87171; font-size: 13px; margin-bottom: 6px; }}
@@ -740,7 +738,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <ul>{us_news_html}</ul>
     </div>
 
-    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D & 30D 종합)</div>
+    <div class="section-title">🪙 가상자산 시황 (1H / 24H / 7D / 30D 변동률)</div>
     <div class="grid-2">
         {crypto_cards_html}
     </div>
@@ -933,7 +931,7 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 수집 (1H, 24H, 7D, 30D 상승률 및 고점대비 계산)
+    # 3. 가상자산 수집 (1H, 24H, 7D, 30D 순수 등락률 계산)
     crypto_data = []
     crypto_telegram = []
     solana_alert_msg = None
@@ -941,6 +939,8 @@ def run_radar():
     for name, sym in CRYPTO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
+            
+            # 1시간 변동률
             hist_1h = t.history(period="2d", interval="1h").dropna(subset=['Close'])
             if len(hist_1h) >= 2:
                 cur_p = float(hist_1h['Close'].iloc[-1])
@@ -950,35 +950,26 @@ def run_radar():
                 cur_p = float(t.history(period="2d").dropna(subset=['Close'])['Close'].iloc[-1])
                 h1_chg = 0.0
 
+            # 일간, 주간(7D), 월간(30D) 순수 변동폭 계산
             hist_d = t.history(period="45d").dropna(subset=['Close'])
             prev_d_p = float(hist_d['Close'].iloc[-2]) if len(hist_d) >= 2 else cur_p
             d_chg = ((cur_p - prev_d_p) / prev_d_p) * 100
 
-            # 💡 주간(7D) 및 월간(30D) 수익률 계산
             p_7d = float(hist_d['Close'].iloc[-7]) if len(hist_d) >= 7 else float(hist_d['Close'].iloc[0])
             p_30d = float(hist_d['Close'].iloc[-30]) if len(hist_d) >= 30 else float(hist_d['Close'].iloc[0])
             w_chg = ((cur_p - p_7d) / p_7d) * 100 if p_7d else 0.0
             m_chg = ((cur_p - p_30d) / p_30d) * 100 if p_30d else 0.0
 
-            # 고점 대비 낙폭 (7D & 30D)
-            high_7d = float(hist_d['High'].iloc[-7:].max()) if len(hist_d) >= 7 else float(hist_d['High'].max())
-            d7_mdd = ((cur_p - high_7d) / high_7d) * 100 if high_7d else 0.0
-
-            high_30d = float(hist_d['High'].iloc[-30:].max()) if len(hist_d) >= 30 else float(hist_d['High'].max())
-            d30_mdd = ((cur_p - high_30d) / high_30d) * 100 if high_30d else 0.0
-
             crypto_data.append({
                 "name": name, "cur_p": cur_p, 
                 "h1_chg": h1_chg, "d_chg": d_chg,
-                "w_chg": w_chg, "m_chg": m_chg,
-                "d7_mdd": d7_mdd, "d30_mdd": d30_mdd
+                "w_chg": w_chg, "m_chg": m_chg
             })
 
             p_format = f"${cur_p:,.4f}" if cur_p < 1.0 else f"${cur_p:,.2f}"
             crypto_telegram.append(
                 f"• <b>{name}</b>: <b>{p_format}</b>\n"
-                f"  └ 단기: 1H <b>{h1_chg:+.2f}%</b> | 24H <b>{d_chg:+.2f}%</b>\n"
-                f"  └ 주간(7D): <b>{w_chg:+.1f}%</b> (고점: {d7_mdd:+.1f}%) | 월간(30D): <b>{m_chg:+.1f}%</b> (고점: {d30_mdd:+.1f}%)"
+                f"  └ 1H: <b>{h1_chg:+.2f}%</b> | 24H: <b>{d_chg:+.2f}%</b> | 7D: <b>{w_chg:+.1f}%</b> | 30D: <b>{m_chg:+.1f}%</b>"
             )
 
             # 솔라나(SOL-USD) 5%+ 변동 감시
@@ -990,7 +981,7 @@ def run_radar():
                     f"• <b>현재가:</b> ${cur_p:,.2f}\n"
                     f"• <b>24시간 변동률:</b> <b>{d_chg:+.2f}% ({direction})</b>\n"
                     f"• <b>직전 1시간 변동:</b> {h1_chg:+.2f}%\n"
-                    f"• <b>7D 수익률:</b> {w_chg:+.1f}% | <b>30D 수익률:</b> {m_chg:+.1f}%\n"
+                    f"• <b>주간(7D):</b> {w_chg:+.1f}% | <b>월간(30D):</b> {m_chg:+.1f}%\n"
                     f"• <b>측정 시각:</b> {update_time_str} KST\n"
                     f"─────────────────\n"
                     f"💡 <i>솔라나 24시간 등락폭이 ±5% 기준을 초과하여 발송된 실시간 알림입니다.</i>"
