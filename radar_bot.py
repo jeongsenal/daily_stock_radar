@@ -7,6 +7,7 @@ import pytz
 import xml.etree.ElementTree as ET
 import urllib.parse
 import re
+import time
 
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
@@ -52,7 +53,6 @@ SECTOR_ETF_TICKERS = {
     "XLRE": "Real Estate (부동산)"
 }
 
-# 💡 내 포트폴리오에 QLD 추가 (총 26개: 미국 24 + 국내 2)
 MY_TICKERS = [
     "DELL", "SOXL", "GEV", "HWM", "INTC", "IONQ", "MRVL", "MU", "NVDA", 
     "PLTR", "RKLB", "SNDK", "TSM", "ABCL", "CRDO", "NBIS", "AMD", 
@@ -139,47 +139,65 @@ def translate_to_ko_robust(text):
     return text
 
 def get_us_market_popular_news():
+    """실시간으로 계속 업데이트되는 미 증시/글로벌 핵심 뉴스 5개 동적 수집"""
     news_items = []
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    }
+    ts = int(time.time())
 
+    # 1. 구글 뉴스 경제/비즈니스 실시간 핫토픽 (국내 언론사들이 보도한 미국/글로벌 증시 헤드라인)
     try:
-        url_ko = "https://news.google.com/rss/search?q=뉴욕증시+미국주식+마감+특징주&hl=ko&gl=KR&ceid=KR:ko"
-        res_ko = requests.get(url_ko, headers=headers, timeout=5)
+        url_ko = f"https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=ko&gl=KR&ceid=KR:ko&t={ts}"
+        res_ko = requests.get(url_ko, headers=headers, timeout=6)
         if res_ko.status_code == 200:
             root = ET.fromstring(res_ko.content)
-            for item in root.findall('./channel/item')[:3]:
+            for item in root.findall('./channel/item'):
                 title = item.find('title').text
                 source = item.find('source').text if item.find('source') is not None else "국내언론"
                 clean_title = title.rsplit(" - ", 1)[0]
-                news_items.append(f"• <b>[미증시]</b> {clean_title} <i>({source})</i>")
+                
+                # 미 증시, 환율, 반도체, 연준, 뉴욕 등 증시 관련 키워드 우선 선별
+                if any(k in clean_title for k in ["증시", "뉴욕", "미국", "나스닥", "S&P", "다우", "금리", "환율", "반도체", "유가", "엔화", "비트코인"]):
+                    news_items.append(f"• <b>[실시간 속보]</b> {clean_title} <i>({source})</i>")
+                if len(news_items) >= 3:
+                    break
     except Exception:
         pass
 
+    # 2. 월가/미국 현지 금융 실시간 뉴스 (영어 원문 수집 후 한글 자동 번역)
     try:
-        url_en = "https://news.google.com/rss/search?q=Wall+Street+stock+market+stocks+rally+drop&hl=en-US&gl=US&ceid=US:en"
-        res_en = requests.get(url_en, headers=headers, timeout=5)
+        url_en = f"https://news.google.com/rss/search?q=when:12h+allinurl:finance+OR+stock+market&hl=en-US&gl=US&ceid=US:en&t={ts}"
+        res_en = requests.get(url_en, headers=headers, timeout=6)
         if res_en.status_code == 200:
             root = ET.fromstring(res_en.content)
             for item in root.findall('./channel/item'):
                 if len(news_items) >= 5:
                     break
                 title = item.find('title').text
-                source = item.find('source').text if item.find('source') is not None else "외신"
+                source = item.find('source').text if item.find('source') is not None else "Wall Street"
                 clean_title = title.rsplit(" - ", 1)[0]
                 translated = translate_to_ko_robust(clean_title)
-                news_items.append(f"• <b>[월가소식]</b> {translated} <i>({source})</i>")
+                news_items.append(f"• <b>[월가 브리핑]</b> {translated} <i>({source})</i>")
     except Exception:
         pass
 
+    # 3. 보충: 미국 증시 단어 검색으로 추가 확보
     if len(news_items) < 5:
-        fallbacks = [
-            "• <b>[미증시]</b> 미 연준 통화정책 경계감 속 국채 금리 및 기술주 차익 실현 매물 공방 <i>(마켓워치)</i>",
-            "• <b>[미증시]</b> 주요 빅테크 및 반도체 밸류체인 실적 발표 앞두고 변동성 장세 지속 <i>(블룸버그)</i>"
-        ]
-        for fb in fallbacks:
-            if len(news_items) >= 5:
-                break
-            news_items.append(fb)
+        try:
+            url_sub = f"https://news.google.com/rss/search?q=미국증시+뉴욕증시&hl=ko&gl=KR&ceid=KR:ko&t={ts}"
+            res_sub = requests.get(url_sub, headers=headers, timeout=6)
+            if res_sub.status_code == 200:
+                root = ET.fromstring(res_sub.content)
+                for item in root.findall('./channel/item'):
+                    if len(news_items) >= 5:
+                        break
+                    title = item.find('title').text
+                    source = item.find('source').text if item.find('source') is not None else "마켓"
+                    clean_title = title.rsplit(" - ", 1)[0]
+                    news_items.append(f"• <b>[증시 동향]</b> {clean_title} <i>({source})</i>")
+        except Exception:
+            pass
 
     return news_items[:5]
 
@@ -526,7 +544,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 가상자산 카드 HTML
     crypto_cards_html = ""
     for c in crypto_data:
         h1_c = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
@@ -780,7 +797,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </table>
     </div>
 
-    <!-- 💡 QLD가 포함된 내 포트폴리오 (26개) -->
     <div class="section-title">💼 내 포트폴리오 (미국 24개 + 국내 2개)</div>
     <div class="table-wrap">
         <table>
@@ -992,7 +1008,7 @@ def run_radar():
     if solana_alert_msg:
         send_message(solana_alert_msg)
 
-    # 4. 미 증시 인기 뉴스 TOP 5 & 캘린더
+    # 4. 💡 매시간 변경되는 최신 미 증시 인기 뉴스 TOP 5 수집
     us_popular_news = get_us_market_popular_news()
     weekly_cal = get_weekly_calendar()
 
