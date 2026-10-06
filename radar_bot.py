@@ -30,15 +30,16 @@ MACRO_TICKERS = {
     "원/엔 환율 (100엔)": "JPYKRW=X"
 }
 
+# 업비트 마켓 코드 및 yfinance 폴백 티커 매핑
 UPBIT_CRYPTO_MAP = {
-    "비트코인 (BTC)": "KRW-BTC",
-    "이더리움 (ETH)": "KRW-ETH",
-    "리플 (XRP)": "KRW-XRP",
-    "솔라나 (SOL)": "KRW-SOL",
-    "에테나 (ENA)": "KRW-ENA",
-    "앱토스 (APT)": "KRW-APT",
-    "시바이누 (SHIB)": "KRW-SHIB",
-    "셀로 (CELO)": "KRW-CELO"
+    "비트코인 (BTC)": {"market": "KRW-BTC", "yf": "BTC-USD"},
+    "이더리움 (ETH)": {"market": "KRW-ETH", "yf": "ETH-USD"},
+    "리플 (XRP)": {"market": "KRW-XRP", "yf": "XRP-USD"},
+    "솔라나 (SOL)": {"market": "KRW-SOL", "yf": "SOL-USD"},
+    "에테나 (ENA)": {"market": "KRW-ENA", "yf": "ENA-USD"},
+    "앱토스 (APT)": {"market": "KRW-APT", "yf": "APT21794-USD"},
+    "시바이누 (SHIB)": {"market": "KRW-SHIB", "yf": "SHIB-USD"},
+    "셀로 (CELO)": {"market": "KRW-CELO", "yf": "CELO-USD"}
 }
 
 SECTOR_ETF_TICKERS = {
@@ -505,15 +506,27 @@ def fetch_stock_data_list(ticker_list):
 
     return stock_data_list, stock_cards, high_vol
 
-def fetch_upbit_crypto_data():
+def format_krw_compact(val):
+    """슬라이더 좌우 7일 고/저점 원화 축약 표기"""
+    if val >= 100_000_000:
+        return f"₩{val/100_000_000:.2f}억"
+    elif val >= 10_000:
+        return f"₩{val/10_000:.1f}만"
+    elif val >= 1.0:
+        return f"₩{val:,.1f}"
+    else:
+        return f"₩{val:.4f}"
+
+# 💡 [하이브리드 엔진 & 7일 범위 슬라이더 바 완비]
+def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
     crypto_data = []
     crypto_telegram = []
     crypto_alerts = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
-    market_list = list(UPBIT_CRYPTO_MAP.values())
-    markets_param = ",".join(market_list)
-    ticker_url = "https://api.upbit.com/v1/ticker?markets=" + markets_param
+    # 업비트 전체 티커 조회
+    market_list = [v["market"] for v in UPBIT_CRYPTO_MAP.values()]
+    ticker_url = "https://api.upbit.com/v1/ticker?markets=" + ",".join(market_list)
     
     current_map = {}
     try:
@@ -527,106 +540,155 @@ def fetch_upbit_crypto_data():
     except Exception:
         pass
 
-    for name, m_code in UPBIT_CRYPTO_MAP.items():
-        try:
-            info = current_map.get(m_code)
-            if not info or 'trade_price' not in info:
-                continue
+    for name, conf in UPBIT_CRYPTO_MAP.items():
+        m_code = conf["market"]
+        yf_ticker = conf["yf"]
 
+        cur_p = 0.0
+        d_chg = 0.0
+        h1_chg = 0.0
+        w_chg = 0.0
+        m_chg = 0.0
+        high_7d = 0.0
+        low_7d = 0.0
+
+        # 1. 업비트 데이터 시도
+        upbit_ok = False
+        if m_code in current_map:
+            info = current_map[m_code]
             cur_p = float(info.get('trade_price', 0.0))
-            if cur_p <= 0:
-                continue
-
             d_chg = float(info.get('signed_change_rate', 0.0)) * 100.0
 
-            h1_chg = 0.0
-            try:
-                m60_url = f"https://api.upbit.com/v1/candles/minutes/60?market={m_code}&count=2"
-                m60_res = requests.get(m60_url, headers=headers, timeout=3).json()
-                if isinstance(m60_res, list) and len(m60_res) >= 2:
-                    prev_1h_p = float(m60_res[1].get('trade_price', 0.0))
-                    if prev_1h_p > 0:
-                        h1_chg = ((cur_p - prev_1h_p) / prev_1h_p) * 100.0
-            except Exception:
-                pass
+            if cur_p > 0:
+                # 60분봉 (1시간 전)
+                try:
+                    m60_url = f"https://api.upbit.com/v1/candles/minutes/60?market={m_code}&count=2"
+                    m60_res = requests.get(m60_url, headers=headers, timeout=3).json()
+                    if isinstance(m60_res, list) and len(m60_res) >= 2:
+                        p_1h = float(m60_res[1].get('trade_price', 0.0))
+                        if p_1h > 0:
+                            h1_chg = ((cur_p - p_1h) / p_1h) * 100.0
+                except Exception:
+                    pass
 
-            w_chg = 0.0
-            m_chg = 0.0
-            try:
-                days_url = f"https://api.upbit.com/v1/candles/days?market={m_code}&count=31"
-                days_res = requests.get(days_url, headers=headers, timeout=3).json()
-                if isinstance(days_res, list):
-                    if len(days_res) >= 8:
-                        p_7d = float(days_res[7].get('trade_price', 0.0))
+                # 일봉 (7D, 30D 및 7일 최고/최저)
+                try:
+                    days_url = f"https://api.upbit.com/v1/candles/days?market={m_code}&count=31"
+                    days_res = requests.get(days_url, headers=headers, timeout=3).json()
+                    if isinstance(days_res, list) and len(days_res) >= 2:
+                        # 7일간 최고/최저가
+                        d7_candles = days_res[:7]
+                        high_7d = max([float(c.get('high_price', cur_p)) for c in d7_candles])
+                        low_7d = min([float(c.get('low_price', cur_p)) for c in d7_candles])
+
+                        # 7일 변동률
+                        p_7d = float(days_res[-1 if len(days_res) < 8 else 7].get('trade_price', 0.0))
                         if p_7d > 0:
                             w_chg = ((cur_p - p_7d) / p_7d) * 100.0
-                    if len(days_res) >= 31:
-                        p_30d = float(days_res[30].get('trade_price', 0.0))
+
+                        # 30일 변동률
+                        p_30d = float(days_res[-1].get('trade_price', 0.0))
                         if p_30d > 0:
                             m_chg = ((cur_p - p_30d) / p_30d) * 100.0
+
+                        # ENA 등 업비트 데이터가 0%로 멈춰있는 경우 감지
+                        if abs(d_chg) > 0.001 or abs(w_chg) > 0.001:
+                            upbit_ok = True
+                except Exception:
+                    pass
+
+        # 2. 에테나 등 업비트 데이터 불완전 시 yfinance로 폴백 계산
+        if not upbit_ok:
+            try:
+                t = yf.Ticker(yf_ticker)
+                h_1h = t.history(period="2d", interval="1h").dropna(subset=['Close'])
+                if len(h_1h) >= 2:
+                    p_now_usd = float(h_1h['Close'].iloc[-1])
+                    p_1h_usd = float(h_1h['Close'].iloc[-2])
+                    h1_chg = ((p_now_usd - p_1h_usd) / p_1h_usd) * 100.0
+                else:
+                    p_now_usd = float(t.history(period="2d")['Close'].iloc[-1])
+
+                h_d = t.history(period="45d").dropna(subset=['Close'])
+                if len(h_d) >= 2:
+                    p_prev_usd = float(h_d['Close'].iloc[-2])
+                    d_chg = ((p_now_usd - p_prev_usd) / p_prev_usd) * 100.0
+
+                    p_7d_usd = float(h_d['Close'].iloc[-7]) if len(h_d) >= 7 else float(h_d['Close'].iloc[0])
+                    p_30d_usd = float(h_d['Close'].iloc[-30]) if len(h_d) >= 30 else float(h_d['Close'].iloc[0])
+                    w_chg = ((p_now_usd - p_7d_usd) / p_7d_usd) * 100.0 if p_7d_usd else 0.0
+                    m_chg = ((p_now_usd - p_30d_usd) / p_30d_usd) * 100.0 if p_30d_usd else 0.0
+
+                    high_7d_usd = float(h_d['High'].iloc[-7:].max()) if len(h_d) >= 7 else p_now_usd
+                    low_7d_usd = float(h_d['Low'].iloc[-7:].min()) if len(h_d) >= 7 else p_now_usd
+
+                    # 원화 환산
+                    cur_p = p_now_usd * usdkrw_rate
+                    high_7d = high_7d_usd * usdkrw_rate
+                    low_7d = low_7d_usd * usdkrw_rate
             except Exception:
                 pass
 
-            if cur_p < 1.0:
-                p_display = f"₩{cur_p:.4f}"
-            elif cur_p < 100.0:
-                p_display = f"₩{cur_p:.2f}"
-            else:
-                p_display = f"₩{cur_p:,.0f}"
-
-            crypto_data.append({
-                "name": name,
-                "cur_p": cur_p,
-                "p_display": p_display,
-                "h1_chg": h1_chg,
-                "d_chg": d_chg,
-                "w_chg": w_chg,
-                "m_chg": m_chg
-            })
-
-            crypto_telegram.append(
-                f"• <b>{name}</b>: <b>{p_display}</b>\n"
-                f"  └ 1H: <b>{h1_chg:+.2f}%</b> | 24H: <b>{d_chg:+.2f}%</b> | 7D: <b>{w_chg:+.1f}%</b> | 30D: <b>{m_chg:+.1f}%</b>"
-            )
-
-            if abs(d_chg) >= 5.0:
-                direction = "급등 🚀" if d_chg > 0 else "급락 🩸"
-                alert_msg = (
-                    f"🚨 <b>[{name} 5%+ 변동성 긴급 레이더 (업비트)]</b>\n"
-                    f"─────────────────\n"
-                    f"• <b>현재가:</b> {p_display}\n"
-                    f"• <b>24시간 변동률:</b> <b>{d_chg:+.2f}% ({direction})</b>\n"
-                    f"• <b>직전 1시간 변동:</b> {h1_chg:+.2f}%\n"
-                    f"• <b>주간(7D):</b> {w_chg:+.1f}% | <b>월간(30D):</b> {m_chg:+.1f}%\n"
-                    f"─────────────────\n"
-                    f"💡 <i>{name}의 업비트 24시간 등락폭이 ±5% 기준을 초과하여 발송된 실시간 알림입니다.</i>"
-                )
-                crypto_alerts.append(alert_msg)
-
-        except Exception:
+        if cur_p <= 0:
             continue
 
-    if not crypto_data:
-        fallback_tickers = {
-            "비트코인 (BTC)": "BTC-USD", "이더리움 (ETH)": "ETH-USD",
-            "리플 (XRP)": "XRP-USD", "솔라나 (SOL)": "SOL-USD"
-        }
-        for name, sym in fallback_tickers.items():
-            try:
-                t = yf.Ticker(sym)
-                h = t.history(period="5d").dropna(subset=['Close'])
-                if len(h) >= 2:
-                    cp = float(h['Close'].iloc[-1])
-                    pp = float(h['Close'].iloc[-2])
-                    dc = ((cp - pp) / pp) * 100
-                    p_disp = f"${cp:,.2f}"
-                    crypto_data.append({
-                        "name": name, "cur_p": cp, "p_display": p_disp,
-                        "h1_chg": 0.0, "d_chg": dc, "w_chg": 0.0, "m_chg": 0.0
-                    })
-                    crypto_telegram.append(f"• <b>{name}</b>: <b>{p_disp}</b> (24H: {dc:+.2f}%)")
-            except Exception:
-                continue
+        # 7일 슬라이더 바 위치 및 MDD 계산
+        if high_7d <= 0 or low_7d <= 0:
+            high_7d = cur_p
+            low_7d = cur_p
+
+        mdd_7d = ((cur_p - high_7d) / high_7d) * 100.0 if high_7d > 0 else 0.0
+        slider_pct = 50.0
+        if high_7d > low_7d:
+            slider_pct = max(0.0, min(100.0, ((cur_p - low_7d) / (high_7d - low_7d)) * 100.0))
+
+        # 가격 표시 문자열
+        if cur_p < 1.0:
+            p_display = f"₩{cur_p:.4f}"
+        elif cur_p < 100.0:
+            p_display = f"₩{cur_p:.2f}"
+        else:
+            p_display = f"₩{cur_p:,.0f}"
+
+        low_str = format_krw_compact(low_7d)
+        high_str = format_krw_compact(high_7d)
+
+        crypto_data.append({
+            "name": name,
+            "cur_p": cur_p,
+            "p_display": p_display,
+            "h1_chg": h1_chg,
+            "d_chg": d_chg,
+            "w_chg": w_chg,
+            "m_chg": m_chg,
+            "low_7d": low_7d,
+            "high_7d": high_7d,
+            "low_str": low_str,
+            "high_str": high_str,
+            "slider_pct": slider_pct,
+            "mdd_7d": mdd_7d
+        })
+
+        crypto_telegram.append(
+            f"• <b>{name}</b>: <b>{p_display}</b>\n"
+            f"  └ 변동: 1H <b>{h1_chg:+.2f}%</b> | 24H <b>{d_chg:+.2f}%</b> | 7D <b>{w_chg:+.1f}%</b> | 30D <b>{m_chg:+.1f}%</b>\n"
+            f"  └ 7D 범위: {low_str} ~ {high_str} (위치: <b>{slider_pct:.0f}%</b> | 고점대비: <b>{mdd_7d:.1f}%</b>)"
+        )
+
+        if abs(d_chg) >= 5.0:
+            direction = "급등 🚀" if d_chg > 0 else "급락 🩸"
+            alert_msg = (
+                f"🚨 <b>[{name} 5%+ 변동성 긴급 레이더]</b>\n"
+                f"─────────────────\n"
+                f"• <b>현재가:</b> {p_display}\n"
+                f"• <b>24시간 변동률:</b> <b>{d_chg:+.2f}% ({direction})</b>\n"
+                f"• <b>직전 1시간:</b> {h1_chg:+.2f}%\n"
+                f"• <b>7D 수익률:</b> {w_chg:+.1f}% | <b>30D 수익률:</b> {m_chg:+.1f}%\n"
+                f"• <b>7D 범위 위치:</b> {slider_pct:.0f}% (고점대비: {mdd_7d:.1f}%)\n"
+                f"─────────────────\n"
+                f"💡 <i>{name} 24시간 등락폭이 ±5% 기준을 초과하여 발송된 실시간 알림입니다.</i>"
+            )
+            crypto_alerts.append(alert_msg)
 
     return crypto_data, crypto_telegram, crypto_alerts
 
@@ -688,6 +750,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
+    # 💡 7일 범위 Dot 슬라이더 바가 탑재된 가상자산 카드 HTML
     crypto_cards_html = ""
     for c in crypto_data:
         h1_c = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
@@ -706,6 +769,20 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                 <div>24시간: <b style="color: {d_c};">{c['d_chg']:+.2f}%</b></div>
                 <div>주간(7D): <b style="color: {w_c};">{c['w_chg']:+.2f}%</b></div>
                 <div>월간(30D): <b style="color: {m_c};">{c['m_chg']:+.2f}%</b></div>
+            </div>
+            <!-- 7일 고·저점 Dot 슬라이더 바 -->
+            <div class="mt-2 pt-2 border-t">
+                <div class="flex-between" style="font-size: 11px; color: var(--text-sub); margin-bottom: 2px;">
+                    <span>7일 범위 위치</span>
+                    <span class="badge-mdd" style="font-size: 10px;">고점대비 {c['mdd_7d']:.1f}%</span>
+                </div>
+                <div class="slider-wrap">
+                    <span class="slider-val">{c['low_str']}</span>
+                    <div class="slider-track">
+                        <div class="slider-dot" style="left: {c['slider_pct']:.1f}%;"></div>
+                    </div>
+                    <span class="slider-val">{c['high_str']}</span>
+                </div>
             </div>
         </div>
         """
@@ -898,7 +975,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         <ul>{us_news_html}</ul>
     </div>
 
-    <div class="section-title">🪙 가상자산 시황 (업비트 KRW 실시간 | 1H / 24H / 7D / 30D)</div>
+    <div class="section-title">🪙 가상자산 시황 (업비트 KRW | 1H/24H/7D/30D & 7일 고·저점 범위)</div>
     <div class="grid-2">
         {crypto_cards_html}
     </div>
@@ -1059,6 +1136,8 @@ def run_radar():
     # 2. 매크로 & 환율/유가 수집
     macro_data = []
     macro_telegram = []
+    usdkrw_rate = 1380.0
+
     for name, sym in MACRO_TICKERS.items():
         try:
             t = yf.Ticker(sym)
@@ -1080,6 +1159,7 @@ def run_radar():
                 comment = "인플레 완화 (호재)" if d_chg < 0 else "유가 상승 (인플레 경계)"
             elif sym == "USDKRW=X":
                 cur_str = f"{cur_p:,.1f}원"
+                usdkrw_rate = cur_p
                 comment = "원화 절상" if d_chg < 0 else "환율 상승"
             elif sym == "JPYKRW=X":
                 val_100yen = cur_p * 100
@@ -1091,12 +1171,12 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 업비트 원화(KRW) 가상자산 8종 수집
-    crypto_data, crypto_telegram, crypto_alerts = fetch_upbit_crypto_data()
+    # 3. 가상자산 8종 수집 (하이브리드 & 7일 범위 슬라이더 바 완비)
+    crypto_data, crypto_telegram, crypto_alerts = fetch_upbit_crypto_data(usdkrw_rate)
     for alert in crypto_alerts:
         send_message(alert)
 
-    # 4. 미 증시 실시간 뉴스 TOP 5 & 캘린더
+    # 4. 미 증시 실시간 뉴스 TOP 5 & 동적 캘린더
     us_popular_news = get_us_market_popular_news()
     weekly_cal = get_weekly_calendar()
 
