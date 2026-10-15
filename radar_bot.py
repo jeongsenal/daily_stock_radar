@@ -30,7 +30,6 @@ MACRO_TICKERS = {
     "원/엔 환율 (100엔)": "JPYKRW=X"
 }
 
-# 업비트 마켓 코드 및 yfinance 폴백 티커 매핑
 UPBIT_CRYPTO_MAP = {
     "비트코인 (BTC)": {"market": "KRW-BTC", "yf": "BTC-USD"},
     "이더리움 (ETH)": {"market": "KRW-ETH", "yf": "ETH-USD"},
@@ -366,6 +365,32 @@ def send_message(text):
     except Exception:
         pass
 
+# 💡 [핵심 보강] 네이버 금융 모바일 Open API를 통한 코스피/코스닥 실시간 정확한 수치 수집
+def fetch_naver_index_data(symbol_key):
+    """symbol_key: 'KOSPI' 또는 'KOSDAQ'"""
+    headers = {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)"}
+    url = f"https://m.stock.naver.com/api/index/{symbol_key}/basic"
+    try:
+        r = requests.get(url, headers=headers, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            # 네이버 금융 현재가 & 등락률 파싱
+            cur_p_str = data.get("nowValue", "").replace(",", "")
+            cur_p = float(cur_p_str)
+            
+            rate_str = data.get("fluctuationsRatio", "0.0")
+            rate = float(rate_str)
+            
+            # 하락 시 마이너스 부호 처리
+            direction = data.get("compareToPreviousPrice", {}).get("name", "")
+            if "FALLING" in direction or "DOWN" in direction or float(data.get("changeValue", 0)) < 0:
+                rate = -abs(rate)
+                
+            return cur_p, rate
+    except Exception:
+        pass
+    return None, None
+
 def fetch_sector_etfs():
     sector_list = []
     for sym, name in SECTOR_ETF_TICKERS.items():
@@ -507,7 +532,6 @@ def fetch_stock_data_list(ticker_list):
     return stock_data_list, stock_cards, high_vol
 
 def format_krw_compact(val):
-    """슬라이더 좌우 7일 고/저점 원화 축약 표기"""
     if val >= 100_000_000:
         return f"₩{val/100_000_000:.2f}억"
     elif val >= 10_000:
@@ -517,14 +541,12 @@ def format_krw_compact(val):
     else:
         return f"₩{val:.4f}"
 
-# 💡 [하이브리드 엔진 & 7일 범위 슬라이더 바 완비]
 def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
     crypto_data = []
     crypto_telegram = []
     crypto_alerts = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
 
-    # 업비트 전체 티커 조회
     market_list = [v["market"] for v in UPBIT_CRYPTO_MAP.values()]
     ticker_url = "https://api.upbit.com/v1/ticker?markets=" + ",".join(market_list)
     
@@ -552,7 +574,6 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
         high_7d = 0.0
         low_7d = 0.0
 
-        # 1. 업비트 데이터 시도
         upbit_ok = False
         if m_code in current_map:
             info = current_map[m_code]
@@ -560,7 +581,6 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
             d_chg = float(info.get('signed_change_rate', 0.0)) * 100.0
 
             if cur_p > 0:
-                # 60분봉 (1시간 전)
                 try:
                     m60_url = f"https://api.upbit.com/v1/candles/minutes/60?market={m_code}&count=2"
                     m60_res = requests.get(m60_url, headers=headers, timeout=3).json()
@@ -571,33 +591,27 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
                 except Exception:
                     pass
 
-                # 일봉 (7D, 30D 및 7일 최고/최저)
                 try:
                     days_url = f"https://api.upbit.com/v1/candles/days?market={m_code}&count=31"
                     days_res = requests.get(days_url, headers=headers, timeout=3).json()
                     if isinstance(days_res, list) and len(days_res) >= 2:
-                        # 7일간 최고/최저가
                         d7_candles = days_res[:7]
                         high_7d = max([float(c.get('high_price', cur_p)) for c in d7_candles])
                         low_7d = min([float(c.get('low_price', cur_p)) for c in d7_candles])
 
-                        # 7일 변동률
                         p_7d = float(days_res[-1 if len(days_res) < 8 else 7].get('trade_price', 0.0))
                         if p_7d > 0:
                             w_chg = ((cur_p - p_7d) / p_7d) * 100.0
 
-                        # 30일 변동률
                         p_30d = float(days_res[-1].get('trade_price', 0.0))
                         if p_30d > 0:
                             m_chg = ((cur_p - p_30d) / p_30d) * 100.0
 
-                        # ENA 등 업비트 데이터가 0%로 멈춰있는 경우 감지
                         if abs(d_chg) > 0.001 or abs(w_chg) > 0.001:
                             upbit_ok = True
                 except Exception:
                     pass
 
-        # 2. 에테나 등 업비트 데이터 불완전 시 yfinance로 폴백 계산
         if not upbit_ok:
             try:
                 t = yf.Ticker(yf_ticker)
@@ -622,7 +636,6 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
                     high_7d_usd = float(h_d['High'].iloc[-7:].max()) if len(h_d) >= 7 else p_now_usd
                     low_7d_usd = float(h_d['Low'].iloc[-7:].min()) if len(h_d) >= 7 else p_now_usd
 
-                    # 원화 환산
                     cur_p = p_now_usd * usdkrw_rate
                     high_7d = high_7d_usd * usdkrw_rate
                     low_7d = low_7d_usd * usdkrw_rate
@@ -632,7 +645,6 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
         if cur_p <= 0:
             continue
 
-        # 7일 슬라이더 바 위치 및 MDD 계산
         if high_7d <= 0 or low_7d <= 0:
             high_7d = cur_p
             low_7d = cur_p
@@ -642,7 +654,6 @@ def fetch_upbit_crypto_data(usdkrw_rate=1380.0):
         if high_7d > low_7d:
             slider_pct = max(0.0, min(100.0, ((cur_p - low_7d) / (high_7d - low_7d)) * 100.0))
 
-        # 가격 표시 문자열
         if cur_p < 1.0:
             p_display = f"₩{cur_p:.4f}"
         elif cur_p < 100.0:
@@ -750,7 +761,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
         </div>
         """
 
-    # 💡 7일 범위 Dot 슬라이더 바가 탑재된 가상자산 카드 HTML
     crypto_cards_html = ""
     for c in crypto_data:
         h1_c = "#ef4444" if c['h1_chg'] < 0 else "#22c55e"
@@ -770,7 +780,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
                 <div>주간(7D): <b style="color: {w_c};">{c['w_chg']:+.2f}%</b></div>
                 <div>월간(30D): <b style="color: {m_c};">{c['m_chg']:+.2f}%</b></div>
             </div>
-            <!-- 7일 고·저점 Dot 슬라이더 바 -->
             <div class="mt-2 pt-2 border-t">
                 <div class="flex-between" style="font-size: 11px; color: var(--text-sub); margin-bottom: 2px;">
                     <span>7일 범위 위치</span>
@@ -993,6 +1002,7 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
     {cal_html}
 
+    <!-- 💡 네이버 금융 실시간 연동으로 코스피/코스닥 수치가 보정된 8대 지수 -->
     <div class="section-title">📈 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
 
@@ -1087,7 +1097,7 @@ def run_radar():
 
     s50_val, s200_val, breadth_status = get_sp500_market_breadth()
 
-    # 1. 지수 수집
+    # 1. 💡 지수 수집 (코스피/코스닥은 네이버 금융 실시간 API로 오차 완전 보정)
     index_cards = []
     index_changes = {}
     index_data_list = []
@@ -1105,6 +1115,19 @@ def run_radar():
             m1_p = float(hist['Close'].iloc[-21]) if len(hist) >= 21 else float(hist['Close'].iloc[0])
 
             d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
+
+            # 💡 코스피(^KS11), 코스닥(^KQ11)일 경우 네이버 금융 실시간 시세로 현재가 및 등락률 덮어쓰기
+            if sym == "^KS11":
+                naver_p, naver_chg = fetch_naver_index_data("KOSPI")
+                if naver_p is not None and naver_chg is not None:
+                    cur_p = naver_p
+                    d_chg = naver_chg
+            elif sym == "^KQ11":
+                naver_p, naver_chg = fetch_naver_index_data("KOSDAQ")
+                if naver_p is not None and naver_chg is not None:
+                    cur_p = naver_p
+                    d_chg = naver_chg
+
             w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
             m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
             index_changes[sym] = d_chg
@@ -1112,6 +1135,8 @@ def run_radar():
             high_52w = t.info.get("fiftyTwoWeekHigh")
             if not high_52w or pd.isna(high_52w):
                 high_52w = float(hist['High'].max())
+            high_52w = max(high_52w, cur_p)
+
             mdd = ((cur_p - high_52w) / high_52w) * 100 if high_52w else 0.0
 
             rsi_val = calculate_rsi(hist['Close'], period=14)
@@ -1125,9 +1150,9 @@ def run_radar():
 
             unit = "pt" if "^" in sym else "$"
             card = (
-                f"▪️ <b>{name}</b>: <b>{unit}{cur_p:.2f}</b> ({d_chg:+.2f}%)\n"
+                f"▪️ <b>{name}</b>: <b>{unit}{cur_p:,.2f}</b> ({d_chg:+.2f}%)\n"
                 f"   변동: 1주 {w_chg:+.2f}% | 1달 {m_chg:+.2f}%\n"
-                f"   52주 최고: {unit}{high_52w:.2f} | <b>MDD: {mdd:.2f}%</b> | RSI: <b>{rsi_str}</b>"
+                f"   52주 최고: {unit}{high_52w:,.2f} | <b>MDD: {mdd:.2f}%</b> | RSI: <b>{rsi_str}</b>"
             )
             index_cards.append(card)
         except Exception:
@@ -1171,12 +1196,12 @@ def run_radar():
         except Exception:
             continue
 
-    # 3. 가상자산 8종 수집 (하이브리드 & 7일 범위 슬라이더 바 완비)
+    # 3. 가상자산 8종 수집
     crypto_data, crypto_telegram, crypto_alerts = fetch_upbit_crypto_data(usdkrw_rate)
     for alert in crypto_alerts:
         send_message(alert)
 
-    # 4. 미 증시 실시간 뉴스 TOP 5 & 동적 캘린더
+    # 4. 미 증시 실시간 뉴스 TOP 5 & 캘린더
     us_popular_news = get_us_market_popular_news()
     weekly_cal = get_weekly_calendar()
 
