@@ -185,15 +185,14 @@ def get_us_market_popular_news():
 
     return news_items[:5]
 
-def get_weekly_calendar():
+# 💡 [핵심 연동] 어닝 위스퍼스형 주간 실적 캘린더 엔진
+def get_weekly_calendar(earnings_map_by_dow=None):
     today = datetime.now()
     start_monday = today - timedelta(days=today.weekday())
     
     first_day_of_month = today.replace(day=1)
     week_of_month = (today.day + first_day_of_month.weekday()) // 7 + 1
     month = today.month
-
-    is_major_earnings = month in [1, 4, 7, 10] and week_of_month >= 2
 
     if week_of_month == 1:
         schedules = [
@@ -232,9 +231,12 @@ def get_weekly_calendar():
     for idx, (dow, macro, earnings) in enumerate(schedules):
         d = start_monday + timedelta(days=idx)
         d_str = d.strftime("%m/%d")
+        
+        # 이번 주 보유/관심 종목 실적 발표 일정이 있으면 우선 표기
         earnings_text = earnings
-        if is_major_earnings and idx in [2, 3]:
-            earnings_text = "🔥 빅테크/반도체 실적 피크 위크 (장후 실적 가이던스 촉각)"
+        if earnings_map_by_dow and idx in earnings_map_by_dow and earnings_map_by_dow[idx]:
+            tracked_tickers_str = ", ".join(earnings_map_by_dow[idx])
+            earnings_text = f"🔥 <b>[내종목/관심 실적]</b>: {tracked_tickers_str}"
 
         cal_days.append({
             "date_label": f"{d_str} ({dow})",
@@ -365,23 +367,19 @@ def send_message(text):
     except Exception:
         pass
 
-# 💡 [핵심 보강] 네이버 금융 모바일 Open API를 통한 코스피/코스닥 실시간 정확한 수치 수집
 def fetch_naver_index_data(symbol_key):
-    """symbol_key: 'KOSPI' 또는 'KOSDAQ'"""
     headers = {"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)"}
     url = f"https://m.stock.naver.com/api/index/{symbol_key}/basic"
     try:
         r = requests.get(url, headers=headers, timeout=5)
         if r.status_code == 200:
             data = r.json()
-            # 네이버 금융 현재가 & 등락률 파싱
             cur_p_str = data.get("nowValue", "").replace(",", "")
             cur_p = float(cur_p_str)
             
             rate_str = data.get("fluctuationsRatio", "0.0")
             rate = float(rate_str)
             
-            # 하락 시 마이너스 부호 처리
             direction = data.get("compareToPreviousPrice", {}).get("name", "")
             if "FALLING" in direction or "DOWN" in direction or float(data.get("changeValue", 0)) < 0:
                 rate = -abs(rate)
@@ -441,10 +439,11 @@ def fetch_sector_etfs():
             continue
     return sector_list
 
-def fetch_stock_data_list(ticker_list):
+def fetch_stock_data_list(ticker_list, today_start_monday=None):
     stock_data_list = []
     stock_cards = []
     high_vol = []
+    earnings_map = {0: [], 1: [], 2: [], 3: [], 4: []}
 
     for ticker in ticker_list:
         try:
@@ -493,6 +492,36 @@ def fetch_stock_data_list(ticker_list):
             sec_pe, sector_name, full_name = STOCK_INFO_MAP.get(ticker, ("22.0x", "일반", ticker))
             display_name = full_name.split()[0] if "(" in full_name else ticker
 
+            # 💡 [어닝 위스퍼스 연동] 이번 주 실적 발표 여부 체크
+            if today_start_monday:
+                try:
+                    cal = t.calendar
+                    if cal is not None and not (isinstance(cal, pd.DataFrame) and cal.empty):
+                        e_date = None
+                        if isinstance(cal, dict) and "Earnings Date" in cal:
+                            ed_list = cal["Earnings Date"]
+                            if ed_list and len(ed_list) > 0:
+                                e_date = ed_list[0]
+                        elif isinstance(cal, pd.DataFrame) and "Earnings Date" in cal.index:
+                            e_date = cal.loc["Earnings Date"].iloc[0]
+
+                        if e_date is not None:
+                            if isinstance(e_date, str):
+                                ed_dt = datetime.strptime(e_date[:10], "%Y-%m-%d").date()
+                            elif hasattr(e_date, "date"):
+                                ed_dt = e_date.date()
+                            else:
+                                ed_dt = None
+
+                            if ed_dt:
+                                week_end_friday = today_start_monday.date() + timedelta(days=4)
+                                if today_start_monday.date() <= ed_dt <= week_end_friday:
+                                    dow_idx = ed_dt.weekday()
+                                    if 0 <= dow_idx <= 4:
+                                        earnings_map[dow_idx].append(ticker)
+                except Exception:
+                    pass
+
             if abs(d_chg) >= 10.0:
                 sign_txt = "급등 🚀" if d_chg > 0 else "급락 🩸"
                 high_vol.append(f"🚨 <b>{display_name} ({ticker})</b>: {d_chg:+.1f}% {sign_txt}")
@@ -510,7 +539,7 @@ def fetch_stock_data_list(ticker_list):
                 "ticker": ticker, 
                 "full_name": full_name,
                 "sector_name": sector_name,
-                "cur_p": cur_p, "d_chg": d_chg, 
+                "cur_p": cur_p, "d_chg": d_chg, "w_chg": w_chg, "m_chg": m_chg,
                 "high_52w": high_52w, "low_52w": low_52w,
                 "mdd": mdd, "slider_pct": slider_pct,
                 "disp20": disp20, "disp50": disp50, "disp200": disp200,
@@ -529,7 +558,7 @@ def fetch_stock_data_list(ticker_list):
         except Exception:
             continue
 
-    return stock_data_list, stock_cards, high_vol
+    return stock_data_list, stock_cards, high_vol, earnings_map
 
 def format_krw_compact(val):
     if val >= 100_000_000:
@@ -1002,7 +1031,6 @@ def generate_full_html(now_str, update_time_str, core_signal, score, rating, fg_
     <div class="section-title">📅 이번 주 경제지표 & 어닝 캘린더 (월~금)</div>
     {cal_html}
 
-    <!-- 💡 네이버 금융 실시간 연동으로 코스피/코스닥 수치가 보정된 8대 지수 -->
     <div class="section-title">📈 글로벌 8대 주요 지수 정밀 진단</div>
     {idx_cards_html}
 
@@ -1079,6 +1107,10 @@ def run_radar():
     update_time_str = now_kst.strftime("%Y-%m-%d %H:%M")
 
     is_morning_report_time = (now_kst.hour == 7)
+    # 💡 토요일 아침 07:00 KST = 미 증시 금요일 장 마감 결산 시점 (weekday 5 == Saturday)
+    is_weekly_closing_time = is_morning_report_time and (now_kst.weekday() == 5)
+
+    today_start_monday = now_kst - timedelta(days=now_kst.weekday())
 
     score, rating = get_fear_and_greed()
     
@@ -1097,9 +1129,10 @@ def run_radar():
 
     s50_val, s200_val, breadth_status = get_sp500_market_breadth()
 
-    # 1. 💡 지수 수집 (코스피/코스닥은 네이버 금융 실시간 API로 오차 완전 보정)
+    # 1. 지수 수집
     index_cards = []
     index_changes = {}
+    index_weekly_changes = {}
     index_data_list = []
 
     for name, sym in INDEX_TICKERS.items():
@@ -1116,7 +1149,6 @@ def run_radar():
 
             d_chg = ((cur_p - prev_p) / prev_p) * 100 if prev_p else 0.0
 
-            # 💡 코스피(^KS11), 코스닥(^KQ11)일 경우 네이버 금융 실시간 시세로 현재가 및 등락률 덮어쓰기
             if sym == "^KS11":
                 naver_p, naver_chg = fetch_naver_index_data("KOSPI")
                 if naver_p is not None and naver_chg is not None:
@@ -1131,6 +1163,7 @@ def run_radar():
             w_chg = ((cur_p - w1_p) / w1_p) * 100 if w1_p else 0.0
             m_chg = ((cur_p - m1_p) / m1_p) * 100 if m1_p else 0.0
             index_changes[sym] = d_chg
+            index_weekly_changes[name] = w_chg
 
             high_52w = t.info.get("fiftyTwoWeekHigh")
             if not high_52w or pd.isna(high_52w):
@@ -1201,9 +1234,32 @@ def run_radar():
     for alert in crypto_alerts:
         send_message(alert)
 
-    # 4. 미 증시 실시간 뉴스 TOP 5 & 캘린더
+    # 5. 미국 11대 섹터 ETF 수집
+    sector_etfs = fetch_sector_etfs()
+    
+    sector_summary_telegram = []
+    if sector_etfs:
+        sorted_sectors = sorted(sector_etfs, key=lambda x: x['d_chg'], reverse=True)
+        top3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[:3]]
+        bot3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[-3:]]
+        sector_summary_telegram = [
+            f"• <b>강세 섹터:</b> {', '.join(top3)}",
+            f"• <b>약세 섹터:</b> {', '.join(bot3)}"
+        ]
+
+    # 6. 종목 수집 및 💡 어닝 캘린더 요일별 일정 매핑
+    my_stocks, my_stock_cards, my_high_vol, my_earnings_map = fetch_stock_data_list(MY_TICKERS, today_start_monday)
+    watch_stocks, watch_stock_cards, watch_high_vol, watch_earnings_map = fetch_stock_data_list(WATCH_TICKERS, today_start_monday)
+    
+    # 내 종목과 관심 종목의 실적 일정 통합
+    combined_earnings_map = {}
+    for idx in range(5):
+        items = list(set(my_earnings_map.get(idx, []) + watch_earnings_map.get(idx, [])))
+        combined_earnings_map[idx] = items
+
+    # 4. 미 증시 실시간 뉴스 TOP 5 & 어닝 위스퍼스 연동 캘린더
     us_popular_news = get_us_market_popular_news()
-    weekly_cal = get_weekly_calendar()
+    weekly_cal = get_weekly_calendar(combined_earnings_map)
 
     cal_telegram = []
     for c in weekly_cal:
@@ -1222,23 +1278,6 @@ def run_radar():
         f"• <b>CNN 공탐지수</b>: {score}pt ({rating})"
     ]
 
-    # 5. 미국 11대 섹터 ETF 수집
-    sector_etfs = fetch_sector_etfs()
-    
-    sector_summary_telegram = []
-    if sector_etfs:
-        sorted_sectors = sorted(sector_etfs, key=lambda x: x['d_chg'], reverse=True)
-        top3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[:3]]
-        bot3 = [f"{s['sym']} ({s['d_chg']:+.1f}%)" for s in sorted_sectors[-3:]]
-        sector_summary_telegram = [
-            f"• <b>강세 섹터:</b> {', '.join(top3)}",
-            f"• <b>약세 섹터:</b> {', '.join(bot3)}"
-        ]
-
-    # 6. 종목 수집 (내 포트폴리오 26개 + 관심 종목 19개)
-    my_stocks, my_stock_cards, my_high_vol = fetch_stock_data_list(MY_TICKERS)
-    watch_stocks, watch_stock_cards, watch_high_vol = fetch_stock_data_list(WATCH_TICKERS)
-    
     total_high_vol = my_high_vol + watch_high_vol
 
     # HTML 웹 대시보드 생성
@@ -1247,7 +1286,51 @@ def run_radar():
                        macro_data, crypto_data, us_popular_news, weekly_cal, index_data_list, 
                        sector_etfs, my_stocks, watch_stocks, total_high_vol)
 
-    # 아침 07:00 KST 정기 발송
+    # 💡 [핵심] 금요일 장 마감 주간 결산 리포트 (매주 토요일 07:00 KST 정기 발송)
+    if is_weekly_closing_time:
+        all_tracked_stocks = my_stocks + watch_stocks
+        sorted_by_weekly = sorted(all_tracked_stocks, key=lambda x: x.get('w_chg', 0.0), reverse=True)
+        
+        top3_w = sorted_by_weekly[:3]
+        bot3_w = sorted_by_weekly[-3:]
+
+        # 52주 신고가 대비 -5% 이내 근접 종목
+        near_ath = [s for s in all_tracked_stocks if s.get('mdd', -100.0) >= -5.0]
+
+        # 11대 섹터 주간 랭킹
+        sorted_sec_w = sorted(sector_etfs, key=lambda x: x.get('w_chg', 0.0), reverse=True) if sector_etfs else []
+        sec_top2 = [f"{s['sym']}({s['w_chg']:+.1f}%)" for s in sorted_sec_w[:2]] if sorted_sec_w else []
+        sec_bot2 = [f"{s['sym']}({s['w_chg']:+.1f}%)" for s in sorted_sec_w[-2:]] if sorted_sec_w else []
+
+        weekly_report = [
+            "<b>📊 GLOBAL MARKET RADAR: 주간 결산 (Weekly Closing Summary)</b>",
+            f"<b>📅 기준:</b> {now_str} (미 증시 주간 마감 결산)",
+            "─────────────────",
+            "<b>1. 주요 지수 & 섹터 주간 자금 흐름</b>",
+            f"• <b>S&P 500(SPY)</b>: {index_weekly_changes.get('S&P 500 (SPY)', 0.0):+.2f}% | <b>나스닥(QQQ)</b>: {index_weekly_changes.get('나스닥 100 (QQQ)', 0.0):+.2f}%",
+            f"• <b>반도체(SOXX)</b>: {index_weekly_changes.get('반도체 (SOXX)', 0.0):+.2f}% | <b>코스피</b>: {index_weekly_changes.get('코스피 (KOSPI)', 0.0):+.2f}%",
+            f"• 🟢 <b>주간 강세 섹터:</b> {', '.join(sec_top2)}" if sec_top2 else "",
+            f"• 🔴 <b>주간 약세 섹터:</b> {', '.join(sec_bot2)}" if sec_bot2 else "",
+            "─────────────────",
+            "<b>2. 포트폴리오 주간 성과 랭킹 (Top & Bottom 3)</b>",
+            f"🚀 <b>주간 MVP:</b> " + ", ".join([f"<b>{s['ticker']}</b> ({s['w_chg']:+.1f}%)" for s in top3_w]),
+            f"🩸 <b>주간 최하위:</b> " + ", ".join([f"<b>{s['ticker']}</b> ({s['w_chg']:+.1f}%)" for s in bot3_w]),
+            "─────────────────"
+        ]
+
+        if near_ath:
+            weekly_report.append("👑 <b>52주 신고가 근접/경신 (MDD -5% 이내)</b>")
+            weekly_report.append("• " + ", ".join([f"<b>{s['ticker']}</b> (MDD {s['mdd']:.1f}%)" for s in near_ath[:5]]))
+            weekly_report.append("─────────────────")
+
+        weekly_report.append("<b>3. 이번 주 시장 핵심 뉴스 TOP 3</b>")
+        weekly_report.extend(us_popular_news[:3])
+        weekly_report.append("─────────────────")
+        weekly_report.append("💡 <i>주간 결산 리포트는 매주 금요일 미 증시 폐장 후 토요일 아침 07:00 KST에 정기 발송됩니다.</i>")
+
+        send_message("\n".join(weekly_report))
+
+    # 아침 07:00 KST 정기 모닝 브리핑 발송 (평일 및 토요일 공통 Part 1/2/3)
     if is_morning_report_time:
         part1 = [
             "<b>📡 GLOBAL 증시 & 자산 투자 레이더 (Part 1/3)</b>",
@@ -1262,7 +1345,7 @@ def run_radar():
             "<b>🇺🇸 미 증시 실시간 인기/핵심 뉴스 TOP 5</b>",
             "\n".join(us_popular_news),
             "─────────────────",
-            "<b>📅 이번 주 경제지표 & 어닝 캘린더</b>",
+            "<b>📅 이번 주 경제지표 & 어닝 캘린더 (실적 위스퍼스 연동)</b>",
             "\n".join(cal_telegram),
             "─────────────────",
             "<b>💵 환율·금리 & 유가 (Macro FX/Rates/Oil)</b>",
